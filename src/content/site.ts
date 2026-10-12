@@ -36,7 +36,6 @@ export const hero = {
     'bluedoc turns plans, code reviews, architecture docs, UI designs and slide decks into interactive pages. Comment on any element, pick an option, approve. Your agent reads the answers and gets on with it.',
   primaryCta: { label: 'Install', href: '#install' },
   secondaryCta: { label: 'View on GitHub', href: repoUrl },
-  installCommand: 'claude plugin marketplace add andreiverdes/bluedoc',
   bannerAlt:
     'Pixel art of a bay at night: a ringed planet over the water, ships with engine trails, and a city whose rooftop billboard reads “bluedoc”.',
   bannerAltLight: 'Pixel art of the same bay by day: a ringed planet in a blue sky, ships, clouds and the city’s “bluedoc” billboard.',

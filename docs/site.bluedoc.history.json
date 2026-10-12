@@ -4,7 +4,7 @@
   {
    "rev": "1",
    "date": "2026-10-12",
-   "built": "2026-10-12T19:43:28+00:00",
+   "built": "2026-10-12T22:28:37+00:00",
    "head": {
     "id": "bluedoc-site",
     "title": "bluedoc-site: the landing page",
@@ -39,7 +39,58 @@
      "title": "Pages",
      "lead": "The landing page, live, with its eleven sections in page order.",
      "blocks": [
-      "d8199e1c5462c689"
+      "63f0bc927e3a3cf5"
+     ]
+    }
+   ]
+  },
+  {
+   "rev": "2",
+   "date": "2026-10-13",
+   "built": "2026-10-12T22:28:47+00:00",
+   "head": {
+    "id": "bluedoc-site",
+    "title": "bluedoc-site: the landing page",
+    "subtitle": "The one-page site, live from the Astro dev server. Comment on any section or element, pick between headline versions, then approve; the agent edits the source each section names.",
+    "meta": {
+     "org": "bluedoc",
+     "kind": "Website",
+     "type": "website",
+     "rev": "2",
+     "date": "2026-10-13"
+    },
+    "state": [
+     {
+      "label": "live from npm run dev on :4321",
+      "kind": "ok"
+     }
+    ],
+    "tldr": "One page, eleven sections, shown live from `npm run dev`. Two picks: the hero headline and the closing band's title; each version shows in place. Every section names where its copy and layout live, mostly `src/content/site.ts` and one component.",
+    "changes": [
+     "Hero install chip: tabs for Claude Code, Codex, pi, omp and skills CLI over that agent’s commands, with copy; they read `install` in `site.ts`, and the hero section’s sources now list it.",
+     "Hero headline: your pick A, *Decide on a page*, is the current copy, so the site keeps it.",
+     "Closing band title: no pick, so the recommended *Decisions, not walls* stays."
+    ],
+    "resolves": [
+     "cmv5o3qc96cj0"
+    ]
+   },
+   "sections": [
+    {
+     "id": "brief",
+     "title": "Brief",
+     "lead": "The page sells bluedoc to developers who already use a coding agent, and ends at the install commands.",
+     "blocks": [
+      "46607c331bbbc21b",
+      "a77f1d6552547368"
+     ]
+    },
+    {
+     "id": "pages",
+     "title": "Pages",
+     "lead": "The landing page, live, with its eleven sections in page order.",
+     "blocks": [
+      "63f0bc927e3a3cf5"
      ]
     }
    ]
@@ -95,7 +146,7 @@
     }
    ]
   },
-  "d8199e1c5462c689": {
+  "63f0bc927e3a3cf5": {
    "type": "board",
    "id": "site",
    "targets": [
@@ -134,6 +185,7 @@
        "sel": "section.hero",
        "source": [
         "src/content/site.ts#hero",
+        "src/content/site.ts#install",
         "src/components/Hero.astro"
        ],
        "decision": "hero-headline",
@@ -244,6 +296,52 @@
         "src/content/site.ts#footer",
         "src/components/Footer.astro"
        ]
+      }
+     ]
+    }
+   ]
+  },
+  "a77f1d6552547368": {
+   "type": "checklist",
+   "id": "brief",
+   "title": "Picks",
+   "numbered": false,
+   "items": [
+    {
+     "id": "hero-headline",
+     "text": "Which hero headline?",
+     "sub": "Recommend the current one: the page title, the social card and the README use it.",
+     "recommend": "a",
+     "choices": [
+      {
+       "id": "a",
+       "label": "Decide on a page"
+      },
+      {
+       "id": "b",
+       "label": "Answer, not read"
+      },
+      {
+       "id": "c",
+       "label": "Point, pick, approve"
+      }
+     ],
+     "detail": "**Decide on a page** is the current `hero.headline`. Changing it also means `meta.title`, `meta.ogImageAlt` and `public/og.png` (`npm run og`).",
+     "choice": "a"
+    },
+    {
+     "id": "cta-title",
+     "text": "Which title for the closing band?",
+     "sub": "Recommend the current one: it is short enough for one line at 390 px.",
+     "recommend": "a",
+     "choices": [
+      {
+       "id": "a",
+       "label": "Decisions, not walls"
+      },
+      {
+       "id": "b",
+       "label": "Answer on a page"
       }
      ]
     }

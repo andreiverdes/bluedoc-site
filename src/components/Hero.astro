@@ -12,7 +12,7 @@ import shipDarkC from '../assets/hero/ships/dark-c.webp';
 import shipLightA from '../assets/hero/ships/light-a.webp';
 import shipLightB from '../assets/hero/ships/light-b.webp';
 import shipLightC from '../assets/hero/ships/light-c.webp';
-import { hero } from '../content/site';
+import { hero, install } from '../content/site';
 
 // Banner source size; ship sprites are cut from it at these boxes (source px), so they sit exactly over the
 // ships painted in the banner and only drift a few px from there.
@@ -108,13 +108,56 @@ const bands = Array.from({ length: 15 }, (_, i) => {
         {hero.secondaryCta.label}
       </a>
     </div>
-    <div class="install-chip mt-8">
-      <span class="select-none text-cyan" aria-hidden="true">$</span>
-      <code class="min-w-0 truncate">{hero.installCommand}</code>
-      <button type="button" class="copy-btn" data-copy={hero.installCommand} aria-label="Copy the install command">
-        <Copy class="i-copy size-4" aria-hidden="true" />
-        <Check class="i-done size-4" aria-hidden="true" />
-      </button>
+    <div class="install-chip mt-8" data-tabs>
+      <div class="chip-tabs" role="tablist" aria-label="Install for">
+        {
+          install.tabs.map((t, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`hero-tab-${t.id}`}
+              aria-controls={`hero-panel-${t.id}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+              class="chip-tab"
+            >
+              {t.label}
+            </button>
+          ))
+        }
+      </div>
+      {
+        install.tabs.map((t, i) => (
+          <div
+            role="tabpanel"
+            id={`hero-panel-${t.id}`}
+            aria-labelledby={`hero-tab-${t.id}`}
+            tabindex="0"
+            class="chip-panel"
+            hidden={i !== 0}
+          >
+            <div class="chip-cmds">
+              {t.commands.map((c) => (
+                <div class="chip-cmd">
+                  <span class="select-none text-cyan" aria-hidden="true">
+                    $
+                  </span>
+                  <code>{c}</code>
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              class="copy-btn"
+              data-copy={t.commands.join('\n')}
+              aria-label={`Copy the ${t.label} install ${t.commands.length > 1 ? 'commands' : 'command'}`}
+            >
+              <Copy class="i-copy size-4" aria-hidden="true" />
+              <Check class="i-done size-4" aria-hidden="true" />
+            </button>
+          </div>
+        ))
+      }
     </div>
   </div>
 </section>
@@ -233,21 +276,107 @@ const bands = Array.from({ length: 15 }, (_, i) => {
     -webkit-backdrop-filter: blur(8px);
   }
 
+  /* The install chip: the Install section's agents as compact tabs over that agent's commands. It keeps one width
+     and a fixed number of command lines for every agent (two; three or four on a phone, where commands wrap), so
+     switching agents never moves the page. */
   .install-chip {
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    max-width: 100%;
-    padding: 0.4rem 0.4rem 0.4rem 1.1rem;
-    border-radius: 0.9rem;
+    flex-direction: column;
+    gap: 0.4rem;
+    width: min(100%, 35rem);
+    padding: 0.4rem;
+    border-radius: 1rem;
     border: 1px solid var(--line-strong);
     background: color-mix(in oklab, var(--surface) 78%, transparent);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    font-family: var(--font-mono);
-    font-size: clamp(0.78rem, 0.72rem + 0.3vw, 0.9rem);
     color: var(--fg);
+    text-align: left;
     box-shadow: 0 10px 40px -20px var(--glow);
+  }
+  .chip-tabs {
+    display: flex;
+    gap: 0.125rem;
+    padding: 0.2rem;
+    border-radius: 0.7rem;
+    background: var(--line);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .chip-tab {
+    flex: 1 0 auto;
+    height: 1.875rem;
+    padding-inline: 0.7rem;
+    border-radius: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--fg-muted);
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      color 0.15s,
+      background-color 0.15s;
+  }
+  .chip-tab:hover {
+    color: var(--fg);
+  }
+  .chip-tab:focus-visible {
+    outline-offset: -2px;
+  }
+  .chip-tab[aria-selected='true'] {
+    color: var(--fg);
+    background: var(--surface);
+    box-shadow:
+      0 0 0 1px var(--line-strong),
+      0 4px 12px -6px var(--glow);
+  }
+  .chip-panel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.2rem 0 0 0.7rem;
+    border-radius: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: clamp(0.72rem, 0.66rem + 0.3vw, 0.875rem);
+    line-height: 1.55;
+  }
+  .chip-panel:focus-visible {
+    outline-offset: 0;
+  }
+  .chip-cmds {
+    --lines: 2;
+    flex: 1;
+    min-width: 0;
+    min-height: calc(var(--lines) * 1lh + 0.15rem);
+    display: grid;
+    align-content: center;
+    gap: 0.15rem;
+    padding-block: 0.3rem;
+    box-sizing: content-box;
+  }
+  .chip-cmd {
+    display: flex;
+    gap: 0.5rem;
+    /* long commands wrap at any character, as in the Install section, so the whole command stays readable */
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  @media (max-width: 539px) {
+    .chip-tab {
+      padding-inline: 0.5rem;
+      font-size: 0.78rem;
+    }
+    .chip-panel {
+      padding-left: 0.55rem;
+    }
+    .chip-cmds {
+      --lines: 3;
+    }
+  }
+  @media (max-width: 374px) {
+    .chip-cmds {
+      --lines: 4;
+    }
   }
 
   @media (prefers-reduced-motion: no-preference) {

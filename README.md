@@ -23,7 +23,7 @@ All text, links and the screenshots each section shows live in **`src/content/si
 | Section | Component | Copy in `site.ts` |
 |---|---|---|
 | Nav | `Nav.astro` | `nav` |
-| Hero banner, headline, install chip | `Hero.astro` | `hero` |
+| Hero banner, headline, install chip (agent tabs) | `Hero.astro` | `hero`; the chip's agents and commands come from `install` |
 | Framed screenshot | `ProductShot.astro` | `productShot` |
 | The loop timeline | `Loop.astro` (icons in `PixelIcon.astro`) | `loop` |
 | Doc types bento | `DocTypes.astro` | `docTypes` |
