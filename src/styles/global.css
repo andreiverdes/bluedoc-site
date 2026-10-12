@@ -1,0 +1,281 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/lexend/wght.css';
+@import '@fontsource-variable/inter/wght.css';
+@import '@fontsource-variable/jetbrains-mono/wght.css';
+@import '@fontsource/silkscreen/latin-400.css';
+
+/* Theme switch: <html data-theme="dark|light">, set before paint by the inline script in Base.astro. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+@custom-variant light (&:where([data-theme='light'], [data-theme='light'] *));
+
+:root,
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #05070f;
+  --bg-2: #0b1430;
+  --surface: #0c1530;
+  --surface-2: #111d40;
+  --line: rgb(140 170 255 / 0.14);
+  --line-strong: rgb(140 170 255 / 0.28);
+  --fg: #eaf4ff;
+  --fg-muted: #b3c2df;
+  --fg-subtle: #8494b5;
+  --brand: #0a6dff;
+  --brand-fg: #4f9bff;
+  --cyan: #5fd4ff;
+  --amber: #ffc46b;
+  --amber-fg: #ffc46b;
+  --logo-blue: #eaf4ff;
+  --logo-doc: #4f9bff;
+  --glow: rgb(10 109 255 / 0.35);
+  --shadow: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 24px 60px -24px rgb(0 0 0 / 0.7);
+  --code-key: #7cc4ff;
+  --code-str: #ffc46b;
+  --code-num: #c4a7ff;
+  --code-punct: #7f8fb3;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f5f8ff;
+  --bg-2: #e8f0ff;
+  --surface: #ffffff;
+  --surface-2: #eef3ff;
+  --line: rgb(11 37 96 / 0.12);
+  --line-strong: rgb(11 37 96 / 0.24);
+  --fg: #0a1838;
+  --fg-muted: #34456b;
+  --fg-subtle: #56668a;
+  --brand: #0a6dff;
+  --brand-fg: #0a5ad6;
+  --cyan: #0b7fa8;
+  --amber: #ffc46b;
+  --amber-fg: #94570a;
+  --logo-blue: #0b2560;
+  --logo-doc: #0a6dff;
+  --glow: rgb(10 109 255 / 0.18);
+  --shadow: 0 1px 0 rgb(255 255 255 / 0.6) inset, 0 24px 50px -28px rgb(11 37 96 / 0.35);
+  --code-key: #0a5ad6;
+  --code-str: #8a4b00;
+  --code-num: #6b3fd1;
+  --code-punct: #5b6a8c;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-brand: var(--brand);
+  --color-brand-fg: var(--brand-fg);
+  --color-cyan: var(--cyan);
+  --color-amber: var(--amber);
+  --color-amber-fg: var(--amber-fg);
+}
+
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Lexend Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-pixel: 'Silkscreen', ui-monospace, monospace;
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- base ---------- */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    background: var(--bg);
+    -webkit-text-size-adjust: 100%;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: clamp(1rem, 0.96rem + 0.18vw, 1.0625rem);
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background: rgb(10 109 255 / 0.35);
+  }
+  :focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+}
+
+/* ---------- shared pieces ---------- */
+
+@layer components {
+  .container-x {
+    width: 100%;
+    max-width: 76rem;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+  }
+  .section-y {
+    padding-block: clamp(4.5rem, 3rem + 6vw, 8.5rem);
+  }
+  .kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-pixel);
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--cyan);
+  }
+  .kicker::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: currentColor;
+    box-shadow: 0 0 12px currentColor;
+  }
+  .h2 {
+    font-size: clamp(2rem, 1.35rem + 2.6vw, 3.4rem);
+    line-height: 1.08;
+    font-weight: 650;
+  }
+  .lead {
+    font-size: clamp(1.05rem, 0.98rem + 0.35vw, 1.25rem);
+    color: var(--fg-muted);
+    line-height: 1.6;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    height: 3rem;
+    padding-inline: 1.35rem;
+    border-radius: 0.8rem;
+    font-weight: 600;
+    font-size: 1rem;
+    white-space: nowrap;
+    transition:
+      transform 0.2s var(--ease-out-soft),
+      box-shadow 0.2s,
+      background-color 0.2s,
+      border-color 0.2s;
+  }
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+  .btn:active {
+    transform: translateY(0);
+  }
+  .btn-primary {
+    background: var(--brand);
+    color: #fff;
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.12) inset,
+      0 10px 30px -8px rgb(10 109 255 / 0.7);
+  }
+  .btn-primary:hover {
+    background: #1f7bff;
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.18) inset,
+      0 14px 40px -8px rgb(10 109 255 / 0.85);
+  }
+  .btn-ghost {
+    background: color-mix(in oklab, var(--surface) 70%, transparent);
+    color: var(--fg);
+    border: 1px solid var(--line-strong);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .btn-ghost:hover {
+    border-color: var(--brand-fg);
+  }
+  .card {
+    background: color-mix(in oklab, var(--surface) 82%, transparent);
+    border: 1px solid var(--line);
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow);
+  }
+  .copy-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: none;
+    border-radius: 0.6rem;
+    color: var(--fg-muted);
+    transition:
+      color 0.15s,
+      background-color 0.15s;
+  }
+  .copy-btn:hover {
+    color: var(--fg);
+    background: var(--line);
+  }
+  .copy-btn .i-done {
+    display: none;
+    color: var(--amber-fg);
+  }
+  .copy-btn[data-copied] .i-copy {
+    display: none;
+  }
+  .copy-btn[data-copied] .i-done {
+    display: block;
+  }
+  .sr-only-focusable:not(:focus) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* ---------- scroll reveal (only when JS runs and motion is fine) ----------
+   An animation on `translate`, so it never fights a component's own transform or transition. */
+
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal]:not(.is-in) {
+    opacity: 0;
+  }
+  .js [data-reveal].is-in {
+    animation: reveal 0.8s var(--ease-out-soft) both;
+    animation-delay: calc(var(--reveal-i, 0) * 90ms);
+  }
+}
+@keyframes reveal {
+  from {
+    opacity: 0;
+    translate: 0 20px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}

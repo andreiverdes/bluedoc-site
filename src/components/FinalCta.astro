@@ -1,0 +1,212 @@
+---
+import Star from '@lucide/astro/icons/star';
+import ArrowDown from '@lucide/astro/icons/arrow-down';
+import GithubMark from './GithubMark.astro';
+import { finalCta } from '../content/site';
+
+// A pixel starfield and a ringed planet, both drawn on a coarse grid at build time so they stay crisp.
+// Seeded, so every build draws the same sky.
+let seed = 7;
+const rand = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+
+const SKY_W = 320;
+const SKY_H = 120;
+const stars = Array.from({ length: 140 }, () => {
+  const big = rand() > 0.88;
+  return {
+    x: Math.floor(rand() * SKY_W),
+    y: Math.floor(rand() * SKY_H),
+    s: big ? 2 : 1,
+    o: (0.35 + rand() * 0.65).toFixed(2),
+    tw: rand() > 0.82,
+    d: (rand() * 4).toFixed(2),
+  };
+});
+
+// Planet: a banded disc lit from the upper left with a rim of light, and a tilted ring that passes in front of it
+// below the equator and behind it above. One cell is one art pixel.
+const P_W = 160;
+const P_H = 104;
+const cx = 80;
+const cy = 52;
+const r = 31;
+const tilt = -0.32;
+type Cell = 'body' | 'band' | 'shade' | 'rim' | 'ring' | 'ringHi' | 'ringBack';
+const grid: (Cell | null)[][] = Array.from({ length: P_H }, () => Array(P_W).fill(null));
+for (let y = 0; y < P_H; y++) {
+  for (let x = 0; x < P_W; x++) {
+    const dx = x + 0.5 - cx;
+    const dy = y + 0.5 - cy;
+    // the ring and the bands live in the planet's tilted frame
+    const rx = dx * Math.cos(tilt) + dy * Math.sin(tilt);
+    const ry = -dx * Math.sin(tilt) + dy * Math.cos(tilt);
+    const outer = (rx / 72) ** 2 + (ry / 16.5) ** 2;
+    const inner = (rx / 54) ** 2 + (ry / 10.2) ** 2;
+    const onRing = outer <= 1 && inner >= 1;
+    const ringCell: Cell = outer > 0.8 ? 'ringHi' : 'ring';
+    const d = Math.hypot(dx, dy);
+    if (d <= r) {
+      const lit = (dx * -0.6 + dy * -0.8) / r; // -1 … 1, light from the upper left
+      let c: Cell = lit < -0.3 ? 'shade' : Math.floor((ry + r) / 6) % 3 === 0 ? 'band' : 'body';
+      if (d > r - 2 && lit > 0.35) c = 'rim';
+      grid[y][x] = onRing && ry > 0 ? ringCell : c;
+    } else if (onRing) {
+      grid[y][x] = ry > 0 ? ringCell : 'ringBack';
+    }
+  }
+}
+// one path per colour: each horizontal run of cells is a 1-unit-high rectangle
+const planet = new Map<Cell, string>();
+grid.forEach((row, y) => {
+  let x = 0;
+  while (x < P_W) {
+    const c = row[x];
+    if (!c) {
+      x++;
+      continue;
+    }
+    let w = 1;
+    while (row[x + w] === c) w++;
+    planet.set(c, `${planet.get(c) ?? ''}M${x} ${y}h${w}v1h-${w}z`);
+    x += w;
+  }
+});
+---
+
+<section class="cta" aria-labelledby="cta-title">
+  <svg class="sky" viewBox={`0 0 ${SKY_W} ${SKY_H}`} preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges" aria-hidden="true">
+    {
+      stars.map((s) => (
+        <rect
+          x={s.x}
+          y={s.y}
+          width={s.s}
+          height={s.s}
+          class:list={['star', { tw: s.tw }]}
+          style={`opacity:${s.o};animation-delay:${s.d}s`}
+        />
+      ))
+    }
+  </svg>
+  <svg class="planet" viewBox={`0 0 ${P_W} ${P_H}`} shape-rendering="crispEdges" aria-hidden="true">
+    {[...planet].map(([c, d]) => <path d={d} class={c} />)}
+  </svg>
+
+  <div class="container-x relative text-center">
+    <p class="kicker justify-center" data-reveal>{finalCta.kicker}</p>
+    <h2 id="cta-title" class="cta-title mx-auto mt-5" data-reveal>{finalCta.title}</h2>
+    <p class="lead mx-auto mt-5 max-w-xl text-balance" data-reveal>{finalCta.body}</p>
+    <div class="mt-9 flex flex-wrap items-center justify-center gap-3" data-reveal>
+      <a class="btn btn-primary" href={finalCta.primary.href} rel="noopener">
+        <GithubMark class="size-[18px]" />
+        {finalCta.primary.label}
+        <Star class="size-4 text-amber" aria-hidden="true" />
+      </a>
+      <a class="btn btn-ghost" href={finalCta.secondary.href}>
+        <ArrowDown class="size-[18px] -rotate-180" aria-hidden="true" />
+        {finalCta.secondary.label}
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding-block: clamp(6rem, 4rem + 9vw, 11rem);
+    background:
+      radial-gradient(70% 90% at 50% 120%, color-mix(in oklab, var(--brand) 32%, transparent), transparent 70%),
+      linear-gradient(to bottom, var(--bg), #08112a 40%, #0b1430);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    /* This band is a night sky in both themes. */
+    --fg: #eaf4ff;
+    --fg-muted: #b3c2df;
+    --cyan: #5fd4ff;
+    --surface: #0c1530;
+    --line-strong: rgb(140 170 255 / 0.28);
+    color: var(--fg);
+  }
+  :global([data-theme='light']) .cta {
+    background:
+      radial-gradient(70% 90% at 50% 120%, color-mix(in oklab, var(--brand) 40%, transparent), transparent 70%),
+      linear-gradient(to bottom, #0b1430, #0b1a44);
+  }
+  .sky {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    /* fewer stars behind the copy */
+    -webkit-mask-image: radial-gradient(ellipse 38% 46% at 50% 50%, transparent 35%, #000 100%);
+    mask-image: radial-gradient(ellipse 38% 46% at 50% 50%, transparent 35%, #000 100%);
+  }
+  .star {
+    fill: #dbe9ff;
+  }
+  .planet {
+    position: absolute;
+    z-index: -1;
+    right: max(-8rem, calc(50% - 50rem));
+    top: 50%;
+    width: clamp(18rem, 10rem + 24vw, 38rem);
+    translate: 0 -50%;
+    opacity: 0.7;
+  }
+  .planet .body {
+    fill: #1d3f94;
+  }
+  .planet .band {
+    fill: #2a52b4;
+  }
+  .planet .shade {
+    fill: #0f2360;
+  }
+  .planet .rim {
+    fill: #6f9bff;
+  }
+  .planet .ring {
+    fill: #3d6fd8;
+  }
+  .planet .ringHi {
+    fill: #7fb0ff;
+  }
+  .planet .ringBack {
+    fill: #1a347a;
+  }
+  @media (max-width: 767px) {
+    .sky {
+      -webkit-mask-image: radial-gradient(ellipse 70% 32% at 50% 50%, rgb(0 0 0 / 0.1), #000 100%);
+      mask-image: radial-gradient(ellipse 70% 32% at 50% 50%, rgb(0 0 0 / 0.1), #000 100%);
+    }
+    .planet {
+      right: -8rem;
+      top: 2rem;
+      translate: none;
+      opacity: 0.35;
+    }
+  }
+  .cta-title {
+    max-width: 16ch;
+    font-size: clamp(2.3rem, 1.3rem + 4vw, 4.6rem);
+    line-height: 1.04;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+  }
+  .cta .kicker {
+    color: var(--amber);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .star.tw {
+      animation: twinkle 3.2s steps(2, jump-none) infinite;
+    }
+  }
+  @keyframes twinkle {
+    50% {
+      opacity: 0.15;
+    }
+  }
+</style>

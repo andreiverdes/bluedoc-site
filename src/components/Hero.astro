@@ -1,0 +1,292 @@
+---
+import { Picture } from 'astro:assets';
+import ArrowDown from '@lucide/astro/icons/arrow-down';
+import Copy from '@lucide/astro/icons/copy';
+import Check from '@lucide/astro/icons/check';
+import GithubMark from './GithubMark.astro';
+import heroDark from '../assets/hero/hero-dark.webp';
+import heroLight from '../assets/hero/hero-light.webp';
+import shipDarkA from '../assets/hero/ships/dark-a.webp';
+import shipDarkB from '../assets/hero/ships/dark-b.webp';
+import shipDarkC from '../assets/hero/ships/dark-c.webp';
+import shipLightA from '../assets/hero/ships/light-a.webp';
+import shipLightB from '../assets/hero/ships/light-b.webp';
+import shipLightC from '../assets/hero/ships/light-c.webp';
+import { hero } from '../content/site';
+
+// Banner source size; ship sprites are cut from it at these boxes (source px), so they sit exactly over the
+// ships painted in the banner and only drift a few px from there.
+const W = 1672;
+const H = 523;
+const ships = [
+  { theme: 'dark', img: shipDarkA, x: 340, y: 42, dir: 'r', dur: 7 },
+  { theme: 'dark', img: shipDarkB, x: 562, y: 152, dir: 'r', dur: 5.5 },
+  { theme: 'dark', img: shipDarkC, x: 1414, y: 198, dir: 'l', dur: 6.5 },
+  { theme: 'light', img: shipLightA, x: 348, y: 32, dir: 'r', dur: 7 },
+  { theme: 'light', img: shipLightB, x: 582, y: 126, dir: 'r', dur: 5.5 },
+  { theme: 'light', img: shipLightC, x: 1434, y: 150, dir: 'l', dur: 6.5 },
+].map((s) => ({
+  ...s,
+  style: `left:${((s.x / W) * 100).toFixed(3)}%;top:${((s.y / H) * 100).toFixed(3)}%;width:${((s.img.width / W) * 100).toFixed(3)}%;--dur:${s.dur}s`,
+}));
+
+// The dissolve: 15 dither levels on one 4 × 4 Bayer grid, 1 CSS px per cell, each a band of the bottom of the
+// banner painted in the page colour, then a solid band. The same idea as bluedoc's own home page.
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const START = 54;
+const END = 96;
+const step = (END - START) / 15;
+const bands = Array.from({ length: 15 }, (_, i) => {
+  const level = i + 1;
+  const rects = BAYER.map((v, idx) =>
+    v < level ? `<rect x='${idx % 4}' y='${Math.floor(idx / 4)}' width='1' height='1'/>` : '',
+  ).join('');
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 4' shape-rendering='crispEdges'>${rects}</svg>`;
+  const a = (START + i * step).toFixed(3);
+  const b = (START + (i + 1) * step).toFixed(3);
+  return `--tile:url("data:image/svg+xml,${encodeURIComponent(svg)}");--a:${a}%;--b:${b}%`;
+});
+---
+
+<section id="top" class="hero" aria-labelledby="hero-title">
+  <div class="hero-stage">
+    <div class="hero-art">
+      <Picture
+        formats={['avif']}
+        fallbackFormat="webp"
+        src={heroDark}
+        alt={hero.bannerAlt}
+        widths={[828, 1300, 1672]}
+        sizes="max(100vw, 1300px)"
+        quality={50}
+        loading="eager"
+        fetchpriority="high"
+        class="hero-img theme-dark"
+      />
+      <Picture
+        formats={['avif']}
+        fallbackFormat="webp"
+        src={heroLight}
+        alt={hero.bannerAltLight}
+        widths={[828, 1300, 1672]}
+        sizes="max(100vw, 1300px)"
+        quality={50}
+        loading="lazy"
+        class="hero-img theme-light"
+      />
+      {
+        ships.map((s) => (
+          <img
+            src={s.img.src}
+            width={s.img.width}
+            height={s.img.height}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            class:list={['ship', `theme-${s.theme}`, `drift-${s.dir}`]}
+            style={s.style}
+          />
+        ))
+      }
+    </div>
+    {bands.map((style) => <div class="dz" style={style} />)}
+    <div class="dz dz-solid" style={`--a:${END}%`}></div>
+  </div>
+  <div class="hero-scrim" aria-hidden="true"></div>
+
+  <div class="hero-content container-x">
+    <p class="kicker justify-center">{hero.kicker}</p>
+    <h1 id="hero-title" class="hero-title">{hero.headline}</h1>
+    <p class="hero-sub">{hero.subline}</p>
+    <div class="mt-9 flex flex-wrap items-center justify-center gap-3">
+      <a class="btn btn-primary" href={hero.primaryCta.href}>
+        <ArrowDown class="size-[18px]" aria-hidden="true" />
+        {hero.primaryCta.label}
+      </a>
+      <a class="btn btn-ghost" href={hero.secondaryCta.href} rel="noopener">
+        <GithubMark class="size-[18px]" />
+        {hero.secondaryCta.label}
+      </a>
+    </div>
+    <div class="install-chip mt-8">
+      <span class="select-none text-cyan" aria-hidden="true">$</span>
+      <code class="min-w-0 truncate">{hero.installCommand}</code>
+      <button type="button" class="copy-btn" data-copy={hero.installCommand} aria-label="Copy the install command">
+        <Copy class="i-copy size-4" aria-hidden="true" />
+        <Check class="i-done size-4" aria-hidden="true" />
+      </button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    isolation: isolate;
+    container-type: inline-size;
+    overflow: clip;
+    padding-bottom: clamp(3rem, 6vw, 5rem);
+  }
+
+  /* The banner box keeps the art's aspect ratio. It spans the hero from 1300 px up; below that it keeps a 407 px
+     height and shows the left part of the art (the billboard, the ships and the city). */
+  .hero-stage {
+    --w: max(100cqw, 1300px);
+    position: absolute;
+    top: 0;
+    left: clamp(calc(100cqw - var(--w)), calc(50cqw - var(--w) * 0.17), 0px);
+    width: var(--w);
+    aspect-ratio: 1672 / 523;
+    overflow: hidden;
+    z-index: -2;
+  }
+  .hero-art {
+    position: absolute;
+    inset: 0;
+  }
+  .hero-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .ship {
+    position: absolute;
+    height: auto;
+    max-width: none;
+  }
+  :global([data-theme='dark']) .theme-light,
+  :global([data-theme='light']) .theme-dark {
+    display: none;
+  }
+
+  .dz {
+    position: absolute;
+    inset: 0;
+    background: var(--bg);
+    pointer-events: none;
+    -webkit-mask-image: var(--tile), linear-gradient(transparent var(--a), #000 var(--a) var(--b), transparent var(--b));
+    mask-image: var(--tile), linear-gradient(transparent var(--a), #000 var(--a) var(--b), transparent var(--b));
+    -webkit-mask-size:
+      4px 4px,
+      100% 100%;
+    mask-size:
+      4px 4px,
+      100% 100%;
+    -webkit-mask-repeat: repeat, no-repeat;
+    mask-repeat: repeat, no-repeat;
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+  }
+  .dz-solid {
+    top: calc(var(--a) - 1px);
+    bottom: -2px;
+    -webkit-mask: none;
+    mask: none;
+  }
+
+  .hero-scrim {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse 60% 42% at 50% calc(max(31.28cqw, 407px) * 0.7 + 9rem),
+      color-mix(in oklab, var(--bg) 62%, transparent),
+      transparent 72%
+    );
+  }
+
+  .hero-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    /* the copy starts where the banner starts to dissolve, so the billboard, ships and planet stay clear above it */
+    padding-top: max(14rem, calc(max(31.28cqw, 407px) * 0.7));
+  }
+  .hero-title {
+    max-width: 18ch;
+    margin-top: 1.1rem;
+    font-size: clamp(2.3rem, 1.2rem + 4.4vw, 5rem);
+    line-height: 1.02;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    text-shadow:
+      0 2px 28px color-mix(in oklab, var(--bg) 85%, transparent),
+      0 1px 2px color-mix(in oklab, var(--bg) 70%, transparent);
+  }
+  .hero-sub {
+    max-width: 40rem;
+    margin-top: 1.4rem;
+    font-size: clamp(1.05rem, 0.97rem + 0.4vw, 1.3rem);
+    line-height: 1.6;
+    color: var(--fg-muted);
+    text-shadow: 0 1px 16px color-mix(in oklab, var(--bg) 90%, transparent);
+  }
+  .hero .kicker {
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--line);
+    background: color-mix(in oklab, var(--bg) 72%, transparent);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .install-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    max-width: 100%;
+    padding: 0.4rem 0.4rem 0.4rem 1.1rem;
+    border-radius: 0.9rem;
+    border: 1px solid var(--line-strong);
+    background: color-mix(in oklab, var(--surface) 78%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    font-family: var(--font-mono);
+    font-size: clamp(0.78rem, 0.72rem + 0.3vw, 0.9rem);
+    color: var(--fg);
+    box-shadow: 0 10px 40px -20px var(--glow);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .drift-r {
+      animation: drift-r var(--dur) ease-in-out infinite;
+    }
+    .drift-l {
+      animation: drift-l var(--dur) ease-in-out infinite;
+    }
+    /* Parallax with no JS: the art moves at 70 % of the scroll speed. The dither stays put, so it stays crisp. */
+    @supports (animation-timeline: scroll()) {
+      .hero-art {
+        animation: hero-parallax linear both;
+        animation-timeline: scroll(root block);
+        animation-range: 0px 100vh;
+      }
+    }
+  }
+  @keyframes drift-r {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    50% {
+      translate: 3px 1px;
+    }
+  }
+  @keyframes drift-l {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    50% {
+      translate: -3px 1.5px;
+    }
+  }
+  @keyframes hero-parallax {
+    to {
+      transform: translateY(30vh);
+    }
+  }
+</style>

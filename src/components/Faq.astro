@@ -1,0 +1,80 @@
+---
+import Plus from '@lucide/astro/icons/plus';
+import { faq } from '../content/site';
+---
+
+<section id={faq.id} class="section-y" aria-labelledby="faq-title">
+  <div class="container-x grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:gap-16">
+    <div data-reveal>
+      <p class="kicker">{faq.kicker}</p>
+      <h2 id="faq-title" class="h2 mt-4">{faq.title}</h2>
+    </div>
+    <div class="faq-list" data-reveal>
+      {
+        faq.items.map((item) => (
+          <details class="qa">
+            <summary>
+              <h3 class="q">{item.q}</h3>
+              <Plus class="plus size-5 flex-none" aria-hidden="true" />
+            </summary>
+            <p class="a">{item.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq-list {
+    border-top: 1px solid var(--line);
+  }
+  .qa {
+    border-bottom: 1px solid var(--line);
+  }
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.35rem 0.25rem;
+    cursor: pointer;
+    list-style: none;
+    border-radius: 0.5rem;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  .q {
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 1rem + 0.3vw, 1.25rem);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  summary:hover .q {
+    color: var(--brand-fg);
+  }
+  .plus {
+    color: var(--cyan);
+    transition: transform 0.3s var(--ease-out-soft);
+  }
+  .qa[open] .plus {
+    transform: rotate(45deg);
+  }
+  .a {
+    max-width: 44rem;
+    padding: 0 2.5rem 1.5rem 0.25rem;
+    color: var(--fg-muted);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .qa[open] .a {
+      animation: open 0.35s var(--ease-out-soft);
+    }
+  }
+  @keyframes open {
+    from {
+      opacity: 0;
+      translate: 0 -6px;
+    }
+  }
+</style>

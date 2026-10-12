@@ -1,0 +1,102 @@
+---
+import MessageSquareText from '@lucide/astro/icons/message-square-text';
+import Star from '@lucide/astro/icons/star';
+import GitCompare from '@lucide/astro/icons/git-compare';
+import CircleCheck from '@lucide/astro/icons/circle-check';
+import HardDrive from '@lucide/astro/icons/hard-drive';
+import Bot from '@lucide/astro/icons/bot';
+import { features, type FeatureIcon } from '../content/site';
+
+const ICONS: Record<FeatureIcon, typeof Star> = {
+  comment: MessageSquareText,
+  star: Star,
+  compare: GitCompare,
+  approve: CircleCheck,
+  local: HardDrive,
+  agents: Bot,
+};
+---
+
+<section id={features.id} class="features section-y" aria-labelledby="features-title">
+  <div class="container-x">
+    <div class="mx-auto max-w-2xl text-center" data-reveal>
+      <p class="kicker justify-center">{features.kicker}</p>
+      <h2 id="features-title" class="h2 mt-4">{features.title}</h2>
+      <p class="lead mt-5">{features.lead}</p>
+    </div>
+
+    <ul class="mt-12 grid gap-4 sm:mt-16 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+      {
+        features.items.map((f, i) => {
+          const Icon = ICONS[f.icon];
+          return (
+            <li class="feature card p-6 sm:p-7" data-reveal style={`--reveal-i:${i % 3}`}>
+              <span class:list={['badge', { amber: f.icon === 'approve' || f.icon === 'star' }]}>
+                <Icon class="size-5" aria-hidden="true" />
+              </span>
+              <h3 class="mt-5 text-lg font-semibold">{f.title}</h3>
+              <p class="mt-2 text-fg-muted">{f.body}</p>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .features {
+    background: radial-gradient(50% 40% at 50% 0%, color-mix(in oklab, var(--cyan) 7%, transparent), transparent 70%);
+  }
+  .feature {
+    position: relative;
+    transition:
+      border-color 0.3s,
+      transform 0.3s var(--ease-out-soft);
+  }
+  .feature:hover {
+    border-color: var(--line-strong);
+    transform: translateY(-3px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .feature:hover {
+      transform: none;
+    }
+  }
+  .badge {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    color: var(--cyan);
+    background: color-mix(in oklab, var(--cyan) 12%, transparent);
+    /* stepped corners, a nod to the pixel art */
+    clip-path: polygon(
+      0 6px,
+      3px 6px,
+      3px 3px,
+      6px 3px,
+      6px 0,
+      calc(100% - 6px) 0,
+      calc(100% - 6px) 3px,
+      calc(100% - 3px) 3px,
+      calc(100% - 3px) 6px,
+      100% 6px,
+      100% calc(100% - 6px),
+      calc(100% - 3px) calc(100% - 6px),
+      calc(100% - 3px) calc(100% - 3px),
+      calc(100% - 6px) calc(100% - 3px),
+      calc(100% - 6px) 100%,
+      6px 100%,
+      6px calc(100% - 3px),
+      3px calc(100% - 3px),
+      3px calc(100% - 6px),
+      0 calc(100% - 6px)
+    );
+  }
+  .badge.amber {
+    color: var(--amber-fg);
+    background: color-mix(in oklab, var(--amber) 16%, transparent);
+  }
+</style>

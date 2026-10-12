@@ -1,0 +1,123 @@
+---
+import Menu from '@lucide/astro/icons/menu';
+import Sun from '@lucide/astro/icons/sun';
+import Moon from '@lucide/astro/icons/moon';
+import Logo from './Logo.astro';
+import GithubMark from './GithubMark.astro';
+import { nav } from '../content/site';
+---
+
+<div data-nav-sentinel aria-hidden="true" class="pointer-events-none absolute top-0 left-0 h-6 w-px"></div>
+<header class="site-nav fixed inset-x-0 top-0 z-50" data-nav>
+  <nav aria-label="Main" class="container-x flex h-16 items-center gap-4">
+    <a href="#top" class="logo-link -ml-1 rounded-lg p-1" aria-label="bluedoc, back to top">
+      <Logo size={30} />
+    </a>
+
+    <ul class="ml-auto hidden items-center gap-1 lg:flex">
+      {
+        nav.links.map((l) => (
+          <li>
+            <a class="nav-link" href={l.href}>
+              {l.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="ml-auto flex items-center gap-1 lg:ml-2">
+      <a class="nav-link inline-flex items-center gap-2" href={nav.github.href} rel="noopener">
+        <GithubMark class="size-[18px]" />
+        <span class="max-sm:sr-only">{nav.github.label}</span>
+      </a>
+      <button type="button" class="icon-btn" data-theme-toggle aria-label="Switch to light theme">
+        <Sun class="i-sun size-[18px]" aria-hidden="true" />
+        <Moon class="i-moon size-[18px]" aria-hidden="true" />
+      </button>
+      <details class="nav-menu relative lg:hidden" data-nav-menu>
+        <summary class="icon-btn" aria-label="Menu">
+          <Menu class="size-5" aria-hidden="true" />
+        </summary>
+        <ul class="nav-menu-panel card absolute top-12 right-0 w-56 p-2">
+          {
+            nav.links.map((l) => (
+              <li>
+                <a class="block rounded-lg px-3 py-2.5 text-fg-muted hover:bg-line hover:text-fg" href={l.href}>
+                  {l.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </details>
+    </div>
+  </nav>
+</header>
+
+<style>
+  .site-nav {
+    transition:
+      background-color 0.3s,
+      box-shadow 0.3s,
+      backdrop-filter 0.3s;
+  }
+  .site-nav.is-scrolled {
+    background: color-mix(in oklab, var(--bg) 72%, transparent);
+    backdrop-filter: blur(16px) saturate(1.5);
+    -webkit-backdrop-filter: blur(16px) saturate(1.5);
+    box-shadow: 0 1px 0 var(--line);
+  }
+  .site-nav:not(.is-scrolled)::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 -24px;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(to bottom, color-mix(in oklab, var(--bg) 55%, transparent), transparent);
+  }
+  .nav-link {
+    display: inline-flex;
+    height: 2.5rem;
+    align-items: center;
+    padding-inline: 0.8rem;
+    border-radius: 0.6rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--fg-muted);
+    transition:
+      color 0.15s,
+      background-color 0.15s;
+  }
+  .nav-link:hover {
+    color: var(--fg);
+    background: var(--line);
+  }
+  .icon-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.6rem;
+    color: var(--fg-muted);
+    cursor: pointer;
+    list-style: none;
+    transition:
+      color 0.15s,
+      background-color 0.15s;
+  }
+  .icon-btn::-webkit-details-marker {
+    display: none;
+  }
+  .icon-btn:hover {
+    color: var(--fg);
+    background: var(--line);
+  }
+  :global([data-theme='dark'] .i-moon),
+  :global([data-theme='light'] .i-sun) {
+    display: none;
+  }
+  .nav-menu-panel {
+    background: var(--surface);
+  }
+</style>

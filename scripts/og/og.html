@@ -1,0 +1,114 @@
+<!doctype html>
+<!-- The social card (public/og.png, 1200 × 630). Edit the headline here, then run `npm run og`. -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      @font-face {
+        font-family: 'Lexend';
+        font-weight: 100 900;
+        src: url(../../node_modules/@fontsource-variable/lexend/files/lexend-latin-wght-normal.woff2) format('woff2');
+      }
+      @font-face {
+        font-family: 'Inter';
+        font-weight: 100 900;
+        src: url(../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2) format('woff2');
+      }
+      @font-face {
+        font-family: 'Silkscreen';
+        src: url(../../node_modules/@fontsource/silkscreen/files/silkscreen-latin-400-normal.woff2) format('woff2');
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        background: #05070f;
+      }
+      .card {
+        position: relative;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        font-family: 'Inter', sans-serif;
+        color: #eaf4ff;
+      }
+      /* the banner at 1.2× its source pixels, shifted so the city sits left and the ringed planet right */
+      .art {
+        position: absolute;
+        left: -400px;
+        top: 0;
+        width: 2006px;
+        height: 628px;
+        background: url(../../src/assets/hero/hero-dark.webp) 0 0 / 100% 100% no-repeat;
+        image-rendering: pixelated;
+      }
+      .shade {
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(to top, #05070f 0%, rgb(5 7 15 / 0.92) 30%, rgb(5 7 15 / 0.35) 62%, rgb(5 7 15 / 0) 80%),
+          linear-gradient(to right, rgb(5 7 15 / 0.55), rgb(5 7 15 / 0) 60%);
+      }
+      .copy {
+        position: absolute;
+        left: 72px;
+        right: 72px;
+        bottom: 64px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-family: 'Lexend', sans-serif;
+        font-weight: 700;
+        font-size: 44px;
+        letter-spacing: -0.01em;
+      }
+      .brand img {
+        width: 56px;
+        height: 56px;
+      }
+      .brand .b {
+        color: #eaf4ff;
+      }
+      .brand .d {
+        color: #4f9bff;
+      }
+      h1 {
+        margin: 26px 0 0;
+        max-width: 930px;
+        font-family: 'Lexend', sans-serif;
+        font-weight: 700;
+        font-size: 66px;
+        line-height: 1.04;
+        letter-spacing: -0.035em;
+        text-shadow: 0 2px 24px rgb(5 7 15 / 0.8);
+      }
+      .tag {
+        margin-top: 22px;
+        font-family: 'Silkscreen', monospace;
+        font-size: 18px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #5fd4ff;
+      }
+      .tag b {
+        color: #ffc46b;
+        font-weight: 400;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="art"></div>
+      <div class="shade"></div>
+      <div class="copy">
+        <div class="brand"><img src="../../public/favicon.svg" alt="" /><span><span class="b">blue</span><span class="d">doc</span></span></div>
+        <h1>Your agent’s work, on a page you can decide on.</h1>
+        <div class="tag">Plans · Reviews · Docs · Designs · Decks <b>· Approve</b></div>
+      </div>
+    </div>
+  </body>
+</html>

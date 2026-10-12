@@ -1,0 +1,222 @@
+---
+import { Picture } from 'astro:assets';
+import FileJson from '@lucide/astro/icons/file-braces';
+import ArrowRight from '@lucide/astro/icons/arrow-right';
+import { codePeek } from '../content/site';
+
+// JSON highlighting at build time: keys, strings, numbers, literals and punctuation get a class each.
+const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const TOKEN = /("(?:[^"\\]|\\.)*")(\s*:)?|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)|\b(true|false|null)\b|([{}[\],:])/g;
+function highlight(line: string): string {
+  let out = '';
+  let last = 0;
+  for (const m of line.matchAll(TOKEN)) {
+    out += esc(line.slice(last, m.index));
+    if (m[1]) out += `<span class="${m[2] ? 'k' : 's'}">${esc(m[1])}</span>${m[2] ? `<span class="p">${esc(m[2])}</span>` : ''}`;
+    else if (m[3]) out += `<span class="n">${m[3]}</span>`;
+    else if (m[4]) out += `<span class="n">${m[4]}</span>`;
+    else out += `<span class="p">${esc(m[5])}</span>`;
+    last = m.index + m[0].length;
+  }
+  return out + esc(line.slice(last));
+}
+
+// Typing: each line opens in `len` steps after the lines above it; 10 ms a character, 45 ms a line break.
+const MS_CHAR = 10;
+const MS_LINE = 45;
+let t = 300;
+const lines = codePeek.snippet.split('\n').map((text) => {
+  const len = Math.max(text.length, 1);
+  const line = { html: highlight(text) || ' ', len, delay: t, dur: len * MS_CHAR };
+  t += line.dur + MS_LINE;
+  return line;
+});
+const total = t;
+---
+
+<section class="section-y" aria-labelledby="code-title">
+  <div class="container-x">
+    <div class="max-w-2xl" data-reveal>
+      <p class="kicker">{codePeek.kicker}</p>
+      <h2 id="code-title" class="h2 mt-4">{codePeek.title}</h2>
+      <p class="lead mt-5">{codePeek.lead}</p>
+    </div>
+
+    <div class="peek mt-12 grid gap-5 sm:mt-16 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-6">
+      <figure class="editor card" data-type style={`--total:${total}ms`}>
+        <figcaption class="bar">
+          <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="flex min-w-0 items-center gap-2 truncate">
+            <FileJson class="size-4 flex-none text-cyan" aria-hidden="true" />
+            {codePeek.fileName}
+          </span>
+        </figcaption>
+        <pre class="code" tabindex="0" aria-label={`${codePeek.fileName}, example`}><code>{lines.map((l, i) => (
+          <span class="row" style={`--len:${l.len};--delay:${l.delay}ms;--dur:${l.dur}ms`}><span class="gutter" aria-hidden="true">{i + 1}</span><span class="ln" set:html={l.html} /><span class:list={['caret', { 'caret-last': i === lines.length - 1 }]} aria-hidden="true" /></span>
+        ))}</code></pre>
+      </figure>
+
+      <figure class="result card">
+        <figcaption class="bar">
+          <ArrowRight class="size-4 text-cyan" aria-hidden="true" />
+          {codePeek.resultLabel}
+        </figcaption>
+        <div class="result-shot">
+          <Picture
+            formats={['avif']}
+            fallbackFormat="webp"
+            src={codePeek.image}
+            alt={codePeek.alt}
+            widths={[480, 720, 960, 1200]}
+            sizes="(min-width: 1024px) 36rem, 94vw"
+            quality={70}
+            loading="lazy"
+            class="h-full w-full object-cover"
+          />
+        </div>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<style>
+  .editor,
+  .result {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    margin: 0;
+  }
+  .editor {
+    background: color-mix(in oklab, var(--bg) 55%, var(--surface));
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    height: 2.75rem;
+    padding-inline: 1rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+  }
+  .dots {
+    display: flex;
+    gap: 0.4rem;
+  }
+  .dots i {
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+    background: var(--line-strong);
+  }
+  .code {
+    flex: 1;
+    margin: 0;
+    padding: 1.1rem 0;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: clamp(0.74rem, 0.7rem + 0.2vw, 0.86rem);
+    line-height: 1.75;
+    color: var(--fg);
+    tab-size: 2;
+  }
+  .row {
+    display: flex;
+    padding-right: 1.25rem;
+  }
+  .gutter {
+    flex: none;
+    width: 3rem;
+    padding-right: 1rem;
+    text-align: right;
+    color: var(--fg-subtle);
+    user-select: none;
+  }
+  .ln {
+    display: block;
+    white-space: pre;
+    overflow: hidden;
+  }
+  .code :global(.k) {
+    color: var(--code-key);
+  }
+  .code :global(.s) {
+    color: var(--code-str);
+  }
+  .code :global(.n) {
+    color: var(--code-num);
+  }
+  .code :global(.p) {
+    color: var(--code-punct);
+  }
+  .caret {
+    flex: none;
+    align-self: center;
+    width: 0.55ch;
+    height: 1.2em;
+    margin-left: 1px;
+    background: var(--cyan);
+    opacity: 0;
+  }
+  /* without JS or with reduced motion, the code is shown whole and the caret rests at the end */
+  .caret-last {
+    opacity: 1;
+  }
+
+  .result-shot {
+    flex: 1;
+    min-height: 16rem;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+  }
+  .result-shot :global(img) {
+    object-position: 40% 55%;
+  }
+  @media (min-width: 1024px) {
+    .result-shot {
+      aspect-ratio: auto;
+    }
+  }
+
+  /* Typing: each line widens one character a step after the lines above it. Its caret shows only while that line
+     types (an animation with no fill), and the last line's caret then keeps blinking. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .editor .ln {
+      width: 0;
+    }
+    :global(.js) .editor .caret-last {
+      opacity: 0;
+    }
+    :global(.js) .editor.is-in .ln {
+      animation: type var(--dur) steps(var(--len)) var(--delay) forwards;
+    }
+    :global(.js) .editor.is-in .caret {
+      animation: caret-on var(--dur) linear var(--delay);
+    }
+    :global(.js) .editor.is-in .caret-last {
+      animation: blink 1.1s step-end var(--delay) infinite;
+    }
+  }
+  @keyframes type {
+    to {
+      width: calc(var(--len) * 1ch);
+    }
+  }
+  @keyframes caret-on {
+    from,
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes blink {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+</style>

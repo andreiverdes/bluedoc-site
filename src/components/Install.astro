@@ -1,0 +1,164 @@
+---
+import Copy from '@lucide/astro/icons/copy';
+import Check from '@lucide/astro/icons/check';
+import Info from '@lucide/astro/icons/info';
+import { install } from '../content/site';
+---
+
+<section id={install.id} class="install section-y" aria-labelledby="install-title">
+  <div class="container-x">
+    <div class="mx-auto max-w-2xl text-center" data-reveal>
+      <p class="kicker justify-center">{install.kicker}</p>
+      <h2 id="install-title" class="h2 mt-4">{install.title}</h2>
+      <p class="lead mt-5">{install.lead}</p>
+    </div>
+
+    <div class="tabs card mx-auto mt-12 max-w-3xl sm:mt-14" data-tabs data-reveal>
+      <div class="tablist" role="tablist" aria-label="Agent">
+        {
+          install.tabs.map((t, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`tab-${t.id}`}
+              aria-controls={`panel-${t.id}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+              class="tab"
+            >
+              {t.label}
+            </button>
+          ))
+        }
+      </div>
+      {
+        install.tabs.map((t, i) => {
+          const all = t.commands.join('\n');
+          return (
+            <div
+              role="tabpanel"
+              id={`panel-${t.id}`}
+              aria-labelledby={`tab-${t.id}`}
+              tabindex="0"
+              class="panel"
+              hidden={i !== 0}
+            >
+              <div class="term">
+                <div class="term-cmds">
+                  {t.commands.map((c) => (
+                    <div class="cmd">
+                      <span class="text-cyan select-none" aria-hidden="true">
+                        $
+                      </span>
+                      <code>{c}</code>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  class="copy-btn"
+                  data-copy={all}
+                  aria-label={`Copy the ${t.label} install ${t.commands.length > 1 ? 'commands' : 'command'}`}
+                >
+                  <Copy class="i-copy size-4" aria-hidden="true" />
+                  <Check class="i-done size-4" aria-hidden="true" />
+                </button>
+              </div>
+              <p class="note">
+                <Info class="mt-0.5 size-4 flex-none text-fg-subtle" aria-hidden="true" />
+                <span>{t.note}</span>
+              </p>
+            </div>
+          );
+        })
+      }
+    </div>
+
+    <p class="mx-auto mt-6 max-w-3xl text-center text-sm text-fg-subtle">
+      Needs: {install.requirements.join(' · ')}.
+    </p>
+  </div>
+</section>
+
+<style>
+  .install {
+    background: linear-gradient(to bottom, var(--bg), var(--bg-2) 50%, var(--bg));
+  }
+  .tabs {
+    padding: 0.5rem;
+    background: color-mix(in oklab, var(--surface) 92%, transparent);
+  }
+  .tablist {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    flex-wrap: wrap;
+    border-radius: 0.9rem;
+    background: var(--line);
+  }
+  .tab {
+    flex: 1 0 auto;
+    height: 2.5rem;
+    padding-inline: 1rem;
+    border-radius: 0.7rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--fg-muted);
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      color 0.15s,
+      background-color 0.15s;
+  }
+  .tab:hover {
+    color: var(--fg);
+  }
+  .tab[aria-selected='true'] {
+    color: var(--fg);
+    background: var(--surface);
+    box-shadow:
+      0 0 0 1px var(--line-strong),
+      0 6px 18px -8px var(--glow);
+  }
+  .panel {
+    padding: 1.25rem 0.75rem 0.75rem;
+    border-radius: 0.75rem;
+  }
+  @media (min-width: 640px) {
+    .panel {
+      padding: 1.5rem 1.25rem 1.1rem;
+    }
+  }
+  .term {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 0.75rem 1rem 1.1rem;
+    border-radius: 0.8rem;
+    border: 1px solid var(--line);
+    background: color-mix(in oklab, var(--bg) 70%, var(--surface));
+    font-family: var(--font-mono);
+    font-size: clamp(0.78rem, 0.74rem + 0.2vw, 0.9rem);
+  }
+  .term-cmds {
+    flex: 1;
+    min-width: 0;
+    display: grid;
+    gap: 0.45rem;
+    padding-top: 0.35rem;
+  }
+  .cmd {
+    display: flex;
+    gap: 0.75rem;
+    /* long commands wrap at any character rather than scroll, so the whole command stays readable on a phone */
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .note {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+  }
+</style>
