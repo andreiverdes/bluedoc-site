@@ -14,6 +14,8 @@ npm run preview  # serve dist/ locally
 npm run check    # type-check the .astro and .ts files
 ```
 
+To review the page with an agent, keep `npm run dev` running and open the bluedoc doc: `python3 <bluedoc skill>/scripts/serve.py open docs/site.bluedoc.json`. It shows the page live, section by section, for comments and picks.
+
 ## Change the copy
 
 All text, links and the screenshots each section shows live in **`src/content/site.ts`**: the nav, hero, product shot, the loop steps, the six doc types, the features, the JSON snippet, the install commands, the FAQ, the closing band and the footer. The components in `src/components/` only lay it out, so most edits never touch them.

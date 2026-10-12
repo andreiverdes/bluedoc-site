@@ -1,0 +1,253 @@
+{
+ "bluedoc_history": 1,
+ "revs": [
+  {
+   "rev": "1",
+   "date": "2026-10-12",
+   "built": "2026-10-12T19:43:28+00:00",
+   "head": {
+    "id": "bluedoc-site",
+    "title": "bluedoc-site: the landing page",
+    "subtitle": "The one-page site, live from the Astro dev server. Comment on any section or element, pick between headline versions, then approve; the agent edits the source each section names.",
+    "meta": {
+     "org": "bluedoc",
+     "kind": "Website",
+     "type": "website",
+     "rev": "1",
+     "date": "2026-10-12"
+    },
+    "state": [
+     {
+      "label": "live from npm run dev on :4321",
+      "kind": "ok"
+     }
+    ],
+    "tldr": "One page, eleven sections, shown live from `npm run dev`. Two picks: the hero headline and the closing band's title; each version shows in place. Every section names where its copy and layout live, mostly `src/content/site.ts` and one component."
+   },
+   "sections": [
+    {
+     "id": "brief",
+     "title": "Brief",
+     "lead": "The page sells bluedoc to developers who already use a coding agent, and ends at the install commands.",
+     "blocks": [
+      "46607c331bbbc21b",
+      "1e0213896f5dafd8"
+     ]
+    },
+    {
+     "id": "pages",
+     "title": "Pages",
+     "lead": "The landing page, live, with its eleven sections in page order.",
+     "blocks": [
+      "d8199e1c5462c689"
+     ]
+    }
+   ]
+  }
+ ],
+ "blocks": {
+  "46607c331bbbc21b": {
+   "type": "text",
+   "md": "All copy, links and screenshots live in `src/content/site.ts`, one export per section; the components in `src/components/` only lay it out. A comment on a section comes back with that section's source hints, so the agent edits the export first and the component only for layout."
+  },
+  "1e0213896f5dafd8": {
+   "type": "checklist",
+   "id": "brief",
+   "title": "Picks",
+   "numbered": false,
+   "items": [
+    {
+     "id": "hero-headline",
+     "text": "Which hero headline?",
+     "sub": "Recommend the current one: the page title, the social card and the README use it.",
+     "recommend": "a",
+     "choices": [
+      {
+       "id": "a",
+       "label": "Decide on a page"
+      },
+      {
+       "id": "b",
+       "label": "Answer, not read"
+      },
+      {
+       "id": "c",
+       "label": "Point, pick, approve"
+      }
+     ],
+     "detail": "**Decide on a page** is the current `hero.headline`. Changing it also means `meta.title`, `meta.ogImageAlt` and `public/og.png` (`npm run og`)."
+    },
+    {
+     "id": "cta-title",
+     "text": "Which title for the closing band?",
+     "sub": "Recommend the current one: it is short enough for one line at 390 px.",
+     "recommend": "a",
+     "choices": [
+      {
+       "id": "a",
+       "label": "Decisions, not walls"
+      },
+      {
+       "id": "b",
+       "label": "Answer on a page"
+      }
+     ]
+    }
+   ]
+  },
+  "d8199e1c5462c689": {
+   "type": "board",
+   "id": "site",
+   "targets": [
+    "web"
+   ],
+   "root": "..",
+   "breakpoints": [
+    1440,
+    768,
+    390
+   ],
+   "artboards": [
+    {
+     "id": "home",
+     "title": "Landing page",
+     "device": "page",
+     "fidelity": "hifi",
+     "url": "http://localhost:4321/bluedoc-site/",
+     "source": [
+      "src/pages/index.astro",
+      "src/layouts/Base.astro"
+     ],
+     "sections": [
+      {
+       "id": "nav",
+       "title": "Nav",
+       "sel": "header.site-nav",
+       "source": [
+        "src/content/site.ts#nav",
+        "src/components/Nav.astro"
+       ]
+      },
+      {
+       "id": "hero",
+       "title": "Hero",
+       "sel": "section.hero",
+       "source": [
+        "src/content/site.ts#hero",
+        "src/components/Hero.astro"
+       ],
+       "decision": "hero-headline",
+       "variants": {
+        "a": [],
+        "b": [
+         {
+          "sel": "#hero-title",
+          "text": "Answer your agent on a page, not in a chat."
+         }
+        ],
+        "c": [
+         {
+          "sel": "#hero-title",
+          "text": "Point, pick, approve. Your agent does the rest."
+         }
+        ]
+       }
+      },
+      {
+       "id": "product",
+       "title": "Product shot",
+       "sel": "section.product",
+       "source": [
+        "src/content/site.ts#productShot",
+        "src/components/ProductShot.astro"
+       ]
+      },
+      {
+       "id": "loop",
+       "title": "The loop",
+       "sel": "#how-it-works",
+       "source": [
+        "src/content/site.ts#loop",
+        "src/components/Loop.astro",
+        "src/components/PixelIcon.astro"
+       ]
+      },
+      {
+       "id": "doc-types",
+       "title": "Doc types",
+       "sel": "#doc-types",
+       "source": [
+        "src/content/site.ts#docTypes",
+        "src/components/DocTypes.astro"
+       ]
+      },
+      {
+       "id": "features",
+       "title": "Features",
+       "sel": "#features",
+       "source": [
+        "src/content/site.ts#features",
+        "src/components/Features.astro"
+       ]
+      },
+      {
+       "id": "code-peek",
+       "title": "Code peek",
+       "sel": "section[aria-labelledby=\"code-title\"]",
+       "source": [
+        "src/content/site.ts#codePeek",
+        "src/components/CodePeek.astro"
+       ]
+      },
+      {
+       "id": "install",
+       "title": "Install",
+       "sel": "#install",
+       "source": [
+        "src/content/site.ts#install",
+        "src/components/Install.astro"
+       ]
+      },
+      {
+       "id": "faq",
+       "title": "FAQ",
+       "sel": "#faq",
+       "source": [
+        "src/content/site.ts#faq",
+        "src/components/Faq.astro"
+       ]
+      },
+      {
+       "id": "final-cta",
+       "title": "Final CTA",
+       "sel": "section.cta",
+       "source": [
+        "src/content/site.ts#finalCta",
+        "src/components/FinalCta.astro"
+       ],
+       "decision": "cta-title",
+       "variants": {
+        "a": [],
+        "b": [
+         {
+          "sel": "#cta-title",
+          "text": "Answer your agent on a page."
+         }
+        ]
+       }
+      },
+      {
+       "id": "footer",
+       "title": "Footer",
+       "sel": "footer.site-footer",
+       "source": [
+        "src/content/site.ts#footer",
+        "src/components/Footer.astro"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ }
+}
