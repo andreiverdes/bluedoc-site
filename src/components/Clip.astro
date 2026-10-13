@@ -1,0 +1,178 @@
+---
+// A short looping product clip from public/clips/ (recorded by `npm run clips`, see clips/README.md), in the
+// product-shot frame. It plays only while in view; with reduced motion it shows its poster and a play button.
+// The playback script is in src/scripts/site.ts (clips).
+import Lock from '@lucide/astro/icons/lock';
+import Pause from '@lucide/astro/icons/pause';
+import Play from '@lucide/astro/icons/play';
+
+interface Props {
+  /** the clip's file name in public/clips/, without extension: <name>.webm, .mp4, .poster.webp */
+  name: string;
+  /** what the clip shows, for screen readers */
+  label: string;
+  /** a browser bar over the clip with this address */
+  url?: string;
+  class?: string;
+}
+
+const { name, label, url, class: className } = Astro.props;
+const base = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}clips/${name}`;
+---
+
+<figure class:list={['clip-frame', className]} data-clip>
+  {
+    url && (
+      <div class="clip-chrome" aria-hidden="true">
+        <span class="dots">
+          <i />
+          <i />
+          <i />
+        </span>
+        <span class="url">
+          <Lock class="size-3" />
+          {url}
+        </span>
+        <span class="w-12" />
+      </div>
+    )
+  }
+  <div class="clip-stage">
+    <video
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="none"
+      poster={`${base}.poster.webp`}
+      width="1280"
+      height="800"
+      aria-label={label}
+    >
+      <source src={`${base}.webm`} type="video/webm" />
+      <source src={`${base}.mp4`} type="video/mp4" />
+    </video>
+    <script is:inline>
+      // With JS, the clips script decides when to play (in view, motion allowed): drop autoplay before it loads.
+      document.currentScript.previousElementSibling.removeAttribute('autoplay');
+    </script>
+    <button type="button" class="clip-toggle" data-clip-toggle aria-label="Play clip" hidden>
+      <Play class="clip-icon-play size-5" />
+      <Pause class="clip-icon-pause size-5" />
+    </button>
+  </div>
+</figure>
+
+<style>
+  .clip-frame {
+    position: relative;
+    margin: 0;
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.03),
+      0 40px 120px -40px var(--glow),
+      0 30px 80px -30px rgb(0 0 0 / 0.55);
+  }
+  .clip-chrome {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: 2.5rem;
+    padding-inline: 1rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-2);
+  }
+  .dots {
+    display: flex;
+    gap: 0.45rem;
+    width: 3rem;
+  }
+  .dots i {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    background: var(--line-strong);
+  }
+  .dots i:first-child {
+    background: #ff6b6b;
+  }
+  .dots i:nth-child(2) {
+    background: var(--amber);
+  }
+  .dots i:nth-child(3) {
+    background: #4ade80;
+  }
+  .url {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-inline: auto;
+    min-width: 0;
+    max-width: 22rem;
+    width: 100%;
+    justify-content: center;
+    height: 1.6rem;
+    border-radius: 0.5rem;
+    background: var(--line);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--fg-subtle);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .clip-stage {
+    position: relative;
+  }
+  video {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1280 / 800;
+    object-fit: cover;
+    background: var(--surface);
+  }
+  .clip-toggle {
+    position: absolute;
+    right: 0.875rem;
+    bottom: 0.875rem;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    background: color-mix(in oklab, var(--surface) 82%, transparent);
+    color: var(--fg);
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+  .clip-toggle:focus-visible {
+    border-radius: 50%;
+  }
+  /* playing on its own: the pause button shows on hover or focus; stopped, the play button always shows */
+  [data-clip][data-state='playing'] .clip-toggle:not(:focus-visible) {
+    opacity: 0;
+  }
+  [data-clip][data-state='playing']:hover .clip-toggle {
+    opacity: 1;
+  }
+  .clip-icon-pause,
+  [data-clip][data-state='playing'] .clip-icon-play {
+    display: none;
+  }
+  [data-clip][data-state='playing'] .clip-icon-pause {
+    display: block;
+  }
+  /* reduced motion and stopped: a big play button in the middle of the poster */
+  [data-clip][data-reduce]:not([data-state='playing']) .clip-toggle {
+    right: 50%;
+    bottom: 50%;
+    width: 4rem;
+    height: 4rem;
+    transform: translate(50%, 50%);
+  }
+</style>

@@ -42,6 +42,7 @@ Page title and description: `meta` in `site.ts`. Colours, fonts and shared style
 - **Hero banners** are `src/assets/hero/hero-dark.webp` and `hero-light.webp` (1672 × 523). The ships that drift are small cut-outs of the banner in `src/assets/hero/ships/`, placed at the source-pixel boxes listed in `Hero.astro`; with a new banner, cut new ones (or remove the `ships` list).
 - **Logo**: `src/components/Logo.astro` (the mark and the outlined wordmark). The favicon is `public/favicon.svg`, with `favicon.ico` and `apple-touch-icon.png` rendered from it.
 - **Social card**: `public/og.png` (1200 × 630) is rendered from `scripts/og/og.html`. Edit the HTML, then run `npm run og` (needs Google Chrome or Chromium; set `CHROME_PATH` if it isn't found).
+- **Clips**: `public/clips/` holds short looping recordings of bluedoc (mp4, webm, a poster and a README gif each), shown with `src/components/Clip.astro`. Run `npm run clips` to record them again from the scenarios in `clips/scenarios/` (needs Chrome, ffmpeg and the bluedoc repo next to this one); `clips/README.md` explains how to write one.
 
 ## Deploy
 
@@ -60,7 +61,7 @@ Any static host works too: upload `dist/` after `npm run build`.
 
 ## What runs in the browser
 
-The page is static HTML and CSS. One small script (`src/scripts/site.ts`) handles the theme toggle, the nav's glass background, copy buttons, the install tabs and the scroll reveals. The parallax and the product shot's tilt are CSS scroll-driven animations, where the browser supports them. Every animation stops under `prefers-reduced-motion`.
+The page is static HTML and CSS. One small script (`src/scripts/site.ts`) handles the theme toggle, the nav's glass background, copy buttons, the install tabs, the scroll reveals and the clips (each plays only while in view). The parallax and the product shot's tilt are CSS scroll-driven animations, where the browser supports them. Every animation stops under `prefers-reduced-motion`; a clip then shows its poster and a play button.
 
 ## Credits
 

@@ -2,6 +2,8 @@
 dist/
 # generated types
 .astro/
+# clip recordings' raw frames (clips/run.mjs)
+clips/.work/
 
 # dependencies
 node_modules/

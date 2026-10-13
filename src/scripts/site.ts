@@ -1,4 +1,4 @@
-// The page's only JavaScript: theme toggle, sticky nav state, copy buttons, install tabs and scroll reveals.
+// The page's only JavaScript: theme toggle, sticky nav state, copy buttons, install tabs, scroll reveals and clips.
 
 const THEME_KEY = 'bd-site-theme';
 const root = document.documentElement;
@@ -104,3 +104,49 @@ if ('IntersectionObserver' in window) {
 } else {
   revealed.forEach((el) => el.classList.add('is-in'));
 }
+
+// ---- clips (Clip.astro): play while in view; with reduced motion, only after the play button ----
+// The button's pick wins over both: a clip the reader paused stays paused, one they started plays while in view.
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+document.querySelectorAll<HTMLElement>('[data-clip]').forEach((clip) => {
+  const video = clip.querySelector('video');
+  const toggle = clip.querySelector<HTMLButtonElement>('[data-clip-toggle]');
+  if (!video || !toggle) return;
+  let inView = false;
+  let picked: 'play' | 'pause' | null = null;
+  const paint = () => {
+    const playing = !video.paused;
+    clip.dataset.state = playing ? 'playing' : 'paused';
+    toggle.setAttribute('aria-label', playing ? 'Pause clip' : 'Play clip');
+  };
+  const update = () => {
+    const want = inView && (picked ? picked === 'play' : !reduceMotion.matches);
+    if (want && video.paused) video.play().catch(() => {});
+    else if (!want && !video.paused) video.pause();
+  };
+  const syncMotion = () => {
+    clip.toggleAttribute('data-reduce', reduceMotion.matches);
+    update();
+  };
+  video.addEventListener('play', paint);
+  video.addEventListener('pause', paint);
+  toggle.addEventListener('click', () => {
+    picked = video.paused ? 'play' : 'pause';
+    update();
+  });
+  reduceMotion.addEventListener('change', syncMotion);
+  toggle.hidden = false;
+  paint();
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(
+      ([e]) => {
+        inView = e.isIntersecting;
+        update();
+      },
+      { threshold: 0.35 },
+    ).observe(clip);
+  } else {
+    inView = true;
+  }
+  syncMotion();
+});

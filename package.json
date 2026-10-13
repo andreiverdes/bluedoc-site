@@ -11,6 +11,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "og": "node scripts/og/make-og.mjs",
+    "clips": "node clips/run.mjs",
     "check": "astro check"
   },
   "dependencies": {
