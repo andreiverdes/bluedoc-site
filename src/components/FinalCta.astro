@@ -2,29 +2,12 @@
 import Star from '@lucide/astro/icons/star';
 import ArrowDown from '@lucide/astro/icons/arrow-down';
 import GithubMark from './GithubMark.astro';
+import PixelSky from './PixelSky.astro';
 import { finalCta } from '../content/site';
 
-// A pixel starfield and a ringed planet, both drawn on a coarse grid at build time so they stay crisp.
-// Seeded, so every build draws the same sky.
-let seed = 7;
-const rand = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
-
-const SKY_W = 320;
-const SKY_H = 120;
-const stars = Array.from({ length: 140 }, () => {
-  const big = rand() > 0.88;
-  return {
-    x: Math.floor(rand() * SKY_W),
-    y: Math.floor(rand() * SKY_H),
-    s: big ? 2 : 1,
-    o: (0.35 + rand() * 0.65).toFixed(2),
-    tw: rand() > 0.82,
-    d: (rand() * 4).toFixed(2),
-  };
-});
-
-// Planet: a banded disc lit from the upper left with a rim of light, and a tilted ring that passes in front of it
-// below the equator and behind it above. One cell is one art pixel.
+// A ringed planet over a pixel starfield. The planet is drawn on a coarse grid at build time so it stays crisp:
+// a banded disc lit from the upper left with a rim of light, and a tilted ring that passes in front of it below the
+// equator and behind it above. One cell is one art pixel.
 const P_W = 160;
 const P_H = 104;
 const cx = 80;
@@ -74,20 +57,7 @@ grid.forEach((row, y) => {
 ---
 
 <section class="cta" aria-labelledby="cta-title">
-  <svg class="sky" viewBox={`0 0 ${SKY_W} ${SKY_H}`} preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges" aria-hidden="true">
-    {
-      stars.map((s) => (
-        <rect
-          x={s.x}
-          y={s.y}
-          width={s.s}
-          height={s.s}
-          class:list={['star', { tw: s.tw }]}
-          style={`opacity:${s.o};animation-delay:${s.d}s`}
-        />
-      ))
-    }
-  </svg>
+  <PixelSky class="sky" />
   <svg class="planet" viewBox={`0 0 ${P_W} ${P_H}`} shape-rendering="crispEdges" aria-hidden="true">
     {[...planet].map(([c, d]) => <path d={d} class={c} />)}
   </svg>
@@ -134,7 +104,8 @@ grid.forEach((row, y) => {
       radial-gradient(70% 90% at 50% 120%, color-mix(in oklab, var(--brand) 40%, transparent), transparent 70%),
       linear-gradient(to bottom, #0b1430, #0b1a44);
   }
-  .sky {
+  /* PixelSky's svg: styled from here through its class, which a child component's scope doesn't cover */
+  .cta :global(.sky) {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -143,9 +114,6 @@ grid.forEach((row, y) => {
     /* fewer stars behind the copy */
     -webkit-mask-image: radial-gradient(ellipse 38% 46% at 50% 50%, transparent 35%, #000 100%);
     mask-image: radial-gradient(ellipse 38% 46% at 50% 50%, transparent 35%, #000 100%);
-  }
-  .star {
-    fill: #dbe9ff;
   }
   .planet {
     position: absolute;
@@ -178,7 +146,7 @@ grid.forEach((row, y) => {
     fill: #1a347a;
   }
   @media (max-width: 767px) {
-    .sky {
+    .cta :global(.sky) {
       -webkit-mask-image: radial-gradient(ellipse 70% 32% at 50% 50%, rgb(0 0 0 / 0.1), #000 100%);
       mask-image: radial-gradient(ellipse 70% 32% at 50% 50%, rgb(0 0 0 / 0.1), #000 100%);
     }
@@ -198,15 +166,5 @@ grid.forEach((row, y) => {
   }
   .cta .kicker {
     color: var(--amber);
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .star.tw {
-      animation: twinkle 3.2s steps(2, jump-none) infinite;
-    }
-  }
-  @keyframes twinkle {
-    50% {
-      opacity: 0.15;
-    }
   }
 </style>

@@ -30,16 +30,30 @@ const sentinel = document.querySelector('[data-nav-sentinel]');
 if (nav && sentinel) {
   new IntersectionObserver(([e]) => nav.classList.toggle('is-scrolled', !e.isIntersecting)).observe(sentinel);
 }
-// close the mobile menu after picking a link
-const menu = document.querySelector<HTMLDetailsElement>('[data-nav-menu]');
-menu?.addEventListener('click', (e) => {
-  if ((e.target as HTMLElement).closest('a')) menu.open = false;
+// The mobile menu and the Doc types menu are <details>: close them after a link is picked, on Escape (focus back
+// on the summary), on a click outside, and when keyboard focus moves out of them.
+const menus = document.querySelectorAll<HTMLDetailsElement>('[data-nav-menu], [data-nav-types]');
+menus.forEach((menu) => {
+  menu.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('a')) menu.open = false;
+  });
+  menu.addEventListener('focusout', (e) => {
+    const to = e.relatedTarget as Node | null;
+    if (to && !menu.contains(to)) menu.open = false;
+  });
+});
+document.addEventListener('click', (e) => {
+  menus.forEach((menu) => {
+    if (menu.open && !menu.contains(e.target as Node)) menu.open = false;
+  });
 });
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && menu?.open) {
+  if (e.key !== 'Escape') return;
+  menus.forEach((menu) => {
+    if (!menu.open) return;
     menu.open = false;
     menu.querySelector('summary')?.focus();
-  }
+  });
 });
 
 // ---- copy buttons ----

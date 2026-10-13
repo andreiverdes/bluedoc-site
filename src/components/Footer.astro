@@ -1,7 +1,12 @@
 ---
 import Logo from './Logo.astro';
 import GithubMark from './GithubMark.astro';
-import { footer, repoUrl } from '../content/site';
+import { docTypes, footer, repoUrl } from '../content/site';
+
+const links = [
+  ...docTypes.items.flatMap((t) => (t.href ? [{ label: t.name, href: t.href }] : [])),
+  ...footer.links,
+];
 
 const year = new Date().getFullYear();
 ---
@@ -19,7 +24,7 @@ const year = new Date().getFullYear();
     <nav aria-label="Footer">
       <ul class="flex flex-wrap gap-x-6 gap-y-3 md:justify-end">
         {
-          footer.links.map((l) => (
+          links.map((l) => (
             <li>
               <a class="text-fg-muted hover:text-fg" href={l.href}>
                 {l.label}

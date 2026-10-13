@@ -1,0 +1,263 @@
+---
+// One doc type's showcase page, from one entry of src/content/types.ts, in seven parts: the hero with its clip,
+// What it's for, the feature rows, the strip of shared clips, How the agent uses it, the install CTA and the
+// other types. Only the hero clip loads early; every other clip waits for the reader to scroll to it.
+import ArrowDown from '@lucide/astro/icons/arrow-down';
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
+import Base from './Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import Clip from '../components/Clip.astro';
+import FeatureRow from '../components/FeatureRow.astro';
+import AgentSnippet from '../components/AgentSnippet.astro';
+import Install from '../components/Install.astro';
+import TypeLinks from '../components/TypeLinks.astro';
+import PixelSky from '../components/PixelSky.astro';
+import GithubMark from '../components/GithubMark.astro';
+import { docTypes, repoUrl } from '../content/site';
+import { typePageLabels as labels, type TypePageCopy } from '../content/types';
+import { inlineCode } from '../lib/inline-code';
+
+interface Props {
+  page: TypePageCopy;
+}
+
+const { page } = Astro.props;
+const docType = docTypes.items.find((t) => t.id === page.type);
+---
+
+<Base title={page.metaTitle} description={page.metaDescription}>
+  <Nav />
+  <main id="main">
+    <section id="top" class="type-hero" aria-labelledby="type-title">
+      <PixelSky class="type-sky" seed={11} count={110} />
+      <div class="container-x hero-grid">
+        <div class="hero-copy">
+          <p class="kicker">Doc type · {page.name}</p>
+          <h1 id="type-title" class="type-title mt-5">{page.title}</h1>
+          <p class="lead mt-6">{page.pitch}</p>
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <a class="btn btn-primary" href="#install">
+              <ArrowDown class="size-[18px]" aria-hidden="true" />
+              Install
+            </a>
+            <a class="btn btn-ghost" href={repoUrl} rel="noopener">
+              <GithubMark class="size-[18px]" />
+              View on GitHub
+            </a>
+          </div>
+          {docType && <code class="type-tag mt-8">"type": "{docType.tag}"</code>}
+        </div>
+        <div class="hero-clip">
+          <Clip name={page.hero.clip} label={page.hero.shows} title={page.hero.title} url={page.hero.url} priority />
+          <p class="hero-caption">
+            <span class="font-semibold text-fg">{page.hero.title}.</span>{' '}
+            {page.hero.body}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-y for" aria-labelledby="for-title">
+      <div class="container-x">
+        <div class="max-w-2xl" data-reveal>
+          <p class="kicker">{labels.forKicker}</p>
+          <h2 id="for-title" class="h2 mt-4">{page.forTitle}</h2>
+          <p class="lead mt-5">{page.forLead}</p>
+        </div>
+        <ul class="kinds mt-10 sm:mt-12" style={`--cols:${page.kinds.length <= 5 ? page.kinds.length : Math.ceil(page.kinds.length / 2)}`}>
+          {
+            page.kinds.map((k, i) => (
+              <li class="kind card" data-reveal style={`--reveal-i:${i % 3}`}>
+                <span class="kind-chip">{k.label}</span>
+                <p class="mt-3 text-[0.95rem] text-fg-muted">{k.body}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="section-y pt-0" aria-labelledby="features-title">
+      <div class="container-x">
+        <div class="max-w-2xl" data-reveal>
+          <p class="kicker">{labels.featuresKicker}</p>
+          <h2 id="features-title" class="h2 mt-4">{labels.featuresTitle}</h2>
+          <p class="lead mt-5">
+            {labels.featuresLeadPrefix}{' '}
+            <a class="example-link" href={page.example.href} rel="noopener"
+              >{page.example.id}<ArrowUpRight class="ml-0.5 inline size-4 align-[-2px]" aria-hidden="true" /></a
+            >, {page.example.about}.
+          </p>
+        </div>
+        <div class="mt-14 grid gap-16 sm:mt-16 lg:gap-24">
+          {page.features.map((item, i) => <FeatureRow item={item} index={i} />)}
+        </div>
+      </div>
+    </section>
+
+    <section class="section-y shared" aria-labelledby="shared-title">
+      <div class="container-x">
+        <div class="max-w-2xl" data-reveal>
+          <p class="kicker">{labels.sharedKicker}</p>
+          <h2 id="shared-title" class="h2 mt-4">{labels.sharedTitle}</h2>
+        </div>
+        <ul class:list={['mt-10 grid gap-8 sm:mt-12 md:grid-cols-2', { 'lg:grid-cols-3': page.shared.length % 3 === 0 }]}>
+          {
+            page.shared.map((item, i) => (
+              <li data-reveal style={`--reveal-i:${i % 3}`}>
+                <Clip name={item.clip} label={item.shows} title={item.title} />
+                <h3 class="mt-5 text-lg font-semibold">{item.title}</h3>
+                <p class="mt-1.5 text-fg-muted">{item.body}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="section-y" aria-labelledby="agent-title">
+      <div class="container-x">
+        <div class="max-w-2xl" data-reveal>
+          <p class="kicker">{labels.agentKicker}</p>
+          <h2 id="agent-title" class="h2 mt-4">{labels.agentTitle}</h2>
+          <p class="lead mt-5" set:html={inlineCode(page.agent.lead)} />
+        </div>
+        <div class="mt-10 max-w-4xl sm:mt-12" data-reveal>
+          <AgentSnippet agent={page.agent} />
+        </div>
+      </div>
+    </section>
+
+    <Install>
+      <div class="mt-8 flex justify-center">
+        <a class="btn btn-ghost" href={repoUrl} rel="noopener">
+          <GithubMark class="size-[18px]" />
+          View on GitHub
+        </a>
+      </div>
+    </Install>
+    <TypeLinks current={page.type} />
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  .type-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    padding-top: clamp(6.5rem, 5rem + 5vw, 9rem);
+    padding-bottom: clamp(3.5rem, 2rem + 4vw, 6rem);
+    background:
+      radial-gradient(55% 60% at 75% 45%, color-mix(in oklab, var(--brand) 22%, transparent), transparent 70%),
+      linear-gradient(to bottom, var(--bg-2), var(--bg));
+    border-bottom: 1px solid var(--line);
+  }
+  /* the sky keeps its own aspect at no less than 1440 px wide, so its pixels stay small on a tall phone hero */
+  .type-hero :global(.type-sky) {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    translate: -50% 0;
+    width: max(100%, 1440px);
+    height: auto;
+    z-index: -1;
+    opacity: 0.8;
+    -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 95%);
+    mask-image: linear-gradient(to bottom, #000 30%, transparent 95%);
+  }
+  :global([data-theme='light']) .type-hero :global(.type-sky) {
+    display: none;
+  }
+  .hero-grid {
+    display: grid;
+    gap: 3rem;
+    align-items: center;
+  }
+  @media (min-width: 1024px) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: 3.5rem;
+    }
+  }
+  .type-title {
+    font-size: clamp(2.3rem, 1.5rem + 3vw, 3.9rem);
+    line-height: 1.05;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+  }
+  .type-tag {
+    display: inline-block;
+    padding: 0.25rem 0.65rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--line);
+    background: var(--line);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+  }
+  .hero-caption {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: var(--fg-muted);
+  }
+
+  .kinds {
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 640px) {
+    .kinds {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .kinds {
+      grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    }
+  }
+  .kind {
+    padding: 1.25rem 1.35rem;
+  }
+  .kind-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--cyan) 35%, transparent);
+    background: color-mix(in oklab, var(--cyan) 10%, transparent);
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--fg);
+  }
+  .kind-chip::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--cyan);
+  }
+
+  .example-link {
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+    text-decoration: underline;
+    text-decoration-color: var(--line-strong);
+    text-underline-offset: 4px;
+  }
+  .example-link:hover {
+    text-decoration-color: var(--cyan);
+  }
+
+  .shared {
+    background: linear-gradient(to bottom, var(--bg), var(--bg-2) 50%, var(--bg));
+  }
+
+  .lead :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    color: var(--fg);
+  }
+</style>

@@ -1,10 +1,13 @@
 ---
 import { Picture } from 'astro:assets';
 import Check from '@lucide/astro/icons/check';
+import ArrowRight from '@lucide/astro/icons/arrow-right';
 import { docTypes } from '../content/site';
 
-// Bento spans on a 6-column grid from 1024 px: wide, narrow / narrow, wide / half, half.
-const spans = ['lg:col-span-4', 'lg:col-span-2', 'lg:col-span-2', 'lg:col-span-4', 'lg:col-span-3', 'lg:col-span-3'];
+// Bento spans on a 6-column grid from 1024 px: wide, narrow / narrow, wide / three thirds. On the 2-column grid
+// (640–1023 px) the last card of an odd count spans both columns.
+const spans = ['lg:col-span-4', 'lg:col-span-2', 'lg:col-span-2', 'lg:col-span-4', 'lg:col-span-2', 'lg:col-span-2', 'lg:col-span-2'];
+const oddLast = docTypes.items.length % 2 === 1 ? docTypes.items.length - 1 : -1;
 ---
 
 <section id={docTypes.id} class="section-y" aria-labelledby="types-title">
@@ -18,7 +21,11 @@ const spans = ['lg:col-span-4', 'lg:col-span-2', 'lg:col-span-2', 'lg:col-span-4
     <ul class="mt-12 grid gap-4 sm:mt-16 sm:grid-cols-2 lg:grid-cols-6 lg:gap-5">
       {
         docTypes.items.map((t, i) => (
-          <li class:list={['bento card', spans[i % spans.length]]} data-reveal style={`--reveal-i:${i % 3}`}>
+          <li
+            class:list={['bento card', spans[i % spans.length], { 'sm:max-lg:col-span-2': i === oddLast }]}
+            data-reveal
+            style={`--reveal-i:${i % 3}`}
+          >
             <div class="shot">
               <Picture
                 formats={['avif']}
@@ -37,9 +44,17 @@ const spans = ['lg:col-span-4', 'lg:col-span-2', 'lg:col-span-2', 'lg:col-span-4
               />
               <span class="scan" aria-hidden="true" />
             </div>
-            <div class="p-6 sm:p-7">
+            <div class="flex flex-1 flex-col p-6 sm:p-7">
               <div class="flex items-center gap-3">
-                <h3 class="text-xl font-semibold">{t.name}</h3>
+                <h3 class="text-xl font-semibold">
+                  {t.href ? (
+                    <a href={t.href} class="card-link">
+                      {t.name}
+                    </a>
+                  ) : (
+                    t.name
+                  )}
+                </h3>
                 <code class="tag">{t.tag}</code>
               </div>
               <p class="mt-2 text-fg-muted">{t.pitch}</p>
@@ -51,6 +66,12 @@ const spans = ['lg:col-span-4', 'lg:col-span-2', 'lg:col-span-2', 'lg:col-span-4
                   </li>
                 ))}
               </ul>
+              {t.href && (
+                <span class="more" aria-hidden="true">
+                  See the {t.name} page
+                  <ArrowRight class="more-arrow size-4" />
+                </span>
+              )}
             </div>
           </li>
         ))
@@ -150,5 +171,36 @@ const spans = ['lg:col-span-4', 'lg:col-span-2', 'lg:col-span-2', 'lg:col-span-4
     font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--fg-muted);
+  }
+  /* a card with a page: the title's link covers the whole card */
+  .card-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+  }
+  .card-link:focus-visible {
+    outline: none;
+  }
+  .bento:has(.card-link:focus-visible) {
+    outline: 2px solid var(--cyan);
+    outline-offset: 3px;
+  }
+  .more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: auto;
+    padding-top: 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--brand-fg);
+  }
+  .more-arrow {
+    transition: translate 0.25s var(--ease-out-soft);
+  }
+  .bento:hover .more-arrow {
+    translate: 4px 0;
   }
 </style>

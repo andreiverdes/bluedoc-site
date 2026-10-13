@@ -2,25 +2,41 @@
 // A short looping product clip from public/clips/ (recorded by `npm run clips`, see clips/README.md), in the
 // product-shot frame. It plays only while in view; with reduced motion it shows its poster and a play button.
 // The playback script is in src/scripts/site.ts (clips).
+//
+// The files are looked up at build time, so a page builds before its clips are recorded: with no MP4 the clip is
+// its poster alone, and with no poster either it is a card with its title. The poster is an <img> under the
+// video rather than the video's `poster`, so it can load lazily; only a `priority` clip loads it early.
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import Clapperboard from '@lucide/astro/icons/clapperboard';
 import Lock from '@lucide/astro/icons/lock';
 import Pause from '@lucide/astro/icons/pause';
 import Play from '@lucide/astro/icons/play';
+import { base as siteBase } from '../lib/paths';
 
 interface Props {
   /** the clip's file name in public/clips/, without extension: <name>.webm, .mp4, .poster.webp */
   name: string;
   /** what the clip shows, for screen readers */
   label: string;
+  /** the title on the card shown while the clip has no files yet; defaults to `label` */
+  title?: string;
   /** a browser bar over the clip with this address */
   url?: string;
+  /** above the fold: load the poster at once, at high priority */
+  priority?: boolean;
   class?: string;
 }
 
-const { name, label, url, class: className } = Astro.props;
-const base = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}clips/${name}`;
+const { name, label, title = label, url, priority = false, class: className } = Astro.props;
+const base = `${siteBase}clips/${name}`;
+const dir = join(process.cwd(), 'public', 'clips');
+const hasMp4 = existsSync(join(dir, `${name}.mp4`));
+const hasWebm = existsSync(join(dir, `${name}.webm`));
+const hasPoster = existsSync(join(dir, `${name}.poster.webp`));
 ---
 
-<figure class:list={['clip-frame', className]} data-clip>
+<figure class:list={['clip-frame', className]} data-clip={hasMp4 ? '' : undefined}>
   {
     url && (
       <div class="clip-chrome" aria-hidden="true">
@@ -38,28 +54,51 @@ const base = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}clips/${name}`;
     )
   }
   <div class="clip-stage">
-    <video
-      autoplay
-      muted
-      loop
-      playsinline
-      preload="none"
-      poster={`${base}.poster.webp`}
-      width="1280"
-      height="800"
-      aria-label={label}
-    >
-      <source src={`${base}.webm`} type="video/webm" />
-      <source src={`${base}.mp4`} type="video/mp4" />
-    </video>
-    <script is:inline>
-      // With JS, the clips script decides when to play (in view, motion allowed): drop autoplay before it loads.
-      document.currentScript.previousElementSibling.removeAttribute('autoplay');
-    </script>
-    <button type="button" class="clip-toggle" data-clip-toggle aria-label="Play clip" hidden>
-      <Play class="clip-icon-play size-5" />
-      <Pause class="clip-icon-pause size-5" />
-    </button>
+    {
+      hasPoster && (
+        <img
+          class="clip-poster"
+          src={`${base}.poster.webp`}
+          alt={hasMp4 ? '' : label}
+          width="1280"
+          height="800"
+          loading={priority ? 'eager' : 'lazy'}
+          fetchpriority={priority ? 'high' : undefined}
+          decoding="async"
+        />
+      )
+    }
+    {
+      hasMp4 && (
+        <>
+          <video autoplay muted loop playsinline preload="none" width="1280" height="800" aria-label={label}>
+            {hasWebm && <source src={`${base}.webm`} type="video/webm" />}
+            <source src={`${base}.mp4`} type="video/mp4" />
+          </video>
+          <script is:inline>
+            // With JS, the clips script decides when to play (in view, motion allowed): drop autoplay before it loads.
+            document.currentScript.previousElementSibling.removeAttribute('autoplay');
+          </script>
+          <button type="button" class="clip-toggle" data-clip-toggle aria-label="Play clip" hidden>
+            <Play class="clip-icon-play size-5" />
+            <Pause class="clip-icon-pause size-5" />
+          </button>
+        </>
+      )
+    }
+    {
+      !hasMp4 && !hasPoster && (
+        <div class="clip-pending" role="img" aria-label={label}>
+          <Clapperboard class="size-6 text-cyan" aria-hidden="true" />
+          <span class="clip-pending-kicker" aria-hidden="true">
+            Clip
+          </span>
+          <span class="clip-pending-title" aria-hidden="true">
+            {title}
+          </span>
+        </div>
+      )
+    }
   </div>
 </figure>
 
@@ -119,20 +158,57 @@ const base = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}clips/${name}`;
     background: var(--line);
     font-family: var(--font-mono);
     font-size: 0.75rem;
-    color: var(--fg-subtle);
+    color: var(--fg-muted);
     white-space: nowrap;
     overflow: hidden;
   }
+  /* the poster sits under the video: until the first frame decodes, the (transparent) video shows it through */
   .clip-stage {
     position: relative;
+    aspect-ratio: 1280 / 800;
+    background: var(--surface);
   }
+  .clip-poster,
   video {
+    position: absolute;
+    inset: 0;
     display: block;
     width: 100%;
-    height: auto;
-    aspect-ratio: 1280 / 800;
+    height: 100%;
     object-fit: cover;
-    background: var(--surface);
+  }
+  /* not recorded yet: a card with the clip's title on a faint pixel grid */
+  .clip-pending {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 1.5rem;
+    text-align: center;
+    background:
+      radial-gradient(60% 70% at 50% 50%, color-mix(in oklab, var(--brand) 14%, transparent), transparent 75%),
+      repeating-linear-gradient(to right, var(--line) 0 1px, transparent 1px 24px),
+      repeating-linear-gradient(to bottom, var(--line) 0 1px, transparent 1px 24px),
+      var(--bg-2);
+  }
+  .clip-pending-kicker {
+    font-family: var(--font-pixel);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+  .clip-pending-title {
+    max-width: 26ch;
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 0.9rem + 0.5vw, 1.25rem);
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--fg);
+    text-wrap: balance;
   }
   .clip-toggle {
     position: absolute;

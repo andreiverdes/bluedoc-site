@@ -1,0 +1,99 @@
+{
+  "id": "acme-site",
+  "title": "Acme Fit: marketing site, spring refresh",
+  "subtitle": "The home page and the blog, live from the dev server. Comment on any section or element, pick a hero headline, then approve the round.",
+  "meta": {
+    "org": "Acme Corp",
+    "kind": "Website",
+    "type": "website",
+    "dwg": "ACME-FIT-WEB",
+    "rev": "A",
+    "date": "2026-10-13"
+  },
+  "state": [
+    { "label": "live from the dev server", "kind": "ok" }
+  ],
+  "tldr": "Two pages live from `npm run dev`: the home page and the blog. Pick the hero headline; each version shows in place on the page. Check both pages at desktop, tablet and mobile widths.",
+  "sections": [
+    {
+      "id": "brief",
+      "title": "Brief",
+      "lead": "The home page must turn a visitor into a trial in one scroll.",
+      "blocks": [
+        { "type": "text", "md": "Visitors arrive from app store links and search, mostly on phones. The hero says what Acme Fit does and the features show the three things members use daily. Pricing offers one plan and two ways to pay, and the FAQ answers what stops a trial. Copy lives in `src/content/site.ts` and `src/content/blog.ts`; layout in `src/components/`." },
+        {
+          "type": "checklist",
+          "id": "brief",
+          "title": "Picks",
+          "numbered": false,
+          "items": [
+            {
+              "id": "hero-headline",
+              "text": "Which hero headline?",
+              "sub": "Recommend Habit first: trial members who set a weekly goal stay twice as long.",
+              "recommend": "b",
+              "choices": [
+                { "id": "a", "label": "Track everything" },
+                { "id": "b", "label": "Habit first" },
+                { "id": "c", "label": "Coach first" }
+              ],
+              "detail": "**Track everything** is the current headline. **Habit first** leads with weekly goals, the feature this release adds. **Coach first** leads with coach notes, which only members on a watch see."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pages",
+      "title": "Pages",
+      "lead": "The home page and the blog, each with its sections and where their source lives.",
+      "blocks": [
+        {
+          "type": "board",
+          "id": "site",
+          "targets": ["web"],
+          "root": ".",
+          "breakpoints": [1440, 768, 390],
+          "artboards": [
+            {
+              "id": "home",
+              "title": "Home",
+              "device": "page",
+              "fidelity": "hifi",
+              "url": "http://localhost:5173/",
+              "source": ["index.html", "src/pages/home.ts"],
+              "sections": [
+                { "id": "nav", "title": "Nav", "sel": "#nav", "source": ["src/content/site.ts#nav", "src/components/Nav.ts"] },
+                {
+                  "id": "hero", "title": "Hero", "sel": "#hero", "source": ["src/content/site.ts#hero", "src/components/Hero.ts"],
+                  "decision": "hero-headline",
+                  "variants": {
+                    "a": [],
+                    "b": [{ "sel": "#hero-title", "text": "Build the habit, one week at a time." }],
+                    "c": [{ "sel": "#hero-title", "text": "A coach on your wrist, every day." }]
+                  }
+                },
+                { "id": "features", "title": "Features", "sel": "#features", "source": ["src/content/site.ts#features", "src/components/Features.ts"] },
+                { "id": "pricing", "title": "Pricing", "sel": "#pricing", "source": ["src/content/site.ts#pricing", "src/components/Pricing.ts"] },
+                { "id": "faq", "title": "FAQ", "sel": "#faq", "source": ["src/content/site.ts#faq", "src/components/Faq.ts"] },
+                { "id": "footer", "title": "Footer", "sel": "#footer", "source": ["src/content/site.ts#footer", "src/components/Footer.ts"] }
+              ]
+            },
+            {
+              "id": "blog",
+              "title": "Blog",
+              "device": "page",
+              "fidelity": "hifi",
+              "url": "http://localhost:5173/blog/",
+              "source": ["blog/index.html", "src/pages/blog.ts"],
+              "sections": [
+                { "id": "posts", "title": "Post list", "sel": "#posts", "source": ["src/content/blog.ts#posts", "src/components/PostCard.ts"] },
+                { "id": "subscribe", "title": "Subscribe", "sel": "#subscribe", "source": ["src/content/blog.ts#subscribe", "src/components/Subscribe.ts"] }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

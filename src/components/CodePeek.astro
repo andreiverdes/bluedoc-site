@@ -3,23 +3,7 @@ import { Picture } from 'astro:assets';
 import FileJson from '@lucide/astro/icons/file-braces';
 import ArrowRight from '@lucide/astro/icons/arrow-right';
 import { codePeek } from '../content/site';
-
-// JSON highlighting at build time: keys, strings, numbers, literals and punctuation get a class each.
-const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-const TOKEN = /("(?:[^"\\]|\\.)*")(\s*:)?|(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)|\b(true|false|null)\b|([{}[\],:])/g;
-function highlight(line: string): string {
-  let out = '';
-  let last = 0;
-  for (const m of line.matchAll(TOKEN)) {
-    out += esc(line.slice(last, m.index));
-    if (m[1]) out += `<span class="${m[2] ? 'k' : 's'}">${esc(m[1])}</span>${m[2] ? `<span class="p">${esc(m[2])}</span>` : ''}`;
-    else if (m[3]) out += `<span class="n">${m[3]}</span>`;
-    else if (m[4]) out += `<span class="n">${m[4]}</span>`;
-    else out += `<span class="p">${esc(m[5])}</span>`;
-    last = m.index + m[0].length;
-  }
-  return out + esc(line.slice(last));
-}
+import { highlightJson } from '../lib/highlight';
 
 // Typing: each line opens in `len` steps after the lines above it; 10 ms a character, 45 ms a line break.
 const MS_CHAR = 10;
@@ -27,7 +11,7 @@ const MS_LINE = 45;
 let t = 300;
 const lines = codePeek.snippet.split('\n').map((text) => {
   const len = Math.max(text.length, 1);
-  const line = { html: highlight(text) || ' ', len, delay: t, dur: len * MS_CHAR };
+  const line = { html: highlightJson(text) || ' ', len, delay: t, dur: len * MS_CHAR };
   t += line.dur + MS_LINE;
   return line;
 });

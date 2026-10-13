@@ -34,6 +34,9 @@ export class Chrome {
         // the headless screen (800 × 600 by default) is what an element in full screen fills and what the screencast
         // then captures: make it the viewport, at its scale (sizes in device px)
         `--screen-info={${width * dpr}x${height * dpr} devicePixelRatio=${dpr}}`,
+        // draw only fully rastered frames: no checkerboard tiles (dark rectangles) mid-zoom in the screencast
+        '--run-all-compositor-stages-before-draw',
+        '--disable-checker-imaging',
         // keep rAF and timers at full rate: nothing here is a background tab
         '--disable-background-timer-throttling',
         '--disable-renderer-backgrounding',
@@ -119,20 +122,57 @@ export class Chrome {
 }
 
 export class Tab {
-  static async open(chrome, { width, height, dpr, colorScheme }) {
+  static async open(chrome, opts) {
     const { targetId } = await chrome.call('Target.createTarget', { url: 'about:blank' });
+    return Tab.attach(chrome, targetId, opts);
+  }
+
+  /** Attaches to an existing page target, at the clip's viewport, scale and color scheme. */
+  static async attach(chrome, targetId, { width, height, dpr, colorScheme }) {
     const { sessionId } = await chrome.call('Target.attachToTarget', { targetId, flatten: true });
-    const tab = new Tab(chrome, sessionId);
+    const tab = new Tab(chrome, sessionId, targetId);
     await tab.call('Runtime.enable');
     await tab.call('Page.enable');
-    await tab.call('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: dpr, mobile: false });
+    const metrics = { width, height, deviceScaleFactor: dpr, mobile: false };
+    await tab.call('Emulation.setDeviceMetricsOverride', metrics);
     if (colorScheme) await tab.call('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: colorScheme }] });
+    // Entering or leaving full screen drops the metrics override, and the screencast then sends frames of the
+    // headless window's content size (713 px tall, not 800): set it again on every fullscreenchange.
+    await tab.call('Runtime.addBinding', { name: '__clipViewport' });
+    tab.on('Runtime.bindingCalled', ({ name }) => {
+      if (name === '__clipViewport') tab.call('Emulation.setDeviceMetricsOverride', metrics).catch(() => {});
+    });
+    const hook = "document.addEventListener('fullscreenchange', () => window.__clipViewport && __clipViewport(''))";
+    await tab.call('Page.addScriptToEvaluateOnNewDocument', { source: hook });
+    await tab.ev(hook).catch(() => {}); // the page already open, for a tab the page opened
     return tab;
   }
 
-  constructor(chrome, sessionId) {
+  /** The id of the next page target opened (by window.open or a target=_blank link) once trigger() runs. */
+  static async nextNewTarget(chrome, trigger, timeout = 10_000) {
+    await chrome.call('Target.setDiscoverTargets', { discover: true });
+    let off;
+    const created = new Promise((resolve) => {
+      off = chrome.on('Target.targetCreated', ({ targetInfo }) => targetInfo.type === 'page' && resolve(targetInfo.targetId));
+    });
+    try {
+      await trigger();
+      const id = await Promise.race([created, sleep(timeout).then(() => null)]);
+      if (!id) throw new Error('no new tab opened');
+      return id;
+    } finally {
+      off();
+    }
+  }
+
+  constructor(chrome, sessionId, targetId) {
     this.chrome = chrome;
     this.session = sessionId;
+    this.targetId = targetId;
+  }
+
+  close() {
+    return this.chrome.call('Target.closeTarget', { targetId: this.targetId }).catch(() => {});
   }
 
   call(method, params) {
@@ -145,7 +185,8 @@ export class Tab {
 
   /** expr (a string of JS) evaluated in the page; promises awaited, the value returned by value. */
   async ev(expr) {
-    const r = await this.call('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true });
+    // as a user gesture: window.open and requestFullscreen work from a scenario's ev too
+    const r = await this.call('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true, userGesture: true });
     if (r.exceptionDetails) {
       const d = r.exceptionDetails;
       throw new Error(`${expr.slice(0, 200)}: ${(d.exception && d.exception.description) || d.text}`);
@@ -169,6 +210,13 @@ export class Tab {
   async go(url) {
     await this.ev('window.__clipLeft = true').catch(() => {});
     await this.call('Page.navigate', { url });
+    await this.waitFor("!window.__clipLeft && document.readyState === 'complete'", 30_000);
+  }
+
+  /** A real reload (as F5): the page keeps its scroll; waits until the new document has loaded. */
+  async reload() {
+    await this.ev('window.__clipLeft = true').catch(() => {});
+    await this.call('Page.reload');
     await this.waitFor("!window.__clipLeft && document.readyState === 'complete'", 30_000);
   }
 }

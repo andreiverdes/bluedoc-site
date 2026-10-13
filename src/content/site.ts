@@ -1,6 +1,7 @@
 // Every piece of copy on the page lives here. Edit text, links and images in this one file;
 // the components in src/components only lay it out.
 import type { ImageMetadata } from 'astro';
+import { base } from '../lib/paths';
 
 import homeShot from '../assets/shots/home-hero.webp';
 import docsShot from '../assets/shots/docs-hero.webp';
@@ -9,6 +10,7 @@ import reviewShot from '../assets/shots/review-hero.webp';
 import designShot from '../assets/shots/design-hero.webp';
 import presentationShot from '../assets/shots/presentation-hero.webp';
 import otherShot from '../assets/shots/other-hero.webp';
+import websiteShot from '../assets/shots/website-hero.webp';
 
 export const repoUrl = 'https://github.com/andreiverdes/bluedoc';
 
@@ -19,13 +21,15 @@ export const meta = {
   ogImageAlt: 'bluedoc: a pixel-art night bay with a ringed planet, the bluedoc logo and the headline “Your agent’s work, on a page you can decide on.”',
 };
 
+// Anchors on the home page carry the base path, so they work from the type pages too.
 export const nav = {
   links: [
-    { label: 'Features', href: '#features' },
-    { label: 'Doc types', href: '#doc-types' },
-    { label: 'How it works', href: '#how-it-works' },
-    { label: 'Install', href: '#install' },
+    { label: 'Features', href: `${base}#features` },
+    { label: 'How it works', href: `${base}#how-it-works` },
+    { label: 'Install', href: `${base}#install` },
   ],
+  // The Doc types menu lists every type in docTypes that has a page (an `href`), after Features.
+  typesMenu: { label: 'Doc types', all: { label: 'All doc types', href: `${base}#doc-types` } },
   github: { label: 'GitHub', href: repoUrl },
 };
 
@@ -74,12 +78,14 @@ export type DocType = {
   bullets: string[];
   image: ImageMetadata;
   alt: string;
+  /** the type's showcase page, once it has one */
+  href?: string;
 };
 
 export const docTypes = {
   id: 'doc-types',
   kicker: 'Doc types',
-  title: 'Six kinds of page, one way to answer them.',
+  title: 'Seven kinds of page, one way to answer them.',
   lead: 'Each type has its own layout and its own decisions. Comments, revisions and approval work the same on all of them.',
   items: [
     {
@@ -94,6 +100,7 @@ export const docTypes = {
       ],
       image: docsShot,
       alt: 'The Acme orders doc: the order path canvas zoomed into the orders-api system, playing step 3 of a flow.',
+      href: `${base}docs/`,
     },
     {
       id: 'plans',
@@ -121,6 +128,7 @@ export const docTypes = {
       bullets: ['Watch, phone, tablet, desktop and browser frames', 'Screens link to each other; Present follows the taps', 'App icon sheets with PNG export'],
       image: designShot,
       alt: 'The Acme Fit design board: the Today phone screen selected, with its links drawn as right-angle connectors to other screens.',
+      href: `${base}designs/`,
     },
     {
       id: 'presentations',
@@ -130,6 +138,20 @@ export const docTypes = {
       bullets: ['16:9 HTML slides in deck order', '← → to step, N for notes, Esc to leave'],
       image: presentationShot,
       alt: 'The Acme Fit Q3 launch review deck: five slides stacked in one column, with the Present key in the toolbar.',
+    },
+    {
+      id: 'websites',
+      name: 'Websites',
+      tag: 'website',
+      pitch: 'A site’s pages on a board, live from its dev server.',
+      bullets: [
+        'Live pages from localhost, hot reload included',
+        'Comments that name the source file to edit',
+        'Versions of a section, picked in place',
+      ],
+      image: websiteShot,
+      alt: 'The Acme Fit site board: the Home mockup at 1440 px with its hero’s A, B and C versions, and the Blog live from the dev server at 390 px with a pin on a post title.',
+      href: `${base}websites/`,
     },
     {
       id: 'other',
@@ -301,13 +323,13 @@ export const footer = {
   licence: { label: 'MIT licence', href: `${repoUrl}/blob/main/LICENSE` },
   links: [
     { label: 'GitHub', href: repoUrl },
-    { label: 'Doc types', href: '#doc-types' },
-    { label: 'Install', href: '#install' },
-    { label: 'FAQ', href: '#faq' },
+    { label: 'All doc types', href: `${base}#doc-types` },
+    { label: 'Install', href: `${base}#install` },
+    { label: 'FAQ', href: `${base}#faq` },
   ],
   credits: [
     'Fonts: Lexend, Inter, JetBrains Mono and Silkscreen, under the SIL Open Font License 1.1, self-hosted.',
-    'Pixel-art banners and screenshots from the bluedoc repository (MIT). The screenshots show bluedoc’s HorizonUI build (Apache-2.0).',
+    'Pixel-art banners and screenshots from the bluedoc repository (MIT); clips recorded from its Acme examples. Both show bluedoc’s HorizonUI build (Apache-2.0).',
     'Icons: Lucide (ISC).',
   ],
 };

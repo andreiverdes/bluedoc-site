@@ -36,12 +36,50 @@ const RESOLVE = `(t => {
 })`;
 
 export class Actor {
-  constructor(tab, { width, height }) {
+  /**
+   * bd: the run's bluedoc server (lib/bluedoc.mjs: docs, docPath(), py(), req()); openTab(trigger): runs trigger,
+   * then attaches to, records and returns the tab it opened (run.mjs gives both).
+   */
+  constructor(tab, { width, height }, { openTab, bd } = {}) {
     this.tab = tab;
     this.size = { width, height };
     this.x = width * 0.62;
     this.y = height * 0.58;
     this.buttons = 0;
+    this.openTab = openTab;
+    this.bd = bd;
+  }
+
+  /**
+   * Loads a doc by stem, or 'home', with a fresh key token; waits for the page script (BP on a doc). The cursor is
+   * drawn again where it was as soon as the new page can show it.
+   */
+  async goto(stem, query = '') {
+    await this.tab.go(await this.bd.urlFor(stem, query));
+    await this.#loaded(stem !== 'home');
+  }
+
+  /** Reloads the page as F5 does (it keeps its scroll), after a build.py patch say, and waits as goto does. */
+  async reload() {
+    const doc = await this.tab.ev('!!window.BP');
+    await this.tab.reload();
+    await this.#loaded(doc);
+  }
+
+  async #loaded(doc) {
+    // the cursor overlay belonged to the old document: put it back before waiting on the page script
+    await this.#mouse('mouseMoved', this.x, this.y);
+    if (doc) await this.tab.waitFor('!!window.BP');
+  }
+
+  /**
+   * Runs trigger (e.g. () => c.click('a[target=_blank]')), then goes on in the tab it opened: same viewport, the
+   * cursor drawn where it was, and the recording follows. Waits for the new page to load.
+   */
+  async followNewTab(trigger) {
+    this.tab = await this.openTab(trigger);
+    await this.#mouse('mouseMoved', this.x, this.y);
+    return this.tab;
   }
 
   ev(expr) {

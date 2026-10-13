@@ -1,0 +1,57 @@
+---
+// One feature on a type page: its clip on one side, a title and 1–2 sentences on the other. Rows alternate sides
+// from 1024 px; below that the clip sits on top.
+import Clip from './Clip.astro';
+import type { ClipCopy } from '../content/types';
+
+interface Props {
+  item: ClipCopy;
+  /** the row's position, from 0: odd rows put the clip on the right */
+  index: number;
+}
+
+const { item, index } = Astro.props;
+---
+
+<article class:list={['feature-row', { flip: index % 2 === 1 }]} data-reveal>
+  <div class="clip-col">
+    <Clip name={item.clip} label={item.shows} title={item.title} />
+  </div>
+  <div>
+    <p class="row-num" aria-hidden="true">{String(index + 1).padStart(2, '0')}</p>
+    <h3 class="row-title">{item.title}</h3>
+    <p class="mt-3 text-fg-muted">{item.body}</p>
+  </div>
+</article>
+
+<style>
+  .feature-row {
+    display: grid;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  @media (min-width: 1024px) {
+    .feature-row {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+      gap: 3.5rem;
+    }
+    .feature-row.flip {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+    }
+    .flip .clip-col {
+      order: 2;
+    }
+  }
+  .row-num {
+    font-family: var(--font-pixel);
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    color: var(--cyan);
+  }
+  .row-title {
+    margin-top: 0.6rem;
+    font-size: clamp(1.3rem, 1.1rem + 0.7vw, 1.75rem);
+    line-height: 1.2;
+    font-weight: 600;
+  }
+</style>

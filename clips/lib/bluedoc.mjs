@@ -34,16 +34,16 @@ export class Bluedoc {
 
     const env = { ...process.env, BLUEDOC_HOME: home, PYTHONDONTWRITEBYTECODE: '1' };
     delete env.BLUEDOC_PORT;
-    const py = (...args) => spawnSync('python3', [join(scripts, 'serve.py'), ...args], { env, cwd: work, encoding: 'utf8' });
-    const added = py('add', docs);
-    if (added.status !== 0) throw new Error(`serve.py add: ${added.stderr || added.stdout}`);
-
     const port = await freePort();
+    env.BLUEDOC_PORT = String(port); // the CLI (open, snapshot, wait) finds this server, not the default one
+    const bd = new Bluedoc({ port, home, work, docs, repo, scripts, env });
+    bd.py('serve.py', 'add', docs);
+
     const proc = spawn('python3', [join(scripts, 'serve.py'), 'run', '--port', String(port)], { env, cwd: work, stdio: ['ignore', 'pipe', 'pipe'] });
     let log = '';
     proc.stdout.on('data', (d) => (log += d));
     proc.stderr.on('data', (d) => (log += d));
-    const bd = new Bluedoc({ proc, port, home, docs });
+    bd.proc = proc;
     const deadline = Date.now() + 15_000;
     for (;;) {
       try {
@@ -55,8 +55,15 @@ export class Bluedoc {
     return bd;
   }
 
-  constructor({ proc, port, home, docs }) {
-    Object.assign(this, { proc, port, home, docs, origin: `http://127.0.0.1:${port}` });
+  constructor({ port, home, work, docs, repo, scripts, env }) {
+    Object.assign(this, { port, home, work, docs, repo, scripts, env, origin: `http://127.0.0.1:${port}` });
+  }
+
+  /** Runs a bluedoc script (build.py, serve.py, …) with this server's BLUEDOC_HOME and port; throws on failure. */
+  py(script, ...args) {
+    const r = spawnSync('python3', [join(this.scripts, script), ...args.map(String)], { env: this.env, cwd: this.work, encoding: 'utf8', timeout: 180_000 });
+    if (r.status !== 0) throw new Error(`${script} ${args.join(' ')}: exit ${r.status}\n${r.stderr || r.stdout}`);
+    return r.stdout;
   }
 
   key() {
@@ -75,16 +82,29 @@ export class Bluedoc {
     return { status: r.status, json: r.headers.get('content-type')?.includes('json') ? await r.json() : null };
   }
 
-  /** The URL of an example doc (by stem), with a one-hour key token the page trades for the save cookie. */
+  /** A doc's file in the docs folder, by stem (e.g. 'acme-orders'); a stem may name a subfolder. */
+  docPath(stem) {
+    return resolve(this.docs, `${stem}.bluedoc.json`);
+  }
+
+  /**
+   * The URL of a doc (by stem), or of the home page for 'home', with a one-hour key token the page trades for the
+   * save cookie.
+   */
   async urlFor(stem, query = '') {
-    const file = resolve(this.docs, `${stem}.bluedoc.json`);
-    if (!existsSync(file)) throw new Error(`no example ${stem}.bluedoc.json in ${this.docs}`);
-    const u = await this.req('GET', `/__bluedoc/url?doc=${encodeURIComponent(file)}`);
+    let path = '/';
+    if (stem !== 'home') {
+      const file = this.docPath(stem);
+      if (!existsSync(file)) throw new Error(`no doc ${stem}.bluedoc.json in ${this.docs}`);
+      const u = await this.req('GET', `/__bluedoc/url?doc=${encodeURIComponent(file)}`);
+      if (u.status !== 200) throw new Error(`bluedoc url failed: ${u.status}`);
+      path = u.json.url;
+    }
     const t = await this.req('POST', '/__bluedoc/unlock', {});
-    if (u.status !== 200 || t.status !== 200) throw new Error(`bluedoc url/unlock failed: ${u.status} ${t.status}`);
+    if (t.status !== 200) throw new Error(`bluedoc unlock failed: ${t.status}`);
     const q = new URLSearchParams(query);
     q.set('key', t.json.token);
-    return `${this.origin}${u.json.url}?${q}`;
+    return `${this.origin}${path}?${q}`;
   }
 
   async stop() {

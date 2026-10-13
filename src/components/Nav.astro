@@ -2,21 +2,56 @@
 import Menu from '@lucide/astro/icons/menu';
 import Sun from '@lucide/astro/icons/sun';
 import Moon from '@lucide/astro/icons/moon';
+import ChevronDown from '@lucide/astro/icons/chevron-down';
 import Logo from './Logo.astro';
 import GithubMark from './GithubMark.astro';
-import { nav } from '../content/site';
+import { docTypes, nav } from '../content/site';
+import { base } from '../lib/paths';
+
+const onHome = Astro.url.pathname === base;
+// The Doc types menu: every type with a page; the link to the current page is marked.
+const typePages = docTypes.items.flatMap((t) =>
+  t.href ? [{ label: t.name, pitch: t.pitch, href: t.href, current: Astro.url.pathname === t.href }] : [],
+);
+const [firstLink, ...restLinks] = nav.links;
 ---
 
 <div data-nav-sentinel aria-hidden="true" class="pointer-events-none absolute top-0 left-0 h-6 w-px"></div>
 <header class="site-nav fixed inset-x-0 top-0 z-50" data-nav>
   <nav aria-label="Main" class="container-x flex h-16 items-center gap-4">
-    <a href="#top" class="logo-link -ml-1 rounded-lg p-1" aria-label="bluedoc, back to top">
+    <a href={onHome ? '#top' : base} class="logo-link -ml-1 rounded-lg p-1" aria-label={onHome ? 'bluedoc, back to top' : 'bluedoc home'}>
       <Logo size={30} />
     </a>
 
     <ul class="ml-auto hidden items-center gap-1 lg:flex">
+      <li>
+        <a class="nav-link" href={firstLink.href}>{firstLink.label}</a>
+      </li>
+      <li>
+        <details class="types-menu relative" data-nav-types>
+          <summary class="nav-link types-summary">
+            {nav.typesMenu.label}
+            <ChevronDown class="types-chevron size-4" aria-hidden="true" />
+          </summary>
+          <div class="types-panel card">
+            <ul>
+              {
+                typePages.map((t) => (
+                  <li>
+                    <a class="types-item" href={t.href} aria-current={t.current ? 'page' : undefined}>
+                      <span class="font-semibold text-fg">{t.label}</span>
+                      <span class="text-sm text-fg-muted">{t.pitch}</span>
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+            <a class="types-all" href={nav.typesMenu.all.href}>{nav.typesMenu.all.label}</a>
+          </div>
+        </details>
+      </li>
       {
-        nav.links.map((l) => (
+        restLinks.map((l) => (
           <li>
             <a class="nav-link" href={l.href}>
               {l.label}
@@ -39,17 +74,40 @@ import { nav } from '../content/site';
         <summary class="icon-btn" aria-label="Menu">
           <Menu class="size-5" aria-hidden="true" />
         </summary>
-        <ul class="nav-menu-panel card absolute top-12 right-0 w-56 p-2">
-          {
-            nav.links.map((l) => (
-              <li>
-                <a class="block rounded-lg px-3 py-2.5 text-fg-muted hover:bg-line hover:text-fg" href={l.href}>
-                  {l.label}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
+        <div class="nav-menu-panel card absolute top-12 right-0 w-64 p-2">
+          <ul>
+            {
+              nav.links.map((l) => (
+                <li>
+                  <a class="block rounded-lg px-3 py-2.5 text-fg-muted hover:bg-line hover:text-fg" href={l.href}>
+                    {l.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+          <p id="nav-types-heading" class="menu-group-label">{nav.typesMenu.label}</p>
+          <ul aria-labelledby="nav-types-heading">
+            {
+              typePages.map((t) => (
+                <li>
+                  <a
+                    class="block rounded-lg px-3 py-2.5 text-fg-muted hover:bg-line hover:text-fg aria-[current=page]:text-fg"
+                    href={t.href}
+                    aria-current={t.current ? 'page' : undefined}
+                  >
+                    {t.label}
+                  </a>
+                </li>
+              ))
+            }
+            <li>
+              <a class="block rounded-lg px-3 py-2.5 text-fg-muted hover:bg-line hover:text-fg" href={nav.typesMenu.all.href}>
+                {nav.typesMenu.all.label}
+              </a>
+            </li>
+          </ul>
+        </div>
       </details>
     </div>
   </nav>
@@ -119,5 +177,68 @@ import { nav } from '../content/site';
   }
   .nav-menu-panel {
     background: var(--surface);
+  }
+  .menu-group-label {
+    margin: 0.5rem 0.75rem 0.25rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--line);
+    font-family: var(--font-pixel);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--cyan);
+  }
+
+  /* Doc types: a disclosure (details/summary), so Enter and Space open it with no script; site.ts closes it on
+     Escape, on a click outside and when focus leaves it. */
+  .types-summary {
+    gap: 0.3rem;
+    cursor: pointer;
+    list-style: none;
+  }
+  .types-summary::-webkit-details-marker {
+    display: none;
+  }
+  .types-chevron {
+    transition: transform 0.2s var(--ease-out-soft);
+  }
+  .types-menu[open] .types-summary {
+    color: var(--fg);
+    background: var(--line);
+  }
+  .types-menu[open] .types-chevron {
+    transform: rotate(180deg);
+  }
+  .types-panel {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 50%;
+    translate: -50% 0;
+    width: 21rem;
+    padding: 0.5rem;
+    background: var(--surface);
+  }
+  .types-item {
+    display: grid;
+    gap: 0.15rem;
+    padding: 0.7rem 0.85rem;
+    border-radius: 0.75rem;
+    line-height: 1.4;
+    transition: background-color 0.15s;
+  }
+  .types-item:hover,
+  .types-item[aria-current='page'] {
+    background: var(--line);
+  }
+  .types-all {
+    display: block;
+    margin-top: 0.35rem;
+    padding: 0.65rem 0.85rem 0.45rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.875rem;
+    color: var(--fg-muted);
+  }
+  .types-all:hover {
+    color: var(--fg);
   }
 </style>

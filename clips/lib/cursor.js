@@ -86,6 +86,9 @@
       if (!el) return;
       x = nx;
       y = ny;
+      try {
+        sessionStorage.setItem('__clipCursor', `${x},${y}`);
+      } catch {}
       raise();
       shape = pick();
       draw();
@@ -108,4 +111,16 @@
     hide() { el && (el.style.visibility = 'hidden'); },
     show() { el && (el.style.visibility = ''); },
   };
+  // a reload or another page of the same origin: draw the cursor where it was as soon as the document can hold it,
+  // so it doesn't vanish until the next move
+  let saved = null;
+  try {
+    saved = sessionStorage.getItem('__clipCursor');
+  } catch {}
+  if (saved) {
+    const [sx, sy] = saved.split(',').map(Number);
+    const show = () => window.__clipCursor.move(sx, sy);
+    if (document.body) show();
+    else document.addEventListener('DOMContentLoaded', show, { once: true });
+  }
 })();

@@ -1,0 +1,171 @@
+---
+// "How the agent uses it" on a type page: the commands the agent runs, then the part of the doc it writes,
+// highlighted at build time.
+import Copy from '@lucide/astro/icons/copy';
+import Check from '@lucide/astro/icons/check';
+import FileJson from '@lucide/astro/icons/file-braces';
+import FileCode from '@lucide/astro/icons/file-code';
+import Info from '@lucide/astro/icons/info';
+import { highlightHtml, highlightJson } from '../lib/highlight';
+import { inlineCode } from '../lib/inline-code';
+import type { TypePageCopy } from '../content/types';
+
+interface Props {
+  agent: TypePageCopy['agent'];
+}
+
+const { agent } = Astro.props;
+const files = agent.files.map((f) => ({
+  ...f,
+  lines: f.code.split('\n').map((l) => (f.lang === 'json' ? highlightJson(l) : highlightHtml(l)) || ' '),
+}));
+---
+
+<div class="agent grid gap-5">
+  <div class="term card">
+    <div class="term-cmds">
+      {
+        agent.commands.map((c) => (
+          <div class="cmd">
+            <span class="select-none text-cyan" aria-hidden="true">
+              $
+            </span>
+            <code>{c}</code>
+          </div>
+        ))
+      }
+    </div>
+    <button type="button" class="copy-btn" data-copy={agent.commands.join('\n')} aria-label="Copy the commands">
+      <Copy class="i-copy size-4" aria-hidden="true" />
+      <Check class="i-done size-4" aria-hidden="true" />
+    </button>
+  </div>
+
+  {
+    files.map((f) => {
+      const Icon = f.lang === 'json' ? FileJson : FileCode;
+      return (
+        <figure class="editor card">
+          <figcaption class="bar">
+            <span class="dots" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </span>
+            <span class="flex min-w-0 items-center gap-2 truncate">
+              <Icon class="size-4 flex-none text-cyan" aria-hidden="true" />
+              {f.name}
+            </span>
+          </figcaption>
+          <pre class="code" tabindex="0" aria-label={f.name}><code>{f.lines.map((html, i) => (
+            <span class="row"><span class="gutter" aria-hidden="true">{i + 1}</span><span class="ln" set:html={html} /></span>
+          ))}</code></pre>
+        </figure>
+      );
+    })
+  }
+
+  <p class="note">
+    <Info class="mt-0.5 size-4 flex-none text-fg-subtle" aria-hidden="true" />
+    <span set:html={inlineCode(agent.note)} />
+  </p>
+</div>
+
+<style>
+  .term {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 0.75rem 1rem 1.1rem;
+    background: color-mix(in oklab, var(--bg) 70%, var(--surface));
+    font-family: var(--font-mono);
+    font-size: clamp(0.76rem, 0.73rem + 0.18vw, 0.875rem);
+  }
+  .term-cmds {
+    flex: 1;
+    min-width: 0;
+    display: grid;
+    gap: 0.45rem;
+    padding-top: 0.35rem;
+  }
+  .cmd {
+    display: flex;
+    gap: 0.75rem;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .editor {
+    margin: 0;
+    overflow: hidden;
+    background: color-mix(in oklab, var(--bg) 55%, var(--surface));
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    height: 2.75rem;
+    padding-inline: 1rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+  }
+  .dots {
+    display: flex;
+    gap: 0.4rem;
+  }
+  .dots i {
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+    background: var(--line-strong);
+  }
+  .code {
+    margin: 0;
+    padding: 1.1rem 0;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: clamp(0.72rem, 0.69rem + 0.18vw, 0.84rem);
+    line-height: 1.75;
+    color: var(--fg);
+  }
+  .row {
+    display: flex;
+    padding-right: 1.25rem;
+  }
+  .gutter {
+    flex: none;
+    width: 3rem;
+    padding-right: 1rem;
+    text-align: right;
+    color: var(--fg-subtle);
+    user-select: none;
+  }
+  .ln {
+    white-space: pre;
+  }
+  .code :global(.k) {
+    color: var(--code-key);
+  }
+  .code :global(.s) {
+    color: var(--code-str);
+  }
+  .code :global(.n) {
+    color: var(--code-num);
+  }
+  .code :global(.p) {
+    color: var(--code-punct);
+  }
+  .note {
+    display: flex;
+    gap: 0.6rem;
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+  }
+  .note :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    color: var(--fg);
+  }
+</style>
