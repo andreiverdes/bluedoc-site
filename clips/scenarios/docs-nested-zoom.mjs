@@ -4,7 +4,6 @@
 const CV = '#cv-orders';
 const node = (key) => `${CV} .bp-node[data-key="${key}"]`;
 
-export const gif = true;
 export const crf = 28; // the blueprint's grid, glow and marching dashes in every frame: under 600 KB at 28
 
 export default {

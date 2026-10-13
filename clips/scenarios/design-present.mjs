@@ -2,7 +2,6 @@
 // Workout, its back arrow returns, the Activity tab switches tabs, and the bar's Back goes home to Today.
 import { ab, panels, settled } from '../fixtures/acme-fit-design/board.mjs';
 
-export const gif = true;
 
 // a point in the presented screen, by fractions of it
 const scr = (x, y) => ({ sel: '.bd-pres iframe', x, y });

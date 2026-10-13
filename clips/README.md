@@ -19,8 +19,7 @@ Each scenario:
 3. runs while `Page.startScreencast` records every painted frame with its timestamp, then resamples them to a
    steady 30 fps (a frame holds until the next paint);
 4. is encoded into `public/clips/`: `<name>.mp4` (H.264, CRF 23, faststart, 1280 wide), `<name>.webm` (VP9) and
-   `<name>.poster.webp`. A signature clip with `export const gif = true` also gets `clips/gif/<name>.gif` (960 wide,
-   15 fps), for READMEs: outside `public/`, so it isn't deployed. Each file's size is printed;
+   `<name>.poster.webp`. Each file's size is printed;
 5. has 6 evenly spaced frames copied to `clips/.work/<name>/review/`: look at them before you commit a clip.
 
 It needs ffmpeg with libx264 and libvpx (when ffmpeg is missing, the script says so and runs `brew install ffmpeg`
@@ -33,7 +32,6 @@ A scenario is `clips/scenarios/<name>.mjs`. Name it `<doc type>-<feature>` (`doc
 or `every-<feature>` for one that every doc type has.
 
 ```js
-export const gif = true;           // only for signature clips: also write clips/gif/<name>.gif
 export const crf = 27;             // optional: H.264 CRF (default 23); a busy clip (a blueprint, a board glide)
                                    // trades a little quality for size. WebM's VP9 CRF is crf + 13 (webmCrf sets it)
 export const dropGlitches = true;  // optional: drop the suspect glitch frames the run reports (see Headless notes)

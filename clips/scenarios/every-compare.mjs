@@ -1,6 +1,5 @@
 // Every doc type: compare two revisions word by word. From the Revisions panel, Changes from 1 marks what is new,
 // changed and removed since rev 1: the header's words struck and added, then a new paragraph and a removed note.
-export const gif = true;
 
 export default {
   doc: 'acme-review-findings',

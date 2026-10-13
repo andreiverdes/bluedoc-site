@@ -2,7 +2,6 @@
 // recommendation starred; pointing at them outlines the hero, and each pick rewrites the live page's headline.
 import { BOARD_READY, boardOnly, settle, startFixture, stepBack } from '../fixtures/acme-fit-site/fixture.mjs';
 
-export const gif = true;
 
 const PICK = (id) => `.bd-ab[data-ab=home] .bd-var button[data-id=${id}]`;
 let site;

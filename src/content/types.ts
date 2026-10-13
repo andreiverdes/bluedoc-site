@@ -338,7 +338,7 @@ const designs: TypePageCopy = {
       clip: 'design-point',
       title: 'Comment on a button inside a screen',
       body: 'Point at an element in a screen. The comment’s key names the screen and the element, so the agent edits that element in that file.',
-      shows: 'On acme-fit-design, the cursor points at Start workout on Today and the comment’s key reads el:today/start-workout.',
+      shows: 'On acme-fit-design, the cursor points at the Start workout button on Today, writes a note, and the comment is filed as start-workout · Board › Today.',
     },
     {
       clip: 'design-frame',

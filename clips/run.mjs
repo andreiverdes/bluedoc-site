@@ -15,7 +15,6 @@ import { encode, haveFfmpeg, Recorder, reviewFrames } from './lib/recorder.mjs';
 const here = dirname(fileURLToPath(import.meta.url));
 const site = resolve(here, '..');
 const OUT = join(site, 'public/clips');
-const GIFS = join(here, 'gif');
 const WORK = join(here, '.work');
 const VIEW = { width: 1280, height: 800, dpr: 2 };
 const BLUEDOC_REPO = resolve(process.env.BLUEDOC_REPO || join(site, '../bluedoc'));
@@ -46,7 +45,6 @@ async function record(name, tag, chrome) {
   if (!existsSync(file)) throw new Error(`no scenario ${relative(site, file)}`);
   const mod = await import(pathToFileURL(file).href);
   const sc = mod.default;
-  const gif = mod.gif ?? sc.gif ?? false;
   const dir = join(WORK, name);
 
   // the docs sit in acme-shop/docs, so the home page names the project acme-shop
@@ -101,7 +99,7 @@ async function record(name, tag, chrome) {
     if (stats.stalls.length) console.log(`  paint gaps over 100 ms (clip s, ms): ${stats.stalls.map(([t, ms]) => `${t}s ${ms}ms`).join(', ')}`);
     // a busy clip (a blueprint's grid and glow, a board glide) can trade a little quality for size
     const crf = mod.crf ?? sc.crf ?? 23;
-    const files = await encode(rec.seq, stats.frames, OUT, name, { posterAt: sc.posterAt ?? 0, gifDir: gif ? GIFS : null, crf, webmCrf: mod.webmCrf ?? sc.webmCrf ?? crf + 13 });
+    const files = await encode(rec.seq, stats.frames, OUT, name, { posterAt: sc.posterAt ?? 0, crf, webmCrf: mod.webmCrf ?? sc.webmCrf ?? crf + 13 });
     for (const [f, n] of files) console.log(`  ${relative(site, f).padEnd(40)} ${kb(n).padStart(9)}`);
     const review = reviewFrames(rec.seq, join(dir, 'review'), stats.frames);
     console.log(`  review frames: ${relative(site, join(dir, 'review'))}/ (${review.map((f) => basename(f)).join(', ')})`);

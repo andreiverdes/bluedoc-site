@@ -1,6 +1,6 @@
 // Records a tab with Page.startScreencast: each frame Chrome paints is written with its timestamp, then the frames
 // are resampled onto a steady 30 fps timeline (a frame is held until the next paint) and encoded with ffmpeg
-// (mp4, webm, gif) and sharp (the poster: Homebrew's ffmpeg comes without a WebP encoder).
+// (mp4, webm) and sharp (the poster: Homebrew's ffmpeg comes without a WebP encoder).
 import { spawnSync } from 'node:child_process';
 import { copyFileSync, linkSync, mkdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -163,10 +163,10 @@ export function haveFfmpeg() {
 }
 
 /**
- * Encodes seq/%05d.jpg (total frames) into out/<name>.{mp4,webm,poster.webp}, and with gifDir also
- * gifDir/<name>.gif; returns [file, bytes][]. posterAt: the poster frame's time in s; negative counts from the end.
+ * Encodes seq/%05d.jpg (total frames) into out/<name>.{mp4,webm,poster.webp}; returns [file, bytes][].
+ * posterAt: the poster frame's time in s; negative counts from the end.
  */
-export async function encode(seqDir, total, outDir, name, { posterAt = 0, gifDir = null, crf = 23, webmCrf = crf + 13, width = 1280, gifWidth = 960, gifFps = 15 } = {}) {
+export async function encode(seqDir, total, outDir, name, { posterAt = 0, crf = 23, webmCrf = crf + 13, width = 1280 } = {}) {
   mkdirSync(outDir, { recursive: true });
   const input = ['-framerate', String(FPS), '-i', join(seqDir, '%05d.jpg')];
   const scale = `scale=${width}:-2:flags=lanczos`;
@@ -182,12 +182,6 @@ export async function encode(seqDir, total, outDir, name, { posterAt = 0, gifDir
   const pi = Math.max(0, Math.min(total - 1, Math.round((posterAt < 0 ? total / FPS + posterAt : posterAt) * FPS)));
   const posterFrame = join(seqDir, `${String(pi).padStart(5, '0')}.jpg`);
   await sharp(posterFrame).resize({ width, kernel: 'lanczos3' }).webp({ quality: 82 }).toFile(files.poster);
-  if (gifDir) {
-    mkdirSync(gifDir, { recursive: true });
-    files.gif = join(gifDir, `${name}.gif`);
-    ff([...input, '-vf', `fps=${gifFps},scale=${gifWidth}:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=192:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle`,
-      '-loop', '0', files.gif]);
-  }
   return Object.values(files).map((f) => [f, statSync(f).size]);
 }
 

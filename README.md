@@ -46,7 +46,7 @@ Page title and description: `meta` in `site.ts`. Colours, fonts and shared style
 - **Hero banners** are `src/assets/hero/hero-dark.webp` and `hero-light.webp` (1672 × 523). The ships that drift are small cut-outs of the banner in `src/assets/hero/ships/`, placed at the source-pixel boxes listed in `Hero.astro`; with a new banner, cut new ones (or remove the `ships` list).
 - **Logo**: `src/components/Logo.astro` (the mark and the outlined wordmark). The favicon is `public/favicon.svg`, with `favicon.ico` and `apple-touch-icon.png` rendered from it.
 - **Social card**: `public/og.png` (1200 × 630) is rendered from `scripts/og/og.html`. Edit the HTML, then run `npm run og` (needs Google Chrome or Chromium; set `CHROME_PATH` if it isn't found).
-- **Clips**: `public/clips/` holds short looping recordings of bluedoc (mp4, webm and a poster each), shown with `src/components/Clip.astro`; a few signature clips also have a README gif in `clips/gif/`, which isn't deployed. Run `npm run clips` to record them again from the scenarios in `clips/scenarios/` (needs Chrome, ffmpeg and the bluedoc repo next to this one); `clips/README.md` explains how to write one.
+- **Clips**: `public/clips/` holds short looping recordings of bluedoc (mp4, webm and a poster each), shown with `src/components/Clip.astro`. Run `npm run clips` to record them again from the scenarios in `clips/scenarios/` (needs Chrome, ffmpeg and the bluedoc repo next to this one); `clips/README.md` explains how to write one.
 
 ## Deploy
 
