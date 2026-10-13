@@ -28,8 +28,16 @@ export const nav = {
     { label: 'How it works', href: `${base}#how-it-works` },
     { label: 'Install', href: `${base}#install` },
   ],
-  // The Doc types menu lists every type in docTypes that has a page (an `href`), after Features.
-  typesMenu: { label: 'Doc types', all: { label: 'All doc types', href: `${base}#doc-types` } },
+  // The Doc types menu lists every type in docTypes, then the Features page; it sits after Features.
+  typesMenu: {
+    label: 'Doc types',
+    features: {
+      label: 'Features on every type',
+      pitch: 'Comments, decisions, approval and revisions, in 22 clips.',
+      href: `${base}features/`,
+    },
+    all: { label: 'All doc types', href: `${base}#doc-types` },
+  },
   github: { label: 'GitHub', href: repoUrl },
 };
 
@@ -78,8 +86,8 @@ export type DocType = {
   bullets: string[];
   image: ImageMetadata;
   alt: string;
-  /** the type's showcase page, once it has one */
-  href?: string;
+  /** the type's showcase page */
+  href: string;
 };
 
 export const docTypes = {
@@ -110,6 +118,7 @@ export const docTypes = {
       bullets: ['Steps, files, risks and checks on one page', 'Open questions with the recommendation starred', 'The agent waits for Approve plan'],
       image: planShot,
       alt: 'The Acme saved carts plan: three open questions with the recommended options starred, and Approve plan in the bottom tray.',
+      href: `${base}plans/`,
     },
     {
       id: 'reviews',
@@ -119,6 +128,7 @@ export const docTypes = {
       bullets: ['Diffs expanded from git on each render', 'Fix in PR, Ticket or Decline, with a reason', 'GitHub review threads imported as findings'],
       image: reviewShot,
       alt: 'The Acme review findings: a finding card under the lines of createOrder.ts it is about, with Fix in PR picked.',
+      href: `${base}reviews/`,
     },
     {
       id: 'designs',
@@ -138,6 +148,7 @@ export const docTypes = {
       bullets: ['16:9 HTML slides in deck order', '← → to step, N for notes, Esc to leave'],
       image: presentationShot,
       alt: 'The Acme Fit Q3 launch review deck: five slides stacked in one column, with the Present key in the toolbar.',
+      href: `${base}presentations/`,
     },
     {
       id: 'websites',
@@ -161,6 +172,7 @@ export const docTypes = {
       bullets: ['A TL;DR, then one section per question', 'A hero stat that sums the page up'],
       image: otherShot,
       alt: 'The Acme weekly status page for week 41: the TL;DR and the week-over-week numbers table.',
+      href: `${base}other/`,
     },
   ] satisfies DocType[],
 };
@@ -172,6 +184,7 @@ export const features = {
   kicker: 'Features',
   title: 'Built for answering, not just reading.',
   lead: 'A wall of text in a chat asks you to reply in prose. A bluedoc page asks you the questions and keeps your answers.',
+  more: { label: 'See each feature in a short clip', href: `${base}features/` },
   items: [
     {
       icon: 'comment',
@@ -322,6 +335,7 @@ export const footer = {
   tagline: 'An agent skill for docs, plans, reviews, designs and decks you can decide on.',
   licence: { label: 'MIT licence', href: `${repoUrl}/blob/main/LICENSE` },
   links: [
+    { label: 'Features', href: `${base}features/` },
     { label: 'GitHub', href: repoUrl },
     { label: 'All doc types', href: `${base}#doc-types` },
     { label: 'Install', href: `${base}#install` },

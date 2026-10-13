@@ -43,3 +43,18 @@ export function highlightHtml(line: string): string {
   }
   return out + esc(line.slice(last));
 }
+
+const MD_TOKEN = /^(#{1,6} .*)$|^(\s*>.*)$|(`[^`]+`)|(\*\*[^*]+\*\*)|(\([a-z0-9]+\))$/g;
+
+/** One line of Markdown, as a change request reads: headings, quotes, `code` keys, **labels** and comment ids. */
+export function highlightMarkdown(line: string): string {
+  let out = '';
+  let last = 0;
+  for (const m of line.matchAll(MD_TOKEN)) {
+    out += esc(line.slice(last, m.index));
+    const cls = m[1] ? 'n' : m[2] || m[5] ? 'p' : m[3] ? 'k' : 's';
+    out += `<span class="${cls}">${esc(m[0])}</span>`;
+    last = m.index + m[0].length;
+  }
+  return out + esc(line.slice(last));
+}

@@ -9,10 +9,10 @@ import { docTypes, nav } from '../content/site';
 import { base } from '../lib/paths';
 
 const onHome = Astro.url.pathname === base;
-// The Doc types menu: every type with a page; the link to the current page is marked.
-const typePages = docTypes.items.flatMap((t) =>
-  t.href ? [{ label: t.name, pitch: t.pitch, href: t.href, current: Astro.url.pathname === t.href }] : [],
-);
+// The Doc types menu: every type's page, then the Features page; the link to the current page is marked.
+const isCurrent = (href: string) => Astro.url.pathname === href;
+const typePages = docTypes.items.map((t) => ({ label: t.name, pitch: t.pitch, href: t.href, current: isCurrent(t.href) }));
+const featuresPage = { ...nav.typesMenu.features, current: isCurrent(nav.typesMenu.features.href) };
 const [firstLink, ...restLinks] = nav.links;
 ---
 
@@ -34,7 +34,7 @@ const [firstLink, ...restLinks] = nav.links;
             <ChevronDown class="types-chevron size-4" aria-hidden="true" />
           </summary>
           <div class="types-panel card">
-            <ul>
+            <ul class="types-list">
               {
                 typePages.map((t) => (
                   <li>
@@ -45,6 +45,12 @@ const [firstLink, ...restLinks] = nav.links;
                   </li>
                 ))
               }
+              <li>
+                <a class="types-item types-features" href={featuresPage.href} aria-current={featuresPage.current ? 'page' : undefined}>
+                  <span class="font-semibold text-fg">{featuresPage.label}</span>
+                  <span class="text-sm text-fg-muted">{featuresPage.pitch}</span>
+                </a>
+              </li>
             </ul>
             <a class="types-all" href={nav.typesMenu.all.href}>{nav.typesMenu.all.label}</a>
           </div>
@@ -74,7 +80,7 @@ const [firstLink, ...restLinks] = nav.links;
         <summary class="icon-btn" aria-label="Menu">
           <Menu class="size-5" aria-hidden="true" />
         </summary>
-        <div class="nav-menu-panel card absolute top-12 right-0 w-64 p-2">
+        <div class="nav-menu-panel card absolute top-12 right-0 max-h-[calc(100dvh-5rem)] w-64 overflow-y-auto p-2">
           <ul>
             {
               nav.links.map((l) => (
@@ -101,6 +107,15 @@ const [firstLink, ...restLinks] = nav.links;
                 </li>
               ))
             }
+            <li>
+              <a
+                class="block rounded-lg px-3 py-2.5 text-fg-muted hover:bg-line hover:text-fg aria-[current=page]:text-fg"
+                href={featuresPage.href}
+                aria-current={featuresPage.current ? 'page' : undefined}
+              >
+                {featuresPage.label}
+              </a>
+            </li>
             <li>
               <a class="block rounded-lg px-3 py-2.5 text-fg-muted hover:bg-line hover:text-fg" href={nav.typesMenu.all.href}>
                 {nav.typesMenu.all.label}
@@ -209,18 +224,26 @@ const [firstLink, ...restLinks] = nav.links;
   .types-menu[open] .types-chevron {
     transform: rotate(180deg);
   }
+  /* the seven types and the Features page in two columns, then the link to the home page's list */
   .types-panel {
     position: absolute;
     top: calc(100% + 0.5rem);
     left: 50%;
     translate: -50% 0;
-    width: 21rem;
+    width: 40rem;
     padding: 0.5rem;
     background: var(--surface);
   }
+  .types-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.15rem;
+  }
   .types-item {
     display: grid;
+    align-content: start;
     gap: 0.15rem;
+    height: 100%;
     padding: 0.7rem 0.85rem;
     border-radius: 0.75rem;
     line-height: 1.4;
@@ -229,6 +252,11 @@ const [firstLink, ...restLinks] = nav.links;
   .types-item:hover,
   .types-item[aria-current='page'] {
     background: var(--line);
+  }
+  /* the Features page: the eighth cell, set apart by a cyan edge */
+  .types-features {
+    box-shadow: inset 2px 0 0 var(--cyan);
+    border-radius: 0 0.75rem 0.75rem 0;
   }
   .types-all {
     display: block;

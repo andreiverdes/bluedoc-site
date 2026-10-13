@@ -1,0 +1,19 @@
+---
+// A clip with its title and 1–2 sentences under it: the shared strip on a type page and the groups on /features/.
+import Clip from './Clip.astro';
+import type { ClipCopy } from '../content/types';
+
+interface Props {
+  item: ClipCopy;
+  /** the reveal stagger, from 0 */
+  index: number;
+}
+
+const { item, index } = Astro.props;
+---
+
+<li data-reveal style={`--reveal-i:${index}`}>
+  <Clip name={item.clip} label={item.shows} title={item.title} />
+  <h3 class="mt-5 text-lg font-semibold">{item.title}</h3>
+  <p class="mt-1.5 text-fg-muted">{item.body}</p>
+</li>

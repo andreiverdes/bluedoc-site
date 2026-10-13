@@ -152,7 +152,8 @@ const hasPoster = existsSync(join(dir, `${name}.poster.webp`));
     min-width: 0;
     max-width: 22rem;
     width: 100%;
-    justify-content: center;
+    /* safe: an address too long for a phone starts at the lock and is cut at its end */
+    justify-content: safe center;
     height: 1.6rem;
     border-radius: 0.5rem;
     background: var(--line);

@@ -1,20 +1,20 @@
 ---
 // One doc type's showcase page, from one entry of src/content/types.ts, in seven parts: the hero with its clip,
-// What it's for, the feature rows, the strip of shared clips, How the agent uses it, the install CTA and the
-// other types. Only the hero clip loads early; every other clip waits for the reader to scroll to it.
-import ArrowDown from '@lucide/astro/icons/arrow-down';
+// What it's for, the feature rows, the strip of shared clips (linking to /features/), How the agent uses it, the
+// install CTA and the other types. Only the hero clip loads early; every other clip waits for the reader to scroll to it.
+import ArrowRight from '@lucide/astro/icons/arrow-right';
 import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
 import Base from './Base.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
-import Clip from '../components/Clip.astro';
+import TypeHero from '../components/TypeHero.astro';
+import ClipCard from '../components/ClipCard.astro';
 import FeatureRow from '../components/FeatureRow.astro';
 import AgentSnippet from '../components/AgentSnippet.astro';
 import Install from '../components/Install.astro';
 import TypeLinks from '../components/TypeLinks.astro';
-import PixelSky from '../components/PixelSky.astro';
 import GithubMark from '../components/GithubMark.astro';
-import { docTypes, repoUrl } from '../content/site';
+import { docTypes, nav, repoUrl } from '../content/site';
 import { typePageLabels as labels, type TypePageCopy } from '../content/types';
 import { inlineCode } from '../lib/inline-code';
 
@@ -29,34 +29,7 @@ const docType = docTypes.items.find((t) => t.id === page.type);
 <Base title={page.metaTitle} description={page.metaDescription}>
   <Nav />
   <main id="main">
-    <section id="top" class="type-hero" aria-labelledby="type-title">
-      <PixelSky class="type-sky" seed={11} count={110} />
-      <div class="container-x hero-grid">
-        <div class="hero-copy">
-          <p class="kicker">Doc type · {page.name}</p>
-          <h1 id="type-title" class="type-title mt-5">{page.title}</h1>
-          <p class="lead mt-6">{page.pitch}</p>
-          <div class="mt-8 flex flex-wrap items-center gap-3">
-            <a class="btn btn-primary" href="#install">
-              <ArrowDown class="size-[18px]" aria-hidden="true" />
-              Install
-            </a>
-            <a class="btn btn-ghost" href={repoUrl} rel="noopener">
-              <GithubMark class="size-[18px]" />
-              View on GitHub
-            </a>
-          </div>
-          {docType && <code class="type-tag mt-8">"type": "{docType.tag}"</code>}
-        </div>
-        <div class="hero-clip">
-          <Clip name={page.hero.clip} label={page.hero.shows} title={page.hero.title} url={page.hero.url} priority />
-          <p class="hero-caption">
-            <span class="font-semibold text-fg">{page.hero.title}.</span>{' '}
-            {page.hero.body}
-          </p>
-        </div>
-      </div>
-    </section>
+    <TypeHero kicker={`Doc type · ${page.name}`} title={page.title} pitch={page.pitch} hero={page.hero} tag={docType?.tag} />
 
     <section class="section-y for" aria-labelledby="for-title">
       <div class="container-x">
@@ -98,20 +71,18 @@ const docType = docTypes.items.find((t) => t.id === page.type);
 
     <section class="section-y shared" aria-labelledby="shared-title">
       <div class="container-x">
-        <div class="max-w-2xl" data-reveal>
-          <p class="kicker">{labels.sharedKicker}</p>
-          <h2 id="shared-title" class="h2 mt-4">{labels.sharedTitle}</h2>
+        <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-5" data-reveal>
+          <div class="max-w-2xl">
+            <p class="kicker">{labels.sharedKicker}</p>
+            <h2 id="shared-title" class="h2 mt-4">{labels.sharedTitle}</h2>
+          </div>
+          <a class="btn btn-ghost" href={nav.typesMenu.features.href}>
+            {labels.sharedLink}
+            <ArrowRight class="size-4" aria-hidden="true" />
+          </a>
         </div>
         <ul class:list={['mt-10 grid gap-8 sm:mt-12 md:grid-cols-2', { 'lg:grid-cols-3': page.shared.length % 3 === 0 }]}>
-          {
-            page.shared.map((item, i) => (
-              <li data-reveal style={`--reveal-i:${i % 3}`}>
-                <Clip name={item.clip} label={item.shows} title={item.title} />
-                <h3 class="mt-5 text-lg font-semibold">{item.title}</h3>
-                <p class="mt-1.5 text-fg-muted">{item.body}</p>
-              </li>
-            ))
-          }
+          {page.shared.map((item, i) => <ClipCard item={item} index={i % 3} />)}
         </ul>
       </div>
     </section>
@@ -143,66 +114,6 @@ const docType = docTypes.items.find((t) => t.id === page.type);
 </Base>
 
 <style>
-  .type-hero {
-    position: relative;
-    isolation: isolate;
-    overflow: clip;
-    padding-top: clamp(6.5rem, 5rem + 5vw, 9rem);
-    padding-bottom: clamp(3.5rem, 2rem + 4vw, 6rem);
-    background:
-      radial-gradient(55% 60% at 75% 45%, color-mix(in oklab, var(--brand) 22%, transparent), transparent 70%),
-      linear-gradient(to bottom, var(--bg-2), var(--bg));
-    border-bottom: 1px solid var(--line);
-  }
-  /* the sky keeps its own aspect at no less than 1440 px wide, so its pixels stay small on a tall phone hero */
-  .type-hero :global(.type-sky) {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    translate: -50% 0;
-    width: max(100%, 1440px);
-    height: auto;
-    z-index: -1;
-    opacity: 0.8;
-    -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 95%);
-    mask-image: linear-gradient(to bottom, #000 30%, transparent 95%);
-  }
-  :global([data-theme='light']) .type-hero :global(.type-sky) {
-    display: none;
-  }
-  .hero-grid {
-    display: grid;
-    gap: 3rem;
-    align-items: center;
-  }
-  @media (min-width: 1024px) {
-    .hero-grid {
-      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-      gap: 3.5rem;
-    }
-  }
-  .type-title {
-    font-size: clamp(2.3rem, 1.5rem + 3vw, 3.9rem);
-    line-height: 1.05;
-    font-weight: 700;
-    letter-spacing: -0.035em;
-  }
-  .type-tag {
-    display: inline-block;
-    padding: 0.25rem 0.65rem;
-    border-radius: 0.5rem;
-    border: 1px solid var(--line);
-    background: var(--line);
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--fg-muted);
-  }
-  .hero-caption {
-    margin-top: 1rem;
-    font-size: 0.95rem;
-    color: var(--fg-muted);
-  }
-
   .kinds {
     display: grid;
     gap: 1rem;

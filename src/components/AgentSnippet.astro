@@ -1,23 +1,31 @@
 ---
-// "How the agent uses it" on a type page: the commands the agent runs, then the part of the doc it writes,
-// highlighted at build time.
+// "How the agent uses it" on a showcase page: the commands the agent runs, then the part of the doc it writes (or
+// the Markdown it reads), highlighted at build time.
 import Copy from '@lucide/astro/icons/copy';
 import Check from '@lucide/astro/icons/check';
 import FileJson from '@lucide/astro/icons/file-braces';
 import FileCode from '@lucide/astro/icons/file-code';
+import FileText from '@lucide/astro/icons/file-text';
 import Info from '@lucide/astro/icons/info';
-import { highlightHtml, highlightJson } from '../lib/highlight';
+import { highlightHtml, highlightJson, highlightMarkdown } from '../lib/highlight';
 import { inlineCode } from '../lib/inline-code';
-import type { TypePageCopy } from '../content/types';
+import type { CodeFile, TypePageCopy } from '../content/types';
 
 interface Props {
   agent: TypePageCopy['agent'];
 }
 
+const HIGHLIGHT: Record<CodeFile['lang'], (line: string) => string> = {
+  json: highlightJson,
+  html: highlightHtml,
+  md: highlightMarkdown,
+};
+const ICON = { json: FileJson, html: FileCode, md: FileText } satisfies Record<CodeFile['lang'], unknown>;
+
 const { agent } = Astro.props;
 const files = agent.files.map((f) => ({
   ...f,
-  lines: f.code.split('\n').map((l) => (f.lang === 'json' ? highlightJson(l) : highlightHtml(l)) || ' '),
+  lines: f.code.split('\n').map((l) => HIGHLIGHT[f.lang](l) || ' '),
 }));
 ---
 
@@ -43,7 +51,7 @@ const files = agent.files.map((f) => ({
 
   {
     files.map((f) => {
-      const Icon = f.lang === 'json' ? FileJson : FileCode;
+      const Icon = ICON[f.lang];
       return (
         <figure class="editor card">
           <figcaption class="bar">

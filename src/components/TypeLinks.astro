@@ -1,33 +1,35 @@
 ---
-// The other doc types, at the foot of a type page: a card for each type with its own page, then the rest by name
-// with a link to the home page's Doc types section.
+// The doc types at the foot of a showcase page: a card linking to each type's page. A type page leaves itself out;
+// the Features page lists all seven.
 import { Picture } from 'astro:assets';
 import ArrowRight from '@lucide/astro/icons/arrow-right';
-import { docTypes, nav } from '../content/site';
+import { docTypes } from '../content/site';
 import { typePageLabels as labels } from '../content/types';
 
 interface Props {
   /** the current page's type id, left out of the list */
-  current: string;
+  current?: string;
 }
 
 const { current } = Astro.props;
-const others = docTypes.items.filter((t) => t.id !== current);
-const linked = others.filter((t) => t.href);
-const unlinked = others.filter((t) => !t.href);
+const types = docTypes.items.filter((t) => t.id !== current);
+const kicker = current ? labels.otherKicker : docTypes.kicker;
+const title = current ? labels.otherTitle : docTypes.title;
+// with an odd count, the last card spans both columns
+const oddLast = types.length % 2 === 1 ? types.length - 1 : -1;
 ---
 
 <section class="section-y" aria-labelledby="other-types-title">
   <div class="container-x">
     <div class="max-w-2xl" data-reveal>
-      <p class="kicker">{labels.otherKicker}</p>
-      <h2 id="other-types-title" class="h2 mt-4">{labels.otherTitle}</h2>
+      <p class="kicker">{kicker}</p>
+      <h2 id="other-types-title" class="h2 mt-4">{title}</h2>
     </div>
 
     <ul class="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-2 lg:gap-5">
       {
-        linked.map((t, i) => (
-          <li class="type-card card" data-reveal style={`--reveal-i:${i}`}>
+        types.map((t, i) => (
+          <li class:list={['type-card card', { 'sm:col-span-2': i === oddLast }]} data-reveal style={`--reveal-i:${i % 2}`}>
             <a href={t.href} class="block h-full">
               <div class="shot">
                 <Picture
@@ -35,8 +37,8 @@ const unlinked = others.filter((t) => !t.href);
                   fallbackFormat="webp"
                   src={t.image}
                   alt=""
-                  widths={[400, 560, 720, 960]}
-                  sizes="(min-width: 1024px) 36rem, (min-width: 640px) 50vw, 94vw"
+                  widths={[400, 560, 720, 960, 1200]}
+                  sizes={i === oddLast ? '(min-width: 1024px) 72rem, 94vw' : '(min-width: 1024px) 36rem, (min-width: 640px) 50vw, 94vw'}
                   quality={65}
                   loading="lazy"
                   class="shot-img"
@@ -54,18 +56,6 @@ const unlinked = others.filter((t) => !t.href);
         ))
       }
     </ul>
-
-    {
-      unlinked.length > 0 && (
-        <p class="mt-8 text-fg-muted" data-reveal>
-          {unlinked.map((t) => t.name).join(', ')}:{' '}
-          <a class="text-fg underline decoration-line-strong underline-offset-4 hover:decoration-cyan" href={nav.typesMenu.all.href}>
-            {labels.otherAll}
-          </a>
-          .
-        </p>
-      )
-    }
   </div>
 </section>
 

@@ -1,0 +1,120 @@
+---
+// The Features page: what every doc type has, in 22 clips grouped by what the reader does (comment, decide, send
+// and approve, revise, the home page, theme and width), then how the agent reads the notes and a card per type.
+// Laid out like a type page (TypePage.astro) from featuresPage in src/content/types.ts.
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import TypeHero from '../components/TypeHero.astro';
+import ClipCard from '../components/ClipCard.astro';
+import AgentSnippet from '../components/AgentSnippet.astro';
+import Install from '../components/Install.astro';
+import TypeLinks from '../components/TypeLinks.astro';
+import GithubMark from '../components/GithubMark.astro';
+import { repoUrl } from '../content/site';
+import { featuresPage as page } from '../content/types';
+import { inlineCode } from '../lib/inline-code';
+---
+
+<Base title={page.metaTitle} description={page.metaDescription}>
+  <Nav />
+  <main id="main">
+    <TypeHero kicker={page.kicker} title={page.title} pitch={page.pitch} hero={page.hero} />
+
+    <nav class="container-x pt-10 sm:pt-12" aria-label={page.groupsLabel}>
+      <ul class="flex flex-wrap gap-2.5">
+        {
+          page.groups.map((g) => (
+            <li>
+              <a class="group-chip" href={`#${g.id}`}>
+                {g.kicker}
+                <span class="text-fg-subtle">{g.clips.length}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    {
+      page.groups.map((g, gi) => (
+        <section id={g.id} class:list={['section-y group', { tint: gi % 2 === 1 }]} aria-labelledby={`${g.id}-title`}>
+          <div class="container-x">
+            <div class="max-w-2xl" data-reveal>
+              <p class="kicker">{g.kicker}</p>
+              <h2 id={`${g.id}-title`} class="h2 mt-4">
+                {g.title}
+              </h2>
+              <p class="lead mt-5">{g.lead}</p>
+            </div>
+            <ul class:list={['mt-10 grid gap-x-8 gap-y-12 sm:mt-12 md:grid-cols-2', { 'lg:grid-cols-3': g.clips.length % 2 === 1 }]}>
+              {g.clips.map((item, i) => (
+                <ClipCard item={item} index={i % 3} />
+              ))}
+            </ul>
+          </div>
+        </section>
+      ))
+    }
+
+    <section class="section-y" aria-labelledby="agent-title">
+      <div class="container-x">
+        <div class="max-w-2xl" data-reveal>
+          <p class="kicker">{page.agentKicker}</p>
+          <h2 id="agent-title" class="h2 mt-4">{page.agentTitle}</h2>
+          <p class="lead mt-5" set:html={inlineCode(page.agent.lead)} />
+        </div>
+        <div class="mt-10 max-w-4xl sm:mt-12" data-reveal>
+          <AgentSnippet agent={page.agent} />
+        </div>
+      </div>
+    </section>
+
+    <Install>
+      <div class="mt-8 flex justify-center">
+        <a class="btn btn-ghost" href={repoUrl} rel="noopener">
+          <GithubMark class="size-[18px]" />
+          View on GitHub
+        </a>
+      </div>
+    </Install>
+    <TypeLinks />
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  .group {
+    scroll-margin-top: 4rem;
+  }
+  .tint {
+    background: linear-gradient(to bottom, var(--bg), var(--bg-2) 50%, var(--bg));
+  }
+  .group-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--cyan) 35%, transparent);
+    background: color-mix(in oklab, var(--cyan) 10%, transparent);
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--fg);
+    transition: border-color 0.15s;
+  }
+  .group-chip::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--cyan);
+  }
+  .group-chip:hover {
+    border-color: var(--cyan);
+  }
+  .lead :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    color: var(--fg);
+  }
+</style>

@@ -1,0 +1,114 @@
+---
+// The hero of a showcase page (a type page or the Features page): kicker, title, pitch, Install and GitHub, and the
+// page's hero clip on the right (below it on narrow screens). The hero clip is the only one that loads early.
+import ArrowDown from '@lucide/astro/icons/arrow-down';
+import Clip from './Clip.astro';
+import PixelSky from './PixelSky.astro';
+import GithubMark from './GithubMark.astro';
+import { repoUrl } from '../content/site';
+import type { ClipCopy } from '../content/types';
+
+interface Props {
+  kicker: string;
+  title: string;
+  pitch: string;
+  hero: ClipCopy & { url: string };
+  /** the doc type's `"type"` value, shown under the buttons */
+  tag?: string;
+}
+
+const { kicker, title, pitch, hero, tag } = Astro.props;
+---
+
+<section id="top" class="type-hero" aria-labelledby="type-title">
+  <PixelSky class="type-sky" seed={11} count={110} />
+  <div class="container-x hero-grid">
+    <div class="hero-copy">
+      <p class="kicker">{kicker}</p>
+      <h1 id="type-title" class="type-title mt-5">{title}</h1>
+      <p class="lead mt-6">{pitch}</p>
+      <div class="mt-8 flex flex-wrap items-center gap-3">
+        <a class="btn btn-primary" href="#install">
+          <ArrowDown class="size-[18px]" aria-hidden="true" />
+          Install
+        </a>
+        <a class="btn btn-ghost" href={repoUrl} rel="noopener">
+          <GithubMark class="size-[18px]" />
+          View on GitHub
+        </a>
+      </div>
+      {tag && <code class="type-tag mt-8">"type": "{tag}"</code>}
+    </div>
+    <div class="hero-clip">
+      <Clip name={hero.clip} label={hero.shows} title={hero.title} url={hero.url} priority />
+      <p class="hero-caption">
+        <span class="font-semibold text-fg">{hero.title}.</span>{' '}
+        {hero.body}
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .type-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: clip;
+    padding-top: clamp(6.5rem, 5rem + 5vw, 9rem);
+    padding-bottom: clamp(3.5rem, 2rem + 4vw, 6rem);
+    background:
+      radial-gradient(55% 60% at 75% 45%, color-mix(in oklab, var(--brand) 22%, transparent), transparent 70%),
+      linear-gradient(to bottom, var(--bg-2), var(--bg));
+    border-bottom: 1px solid var(--line);
+  }
+  /* the sky keeps its own aspect at no less than 1440 px wide, so its pixels stay small on a tall phone hero */
+  .type-hero :global(.type-sky) {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    translate: -50% 0;
+    width: max(100%, 1440px);
+    height: auto;
+    z-index: -1;
+    opacity: 0.8;
+    -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 95%);
+    mask-image: linear-gradient(to bottom, #000 30%, transparent 95%);
+  }
+  :global([data-theme='light']) .type-hero :global(.type-sky) {
+    display: none;
+  }
+  /* minmax(0, …): a long address in the clip's browser bar must not widen the column past the screen */
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 3rem;
+    align-items: center;
+  }
+  @media (min-width: 1024px) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: 3.5rem;
+    }
+  }
+  .type-title {
+    font-size: clamp(2.3rem, 1.5rem + 3vw, 3.9rem);
+    line-height: 1.05;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+  }
+  .type-tag {
+    display: inline-block;
+    padding: 0.25rem 0.65rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--line);
+    background: var(--line);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+  }
+  .hero-caption {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    color: var(--fg-muted);
+  }
+</style>

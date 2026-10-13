@@ -47,13 +47,9 @@ const oddLast = docTypes.items.length % 2 === 1 ? docTypes.items.length - 1 : -1
             <div class="flex flex-1 flex-col p-6 sm:p-7">
               <div class="flex items-center gap-3">
                 <h3 class="text-xl font-semibold">
-                  {t.href ? (
-                    <a href={t.href} class="card-link">
-                      {t.name}
-                    </a>
-                  ) : (
-                    t.name
-                  )}
+                  <a href={t.href} class="card-link">
+                    {t.name}
+                  </a>
                 </h3>
                 <code class="tag">{t.tag}</code>
               </div>
@@ -66,12 +62,10 @@ const oddLast = docTypes.items.length % 2 === 1 ? docTypes.items.length - 1 : -1
                   </li>
                 ))}
               </ul>
-              {t.href && (
-                <span class="more" aria-hidden="true">
-                  See the {t.name} page
-                  <ArrowRight class="more-arrow size-4" />
-                </span>
-              )}
+              <span class="more" aria-hidden="true">
+                See the {t.name} page
+                <ArrowRight class="more-arrow size-4" />
+              </span>
             </div>
           </li>
         ))

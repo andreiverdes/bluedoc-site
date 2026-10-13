@@ -1,4 +1,5 @@
 ---
+import ArrowRight from '@lucide/astro/icons/arrow-right';
 import MessageSquareText from '@lucide/astro/icons/message-square-text';
 import Star from '@lucide/astro/icons/star';
 import GitCompare from '@lucide/astro/icons/git-compare';
@@ -41,6 +42,13 @@ const ICONS: Record<FeatureIcon, typeof Star> = {
         })
       }
     </ul>
+
+    <div class="mt-10 flex justify-center" data-reveal>
+      <a class="btn btn-ghost" href={features.more.href}>
+        {features.more.label}
+        <ArrowRight class="size-4" aria-hidden="true" />
+      </a>
+    </div>
   </div>
 </section>
 
