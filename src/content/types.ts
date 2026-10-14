@@ -21,6 +21,8 @@ export type TypePageCopy = {
   /** the doc type's id in docTypes (site.ts) */
   type: string;
   name: string;
+  /** the page's large heading, at the top of its hero */
+  display: string;
   /** page <title> and meta description */
   metaTitle: string;
   metaDescription: string;
@@ -181,6 +183,7 @@ const every = {
 
 const docs: TypePageCopy = {
   type: 'docs',
+  display: 'Documentation',
   name: 'Docs',
   metaTitle: 'Docs: architecture pages, runbooks and walkthroughs · bluedoc',
   metaDescription:
@@ -317,6 +320,7 @@ const docs: TypePageCopy = {
 
 const plans: TypePageCopy = {
   type: 'plans',
+  display: 'Plans',
   name: 'Plans',
   metaTitle: 'Plans: approve or send back before the agent writes code · bluedoc',
   metaDescription:
@@ -430,6 +434,7 @@ const plans: TypePageCopy = {
 
 const reviews: TypePageCopy = {
   type: 'reviews',
+  display: 'Reviews',
   name: 'Reviews',
   metaTitle: 'Reviews: code review findings pinned to their lines · bluedoc',
   metaDescription:
@@ -559,6 +564,7 @@ const reviews: TypePageCopy = {
 
 const designs: TypePageCopy = {
   type: 'designs',
+  display: 'Designs',
   name: 'Designs',
   metaTitle: 'Designs: UI screens on a board you click through · bluedoc',
   metaDescription:
@@ -725,6 +731,7 @@ const designs: TypePageCopy = {
 
 const presentations: TypePageCopy = {
   type: 'presentations',
+  display: 'Presentations',
   name: 'Presentations',
   metaTitle: 'Presentations: slide decks you rehearse and approve · bluedoc',
   metaDescription:
@@ -831,6 +838,7 @@ const presentations: TypePageCopy = {
 
 const websites: TypePageCopy = {
   type: 'websites',
+  display: 'Websites',
   name: 'Websites',
   metaTitle: 'Websites: review a live site on a board · bluedoc',
   metaDescription:
@@ -955,6 +963,7 @@ const websites: TypePageCopy = {
 
 const other: TypePageCopy = {
   type: 'other',
+  display: 'Everything else',
   name: 'Other',
   metaTitle: 'Other: status pages, reports and inventories · bluedoc',
   metaDescription:
@@ -1058,6 +1067,7 @@ export const featuresPage = {
   metaDescription:
     'What every bluedoc page has, whatever its type: comments pinned, selected or drawn, decision pills, change requests, approval, revisions you compare word by word, and a home page for every doc. 22 short clips.',
   kicker: 'Every doc type',
+  display: 'Features',
   title: 'Comment, decide and approve, on every page.',
   pitch:
     'Docs, plans, reviews, designs, decks, websites and status pages all answer the same way: you comment on any part, pick options, send your notes and approve. Each clip is recorded from one of the Acme examples.',
