@@ -24,3 +24,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# bluedoc editor snapshots of the site doc (local; large)
+docs/*.bluedoc.snapshots/
