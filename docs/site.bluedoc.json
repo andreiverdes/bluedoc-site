@@ -6,7 +6,7 @@
     "org": "bluedoc",
     "kind": "Website",
     "type": "website",
-    "rev": "4",
+    "rev": "5",
     "date": "2026-10-13"
   },
   "state": [
@@ -95,7 +95,7 @@
           "artboards": [
             {
               "id": "home",
-              "title": "Landing page",
+              "title": "Landing",
               "device": "page",
               "fidelity": "hifi",
               "url": "http://localhost:4321/bluedoc-site/",
@@ -235,7 +235,7 @@
             },
             {
               "id": "docs",
-              "title": "Docs page",
+              "title": "Docs",
               "device": "page",
               "fidelity": "hifi",
               "url": "http://localhost:4321/bluedoc-site/docs/",
@@ -312,7 +312,7 @@
             },
             {
               "id": "designs",
-              "title": "Designs page",
+              "title": "Designs",
               "device": "page",
               "fidelity": "hifi",
               "url": "http://localhost:4321/bluedoc-site/designs/",
@@ -389,7 +389,7 @@
             },
             {
               "id": "websites",
-              "title": "Websites page",
+              "title": "Websites",
               "device": "page",
               "fidelity": "hifi",
               "url": "http://localhost:4321/bluedoc-site/websites/",
@@ -466,7 +466,7 @@
             },
             {
               "id": "plans",
-              "title": "Plans page",
+              "title": "Plans",
               "device": "page",
               "fidelity": "hifi",
               "url": "http://localhost:4321/bluedoc-site/plans/",
@@ -543,7 +543,7 @@
             },
             {
               "id": "reviews",
-              "title": "Reviews page",
+              "title": "Reviews",
               "device": "page",
               "fidelity": "hifi",
               "url": "http://localhost:4321/bluedoc-site/reviews/",
@@ -620,7 +620,7 @@
             },
             {
               "id": "presentations",
-              "title": "Presentations page",
+              "title": "Presentations",
               "device": "page",
               "fidelity": "hifi",
               "url": "http://localhost:4321/bluedoc-site/presentations/",
@@ -697,7 +697,7 @@
             },
             {
               "id": "other",
-              "title": "Other page",
+              "title": "Other",
               "device": "page",
               "fidelity": "hifi",
               "url": "http://localhost:4321/bluedoc-site/other/",
@@ -774,7 +774,7 @@
             },
             {
               "id": "features",
-              "title": "Features page",
+              "title": "Features",
               "device": "page",
               "fidelity": "hifi",
               "url": "http://localhost:4321/bluedoc-site/features/",
@@ -858,7 +858,7 @@
             },
             {
               "id": "legal",
-              "title": "Credits and privacy page",
+              "title": "Credits & privacy",
               "device": "page",
               "fidelity": "hifi",
               "url": "http://localhost:4321/bluedoc-site/legal/",
@@ -901,16 +901,7 @@
     }
   ],
   "changes": [
-    "Footer: rebuilt as the logo and tagline, then two link columns, then one bottom line.",
-    "Doc types lists the 7 types and Features, read down each column; bluedoc lists How it works, Install, FAQ and GitHub.",
-    "The bottom line holds © year, MIT licence and Credits and privacy.",
-    "Credits moved off the footer to a new **Credits and privacy** page (`/legal/`): the MIT licence, what is stored, and the font, icon and art credits.",
-    "No terms page: there is no service or account to agree terms for. bluedoc keeps everything on your machine; the site sets no cookies and has no analytics.",
-    "Hero headline: your pick C, *Point, pick, approve. Your agent does the rest.* Also the page title, the social card text and `public/og.png`.",
-    "Closing band title: your pick B, *Answer your agent on a page.*"
+    "Page titles on the board drop the redundant “page”: Landing, Docs, Designs and so on, so they fit above a page at fit zoom."
   ],
-  "resolves": [
-    "cmv7eeztmj40k",
-    "cmv7efuy8mryf"
-  ]
+  "resolves": []
 }
