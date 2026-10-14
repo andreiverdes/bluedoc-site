@@ -145,7 +145,7 @@
   {
    "rev": "4",
    "date": "2026-10-13",
-   "built": "2026-10-14T01:05:28+00:00",
+   "built": "2026-10-14T01:05:49+00:00",
    "head": {
     "id": "bluedoc-site",
     "title": "bluedoc-site: the landing page",
@@ -165,8 +165,11 @@
     ],
     "tldr": "One page, eleven sections, shown live from `npm run dev`. Two picks: the hero headline and the closing band's title; each version shows in place. Every section names where its copy and layout live, mostly `src/content/site.ts` and one component.",
     "changes": [
-     "Footer: rebuilt as the logo and tagline, then two link columns (Doc types: the 7 types and Features, read down each column; bluedoc: How it works, Install, FAQ, GitHub), then one line: © year, MIT licence, Credits and privacy.",
-     "Credits moved off the footer to a new **Credits and privacy** page (`/legal/`): the MIT licence, what bluedoc and the site store (nothing leaves your machine; the site sets no cookies and has no analytics), and the font, icon and art credits. No terms page: there is no service or account to agree terms for.",
+     "Footer: rebuilt as the logo and tagline, then two link columns, then one bottom line.",
+     "Doc types lists the 7 types and Features, read down each column; bluedoc lists How it works, Install, FAQ and GitHub.",
+     "The bottom line holds © year, MIT licence and Credits and privacy.",
+     "Credits moved off the footer to a new **Credits and privacy** page (`/legal/`): the MIT licence, what is stored, and the font, icon and art credits.",
+     "No terms page: there is no service or account to agree terms for. bluedoc keeps everything on your machine; the site sets no cookies and has no analytics.",
      "Hero headline: your pick C, *Point, pick, approve. Your agent does the rest.* Also the page title, the social card text and `public/og.png`.",
      "Closing band title: your pick B, *Answer your agent on a page.*"
     ],
