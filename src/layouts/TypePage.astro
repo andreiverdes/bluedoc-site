@@ -29,7 +29,7 @@ const docType = docTypes.items.find((t) => t.id === page.type);
 <Base title={page.metaTitle} description={page.metaDescription}>
   <Nav />
   <main id="main">
-    <TypeHero kicker={`Doc type · ${page.name}`} display={page.display} title={page.title} pitch={page.pitch} hero={page.hero} tag={docType?.tag} />
+    <TypeHero kicker="Doc type" display={page.display} title={page.title} pitch={page.pitch} hero={page.hero} tag={docType?.tag} />
 
     <section class="section-y for" aria-labelledby="for-title">
       <div class="container-x">

@@ -25,13 +25,13 @@ const { kicker, display, title, pitch, hero, tag } = Astro.props;
 
 <section id="top" class="type-hero" aria-labelledby="type-title">
   <PixelSky class="type-sky" seed={11} count={110} />
-  <div class="container-x">
+  <div class="container-x type-head">
+    <p class="kicker">{kicker}</p>
     <h1 id="type-title" class="type-display" style={`--len: ${display.length}`}>{display}</h1>
   </div>
   <div class="container-x hero-grid">
     <div class="hero-copy">
-      <p class="kicker">{kicker}</p>
-      <p class="type-title mt-5">{title}</p>
+      <p class="type-sub">{title}</p>
       <p class="lead mt-6">{pitch}</p>
       <div class="mt-8 flex flex-wrap items-center gap-3">
         <a class="btn btn-primary" href="#install">
@@ -88,7 +88,7 @@ const { kicker, display, title, pitch, hero, tag } = Astro.props;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 3rem;
-    align-items: center;
+    align-items: start;
   }
   @media (min-width: 1024px) {
     .hero-grid {
@@ -96,31 +96,28 @@ const { kicker, display, title, pitch, hero, tag } = Astro.props;
       gap: 3.5rem;
     }
   }
-  /* the type's name, sized to fill the content width: about 0.6 em a letter in Lexend Bold, at most 10 rem */
-  .container-x:has(> .type-display) {
+  /* the type's name: one solid colour, the same size on every page unless a long name (Documentation, Everything
+     else) must shrink to fit the content width (about 0.62 em a letter in Lexend Bold) */
+  .type-head {
     container-type: inline-size;
+    margin-bottom: clamp(2rem, 1rem + 3vw, 3.5rem);
   }
   .type-display {
-    /* as wide as the word, so the gradient runs across short names (Plans) too */
-    width: fit-content;
-    /* padding below keeps descenders (y, g) inside the box the gradient is clipped to */
-    margin-bottom: calc(clamp(2rem, 1rem + 3vw, 3.5rem) - 0.18em);
-    padding-bottom: 0.18em;
-    font-size: min(10rem, calc(100cqi / (var(--len) * 0.62)));
-    line-height: 0.95;
+    margin-top: 0.9rem;
+    font-size: min(8.5rem, calc(100cqi / (var(--len) * 0.62)));
+    line-height: 1;
     font-weight: 700;
     letter-spacing: -0.045em;
     white-space: nowrap;
-    background: linear-gradient(100deg, var(--fg) 30%, var(--cyan) 75%, var(--brand) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    color: var(--fg);
   }
-  .type-title {
-    font-size: clamp(2.3rem, 1.5rem + 3vw, 3.9rem);
-    line-height: 1.05;
-    font-weight: 700;
-    letter-spacing: -0.035em;
+  .type-sub {
+    font-family: var(--font-display, inherit);
+    font-size: clamp(1.45rem, 1.1rem + 1.1vw, 2rem);
+    line-height: 1.2;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--fg);
   }
   .type-tag {
     display: inline-block;
