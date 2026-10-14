@@ -15,10 +15,10 @@ import websiteShot from '../assets/shots/website-hero.webp';
 export const repoUrl = 'https://github.com/andreiverdes/bluedoc';
 
 export const meta = {
-  title: 'bluedoc: your agent’s work, on a page you can decide on',
+  title: 'bluedoc: point, pick, approve. Your agent does the rest.',
   description:
     'An agent skill for docs, plans, code reviews, UI designs, slide decks and app icons. The agent writes one JSON file; a local server renders it as a page you comment on, decide and approve.',
-  ogImageAlt: 'bluedoc: a pixel-art night bay with a ringed planet, the bluedoc logo and the headline “Your agent’s work, on a page you can decide on.”',
+  ogImageAlt: 'bluedoc: a pixel-art night bay with a ringed planet, the bluedoc logo and the headline “Point, pick, approve. Your agent does the rest.”',
 };
 
 // Anchors on the home page carry the base path, so they work from the type pages too.
@@ -43,7 +43,7 @@ export const nav = {
 
 export const hero = {
   kicker: 'Agent skill · Local · MIT',
-  headline: 'Your agent’s work, on a page you can decide on.',
+  headline: 'Point, pick, approve. Your agent does the rest.',
   subline:
     'bluedoc turns plans, code reviews, architecture docs, UI designs and slide decks into interactive pages. Comment on any element, pick an option, approve. Your agent reads the answers and gets on with it.',
   primaryCta: { label: 'Install', href: '#install' },
@@ -325,7 +325,7 @@ export const faq = {
 
 export const finalCta = {
   kicker: 'Approved · rev 1',
-  title: 'Ship decisions, not walls of text.',
+  title: 'Answer your agent on a page.',
   body: 'Install the skill, ask your agent for a plan, and answer it on a page.',
   primary: { label: 'Star on GitHub', href: repoUrl },
   secondary: { label: 'Install', href: '#install' },
@@ -333,17 +333,50 @@ export const finalCta = {
 
 export const footer = {
   tagline: 'An agent skill for docs, plans, reviews, designs and decks you can decide on.',
-  licence: { label: 'MIT licence', href: `${repoUrl}/blob/main/LICENSE` },
+  // the columns after the brand: the doc types (from docTypes, with Features) and the site's own links
+  typesTitle: 'Doc types',
+  siteTitle: 'bluedoc',
   links: [
-    { label: 'Features', href: `${base}features/` },
-    { label: 'GitHub', href: repoUrl },
-    { label: 'All doc types', href: `${base}#doc-types` },
+    { label: 'How it works', href: `${base}#how-it-works` },
     { label: 'Install', href: `${base}#install` },
     { label: 'FAQ', href: `${base}#faq` },
+    { label: 'GitHub', href: repoUrl },
   ],
-  credits: [
-    'Fonts: Lexend, Inter, JetBrains Mono and Silkscreen, under the SIL Open Font License 1.1, self-hosted.',
-    'Pixel-art banners and screenshots from the bluedoc repository (MIT); clips recorded from its Acme examples. Both show bluedoc’s HorizonUI build (Apache-2.0).',
-    'Icons: Lucide (ISC).',
+  licence: { label: 'MIT licence', href: `${repoUrl}/blob/main/LICENSE` },
+  legal: { label: 'Credits and privacy', href: `${base}legal/` },
+};
+
+// /legal/: what the site and bluedoc collect (nothing), and the licences of what the site is built from
+export const legal = {
+  metaTitle: 'Credits and privacy · bluedoc',
+  metaDescription: 'bluedoc is MIT-licensed and runs on your machine. This site sets no cookies and has no analytics. The fonts, icons and art it uses, and their licences.',
+  kicker: 'Credits and privacy',
+  title: 'No accounts, no tracking, no terms to sign.',
+  lead: 'bluedoc is open source and runs on your own machine, so there is no service to agree terms for. This page says what the site stores and where its parts come from.',
+  sections: [
+    {
+      id: 'licence',
+      title: 'Licence',
+      body: [
+        'bluedoc is free software under the [MIT licence](' + `${repoUrl}/blob/main/LICENSE` + '): use it, change it and share it, at work too. It comes with no warranty.',
+      ],
+    },
+    {
+      id: 'privacy',
+      title: 'Privacy',
+      body: [
+        '**bluedoc** keeps everything on your machine. Your comments, picks and approvals live in a SQLite file under `~/.bluedoc`, and the server only listens on 127.0.0.1. Nothing is sent anywhere unless your agent sends it.',
+        '**This site** sets no cookies, loads no analytics or trackers, and has no forms. Your light or dark choice is kept in your browser’s local storage and never leaves it. The site is hosted on GitHub Pages, which keeps server logs under [GitHub’s privacy statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement).',
+      ],
+    },
+    {
+      id: 'credits',
+      title: 'Credits',
+      body: [
+        '**Fonts:** Lexend, Inter, JetBrains Mono and Silkscreen, under the SIL Open Font License 1.1, served from this site.',
+        '**Icons:** [Lucide](https://lucide.dev), under the ISC licence.',
+        '**Art and recordings:** the pixel-art banners, the screenshots and the clips come from the [bluedoc repository](' + repoUrl + ') (MIT), recorded from its Acme examples. They show bluedoc’s HorizonUI build (Apache-2.0).',
+      ],
+    },
   ],
 };

@@ -6,7 +6,7 @@
     "org": "bluedoc",
     "kind": "Website",
     "type": "website",
-    "rev": "3",
+    "rev": "4",
     "date": "2026-10-13"
   },
   "state": [
@@ -52,7 +52,7 @@
                 }
               ],
               "detail": "**Decide on a page** is the current `hero.headline`. Changing it also means `meta.title`, `meta.ogImageAlt` and `public/og.png` (`npm run og`).",
-              "choice": "a"
+              "choice": "c"
             },
             {
               "id": "cta-title",
@@ -68,7 +68,8 @@
                   "id": "b",
                   "label": "Answer on a page"
                 }
-              ]
+              ],
+              "choice": "b"
             }
           ]
         }
@@ -123,19 +124,19 @@
                   ],
                   "decision": "hero-headline",
                   "variants": {
-                    "a": [],
+                    "a": [
+                      {
+                        "sel": "#hero-title",
+                        "text": "Your agent’s work, on a page you can decide on."
+                      }
+                    ],
                     "b": [
                       {
                         "sel": "#hero-title",
                         "text": "Answer your agent on a page, not in a chat."
                       }
                     ],
-                    "c": [
-                      {
-                        "sel": "#hero-title",
-                        "text": "Point, pick, approve. Your agent does the rest."
-                      }
-                    ]
+                    "c": []
                   }
                 },
                 {
@@ -212,13 +213,13 @@
                   ],
                   "decision": "cta-title",
                   "variants": {
-                    "a": [],
-                    "b": [
+                    "a": [
                       {
                         "sel": "#cta-title",
-                        "text": "Answer your agent on a page."
+                        "text": "Ship decisions, not walls of text."
                       }
-                    ]
+                    ],
+                    "b": []
                   }
                 },
                 {
@@ -854,6 +855,45 @@
                   ]
                 }
               ]
+            },
+            {
+              "id": "legal",
+              "title": "Credits and privacy page",
+              "device": "page",
+              "fidelity": "hifi",
+              "url": "http://localhost:4321/bluedoc-site/legal/",
+              "source": [
+                "src/pages/legal.astro"
+              ],
+              "sections": [
+                {
+                  "id": "licence",
+                  "title": "Licence",
+                  "sel": "#licence",
+                  "source": [
+                    "src/content/site.ts#legal",
+                    "src/pages/legal.astro"
+                  ]
+                },
+                {
+                  "id": "privacy",
+                  "title": "Privacy",
+                  "sel": "#privacy",
+                  "source": [
+                    "src/content/site.ts#legal",
+                    "src/pages/legal.astro"
+                  ]
+                },
+                {
+                  "id": "credits",
+                  "title": "Credits",
+                  "sel": "#credits",
+                  "source": [
+                    "src/content/site.ts#legal",
+                    "src/pages/legal.astro"
+                  ]
+                }
+              ]
             }
           ]
         }
@@ -861,7 +901,13 @@
     }
   ],
   "changes": [
-    "Added the 8 showcase pages as live pages: Docs, Designs, Websites, Plans, Reviews, Presentations, Other and Features, each with its sections and where their copy lives."
+    "Footer: rebuilt as the logo and tagline, then two link columns (Doc types: the 7 types and Features, read down each column; bluedoc: How it works, Install, FAQ, GitHub), then one line: © year, MIT licence, Credits and privacy.",
+    "Credits moved off the footer to a new **Credits and privacy** page (`/legal/`): the MIT licence, what bluedoc and the site store (nothing leaves your machine; the site sets no cookies and has no analytics), and the font, icon and art credits. No terms page: there is no service or account to agree terms for.",
+    "Hero headline: your pick C, *Point, pick, approve. Your agent does the rest.* Also the page title, the social card text and `public/og.png`.",
+    "Closing band title: your pick B, *Answer your agent on a page.*"
   ],
-  "resolves": []
+  "resolves": [
+    "cmv7eeztmj40k",
+    "cmv7efuy8mryf"
+  ]
 }

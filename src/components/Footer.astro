@@ -1,47 +1,44 @@
 ---
+// The footer: the logo and tagline, then two link columns (the doc types with Features, and the site's own links),
+// then one line with the year, the licence and the credits-and-privacy page. Credits live on /legal/.
 import Logo from './Logo.astro';
 import GithubMark from './GithubMark.astro';
-import { docTypes, footer, repoUrl } from '../content/site';
+import { docTypes, footer, nav, repoUrl } from '../content/site';
 
-const links = [...docTypes.items.map((t) => ({ label: t.name, href: t.href })), ...footer.links];
-
+const types = [...docTypes.items.map((t) => ({ label: t.name, href: t.href })), { label: 'Features', href: nav.typesMenu.features.href }];
 const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
-  <div class="container-x grid gap-10 py-14 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:py-16">
-    <div>
-      <Logo size={32} />
-      <p class="mt-4 max-w-sm text-fg-muted">{footer.tagline}</p>
-      <a class="mt-6 inline-flex items-center gap-2 text-fg-muted hover:text-fg" href={repoUrl} rel="noopener">
-        <GithubMark class="size-5" />
+  <div class="container-x footer-grid">
+    <div class="brand">
+      <Logo size={30} />
+      <p class="mt-4 max-w-xs text-fg-muted">{footer.tagline}</p>
+      <a class="repo mt-5" href={repoUrl} rel="noopener">
+        <GithubMark class="size-4" />
         <span>andreiverdes/bluedoc</span>
       </a>
     </div>
-    <nav aria-label="Footer">
-      <ul class="flex flex-wrap gap-x-6 gap-y-3 md:justify-end">
-        {
-          links.map((l) => (
-            <li>
-              <a class="text-fg-muted hover:text-fg" href={l.href}>
-                {l.label}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
+    <nav class="cols" aria-label="Footer">
+      <div>
+        <h2 class="col-title">{footer.typesTitle}</h2>
+        <ul class="col-list two">
+          {types.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+        </ul>
+      </div>
+      <div>
+        <h2 class="col-title">{footer.siteTitle}</h2>
+        <ul class="col-list">
+          {footer.links.map((l) => <li><a href={l.href} rel={l.href.startsWith('http') ? 'noopener' : undefined}>{l.label}</a></li>)}
+        </ul>
+      </div>
     </nav>
   </div>
-  <div class="container-x border-t border-line py-8 text-sm text-fg-subtle">
-    <ul class="space-y-1.5">
-      {footer.credits.map((c) => <li>{c}</li>)}
-    </ul>
-    <p class="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1">
+  <div class="container-x">
+    <p class="base">
       <span>© {year} bluedoc</span>
-      <span aria-hidden="true">·</span>
-      <a class="underline decoration-line-strong underline-offset-4 hover:text-fg" href={footer.licence.href} rel="noopener"
-        >{footer.licence.label}</a
-      >
+      <a href={footer.licence.href} rel="noopener">{footer.licence.label}</a>
+      <a href={footer.legal.href}>{footer.legal.label}</a>
     </p>
   </div>
 </footer>
@@ -49,5 +46,76 @@ const year = new Date().getFullYear();
 <style>
   .site-footer {
     background: var(--bg);
+    border-top: 1px solid var(--line);
+  }
+  .footer-grid {
+    display: grid;
+    gap: 2.5rem;
+    padding-block: 3.5rem 2.5rem;
+  }
+  @media (min-width: 768px) {
+    .footer-grid {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 4rem;
+      padding-block: 4rem 3rem;
+    }
+  }
+  .repo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+  }
+  .repo:hover {
+    color: var(--fg);
+  }
+  .cols {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 2.5rem clamp(1.75rem, 1rem + 3vw, 4rem);
+    align-content: start;
+  }
+  .col-title {
+    font-family: var(--font-pixel);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+  .col-list {
+    margin-top: 1rem;
+    display: grid;
+    gap: 0.6rem clamp(1.5rem, 1rem + 1.5vw, 2.5rem);
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+  /* the 8 type links read down each column: Docs, Plans, Reviews, Designs, then the rest */
+  .col-list.two {
+    grid-template-columns: repeat(2, auto);
+    grid-template-rows: repeat(4, auto);
+    grid-auto-flow: column;
+  }
+  .col-list a {
+    color: var(--fg-muted);
+    transition: color 0.15s;
+  }
+  .col-list a:hover {
+    color: var(--fg);
+  }
+  .base {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.5rem;
+    padding-block: 1.5rem 2rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.85rem;
+    color: var(--fg-subtle);
+  }
+  .base a {
+    color: var(--fg-subtle);
+  }
+  .base a:hover {
+    color: var(--fg);
   }
 </style>
