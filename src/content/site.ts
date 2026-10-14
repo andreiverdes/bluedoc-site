@@ -33,7 +33,7 @@ export const nav = {
     label: 'Doc types',
     features: {
       label: 'Features on every type',
-      pitch: 'Comments, decisions, approval and revisions, in 22 clips.',
+      pitch: 'Comments, decisions, approval and revisions.',
       href: `${base}features/`,
     },
     all: { label: 'All doc types', href: `${base}#doc-types` },
@@ -184,7 +184,7 @@ export const features = {
   kicker: 'Features',
   title: 'Built for answering, not just reading.',
   lead: 'A wall of text in a chat asks you to reply in prose. A bluedoc page asks you the questions and keeps your answers.',
-  more: { label: 'See each feature in a short clip', href: `${base}features/` },
+  more: { label: 'See every feature', href: `${base}features/` },
   items: [
     {
       icon: 'comment',

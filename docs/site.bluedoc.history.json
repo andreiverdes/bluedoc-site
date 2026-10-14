@@ -244,6 +244,58 @@
      ]
     }
    ]
+  },
+  {
+   "rev": "6",
+   "date": "2026-10-14",
+   "built": "2026-10-14T10:19:59+00:00",
+   "head": {
+    "id": "bluedoc-site",
+    "title": "bluedoc-site: the landing page",
+    "subtitle": "The one-page site, live from the Astro dev server. Comment on any section or element, pick between headline versions, then approve; the agent edits the source each section names.",
+    "meta": {
+     "org": "bluedoc",
+     "kind": "Website",
+     "type": "website",
+     "rev": "6",
+     "date": "2026-10-14"
+    },
+    "state": [
+     {
+      "label": "live from npm run dev on :4321",
+      "kind": "ok"
+     }
+    ],
+    "tldr": "One page, eleven sections, shown live from `npm run dev`. Two picks: the hero headline and the closing band's title; each version shows in place. Every section names where its copy and layout live, mostly `src/content/site.ts` and one component.",
+    "changes": [
+     "Type pages: the features heading reads *What you can do on the page.*, with no line about recordings or the example project.",
+     "Features page and menus: the same; no clip counts or \"recorded from\" lines.",
+     "Board: your layout, the pages in one row from Landing to Credits & privacy."
+    ],
+    "resolves": [
+     "cmv7yg9lgc0al",
+     "cmv7yhizfwt08"
+    ]
+   },
+   "sections": [
+    {
+     "id": "brief",
+     "title": "Brief",
+     "lead": "The page sells bluedoc to developers who already use a coding agent, and ends at the install commands.",
+     "blocks": [
+      "46607c331bbbc21b",
+      "2ca011096a6ef6d9"
+     ]
+    },
+    {
+     "id": "pages",
+     "title": "Pages",
+     "lead": "The landing page, live, with its eleven sections in page order.",
+     "blocks": [
+      "52d5252ee7f9dd0c"
+     ]
+    }
+   ]
   }
  ],
  "blocks": {
@@ -2953,6 +3005,841 @@
        ]
       }
      ]
+    }
+   ]
+  },
+  "52d5252ee7f9dd0c": {
+   "type": "board",
+   "id": "site",
+   "targets": [
+    "web"
+   ],
+   "root": "..",
+   "breakpoints": [
+    1440,
+    768,
+    390
+   ],
+   "artboards": [
+    {
+     "id": "home",
+     "title": "Landing",
+     "device": "page",
+     "fidelity": "hifi",
+     "url": "http://localhost:4321/bluedoc-site/",
+     "source": [
+      "src/pages/index.astro",
+      "src/layouts/Base.astro"
+     ],
+     "sections": [
+      {
+       "id": "nav",
+       "title": "Nav",
+       "sel": "header.site-nav",
+       "source": [
+        "src/content/site.ts#nav",
+        "src/components/Nav.astro"
+       ]
+      },
+      {
+       "id": "hero",
+       "title": "Hero",
+       "sel": "section.hero",
+       "source": [
+        "src/content/site.ts#hero",
+        "src/content/site.ts#install",
+        "src/components/Hero.astro"
+       ],
+       "decision": "hero-headline",
+       "variants": {
+        "a": [
+         {
+          "sel": "#hero-title",
+          "text": "Your agent’s work, on a page you can decide on."
+         }
+        ],
+        "b": [
+         {
+          "sel": "#hero-title",
+          "text": "Answer your agent on a page, not in a chat."
+         }
+        ],
+        "c": []
+       }
+      },
+      {
+       "id": "product",
+       "title": "Product shot",
+       "sel": "section.product",
+       "source": [
+        "src/content/site.ts#productShot",
+        "src/components/ProductShot.astro"
+       ]
+      },
+      {
+       "id": "loop",
+       "title": "The loop",
+       "sel": "#how-it-works",
+       "source": [
+        "src/content/site.ts#loop",
+        "src/components/Loop.astro",
+        "src/components/PixelIcon.astro"
+       ]
+      },
+      {
+       "id": "doc-types",
+       "title": "Doc types",
+       "sel": "#doc-types",
+       "source": [
+        "src/content/site.ts#docTypes",
+        "src/components/DocTypes.astro"
+       ]
+      },
+      {
+       "id": "features",
+       "title": "Features",
+       "sel": "#features",
+       "source": [
+        "src/content/site.ts#features",
+        "src/components/Features.astro"
+       ]
+      },
+      {
+       "id": "code-peek",
+       "title": "Code peek",
+       "sel": "section[aria-labelledby=\"code-title\"]",
+       "source": [
+        "src/content/site.ts#codePeek",
+        "src/components/CodePeek.astro"
+       ]
+      },
+      {
+       "id": "install",
+       "title": "Install",
+       "sel": "#install",
+       "source": [
+        "src/content/site.ts#install",
+        "src/components/Install.astro"
+       ]
+      },
+      {
+       "id": "faq",
+       "title": "FAQ",
+       "sel": "#faq",
+       "source": [
+        "src/content/site.ts#faq",
+        "src/components/Faq.astro"
+       ]
+      },
+      {
+       "id": "final-cta",
+       "title": "Final CTA",
+       "sel": "section.cta",
+       "source": [
+        "src/content/site.ts#finalCta",
+        "src/components/FinalCta.astro"
+       ],
+       "decision": "cta-title",
+       "variants": {
+        "a": [
+         {
+          "sel": "#cta-title",
+          "text": "Ship decisions, not walls of text."
+         }
+        ],
+        "b": []
+       }
+      },
+      {
+       "id": "footer",
+       "title": "Footer",
+       "sel": "footer.site-footer",
+       "source": [
+        "src/content/site.ts#footer",
+        "src/components/Footer.astro"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "docs",
+     "title": "Docs",
+     "device": "page",
+     "fidelity": "hifi",
+     "url": "http://localhost:4321/bluedoc-site/docs/",
+     "source": [
+      "src/pages/docs.astro",
+      "src/layouts/TypePage.astro"
+     ],
+     "sections": [
+      {
+       "id": "hero",
+       "title": "Hero",
+       "sel": "section.type-hero",
+       "source": [
+        "src/content/types.ts#docs",
+        "src/components/TypeHero.astro"
+       ]
+      },
+      {
+       "id": "for",
+       "title": "What it's for",
+       "sel": "section[aria-labelledby=\"for-title\"]",
+       "source": [
+        "src/content/types.ts#docs",
+        "src/layouts/TypePage.astro"
+       ]
+      },
+      {
+       "id": "features",
+       "title": "Feature clips",
+       "sel": "section[aria-labelledby=\"features-title\"]",
+       "source": [
+        "src/content/types.ts#docs",
+        "src/components/FeatureRow.astro",
+        "src/components/Clip.astro"
+       ]
+      },
+      {
+       "id": "shared",
+       "title": "Works on every doc",
+       "sel": "section[aria-labelledby=\"shared-title\"]",
+       "source": [
+        "src/content/types.ts#docs",
+        "src/components/ClipCard.astro"
+       ]
+      },
+      {
+       "id": "agent",
+       "title": "How the agent uses it",
+       "sel": "section[aria-labelledby=\"agent-title\"]",
+       "source": [
+        "src/content/types.ts#docs",
+        "src/components/AgentSnippet.astro"
+       ]
+      },
+      {
+       "id": "install",
+       "title": "Install",
+       "sel": "#install",
+       "source": [
+        "src/content/site.ts#install",
+        "src/components/Install.astro"
+       ]
+      },
+      {
+       "id": "other-types",
+       "title": "Other doc types",
+       "sel": "section[aria-labelledby=\"other-types-title\"]",
+       "source": [
+        "src/content/types.ts#typePageLabels",
+        "src/components/TypeLinks.astro"
+       ]
+      }
+     ],
+     "x": 1520,
+     "y": 0
+    },
+    {
+     "id": "designs",
+     "title": "Designs",
+     "device": "page",
+     "fidelity": "hifi",
+     "url": "http://localhost:4321/bluedoc-site/designs/",
+     "source": [
+      "src/pages/designs.astro",
+      "src/layouts/TypePage.astro"
+     ],
+     "sections": [
+      {
+       "id": "hero",
+       "title": "Hero",
+       "sel": "section.type-hero",
+       "source": [
+        "src/content/types.ts#designs",
+        "src/components/TypeHero.astro"
+       ]
+      },
+      {
+       "id": "for",
+       "title": "What it's for",
+       "sel": "section[aria-labelledby=\"for-title\"]",
+       "source": [
+        "src/content/types.ts#designs",
+        "src/layouts/TypePage.astro"
+       ]
+      },
+      {
+       "id": "features",
+       "title": "Feature clips",
+       "sel": "section[aria-labelledby=\"features-title\"]",
+       "source": [
+        "src/content/types.ts#designs",
+        "src/components/FeatureRow.astro",
+        "src/components/Clip.astro"
+       ]
+      },
+      {
+       "id": "shared",
+       "title": "Works on every doc",
+       "sel": "section[aria-labelledby=\"shared-title\"]",
+       "source": [
+        "src/content/types.ts#designs",
+        "src/components/ClipCard.astro"
+       ]
+      },
+      {
+       "id": "agent",
+       "title": "How the agent uses it",
+       "sel": "section[aria-labelledby=\"agent-title\"]",
+       "source": [
+        "src/content/types.ts#designs",
+        "src/components/AgentSnippet.astro"
+       ]
+      },
+      {
+       "id": "install",
+       "title": "Install",
+       "sel": "#install",
+       "source": [
+        "src/content/site.ts#install",
+        "src/components/Install.astro"
+       ]
+      },
+      {
+       "id": "other-types",
+       "title": "Other doc types",
+       "sel": "section[aria-labelledby=\"other-types-title\"]",
+       "source": [
+        "src/content/types.ts#typePageLabels",
+        "src/components/TypeLinks.astro"
+       ]
+      }
+     ],
+     "x": 3040,
+     "y": 0
+    },
+    {
+     "id": "websites",
+     "title": "Websites",
+     "device": "page",
+     "fidelity": "hifi",
+     "url": "http://localhost:4321/bluedoc-site/websites/",
+     "source": [
+      "src/pages/websites.astro",
+      "src/layouts/TypePage.astro"
+     ],
+     "sections": [
+      {
+       "id": "hero",
+       "title": "Hero",
+       "sel": "section.type-hero",
+       "source": [
+        "src/content/types.ts#websites",
+        "src/components/TypeHero.astro"
+       ]
+      },
+      {
+       "id": "for",
+       "title": "What it's for",
+       "sel": "section[aria-labelledby=\"for-title\"]",
+       "source": [
+        "src/content/types.ts#websites",
+        "src/layouts/TypePage.astro"
+       ]
+      },
+      {
+       "id": "features",
+       "title": "Feature clips",
+       "sel": "section[aria-labelledby=\"features-title\"]",
+       "source": [
+        "src/content/types.ts#websites",
+        "src/components/FeatureRow.astro",
+        "src/components/Clip.astro"
+       ]
+      },
+      {
+       "id": "shared",
+       "title": "Works on every doc",
+       "sel": "section[aria-labelledby=\"shared-title\"]",
+       "source": [
+        "src/content/types.ts#websites",
+        "src/components/ClipCard.astro"
+       ]
+      },
+      {
+       "id": "agent",
+       "title": "How the agent uses it",
+       "sel": "section[aria-labelledby=\"agent-title\"]",
+       "source": [
+        "src/content/types.ts#websites",
+        "src/components/AgentSnippet.astro"
+       ]
+      },
+      {
+       "id": "install",
+       "title": "Install",
+       "sel": "#install",
+       "source": [
+        "src/content/site.ts#install",
+        "src/components/Install.astro"
+       ]
+      },
+      {
+       "id": "other-types",
+       "title": "Other doc types",
+       "sel": "section[aria-labelledby=\"other-types-title\"]",
+       "source": [
+        "src/content/types.ts#typePageLabels",
+        "src/components/TypeLinks.astro"
+       ]
+      }
+     ],
+     "x": 4560,
+     "y": 0
+    },
+    {
+     "id": "plans",
+     "title": "Plans",
+     "device": "page",
+     "fidelity": "hifi",
+     "url": "http://localhost:4321/bluedoc-site/plans/",
+     "source": [
+      "src/pages/plans.astro",
+      "src/layouts/TypePage.astro"
+     ],
+     "sections": [
+      {
+       "id": "hero",
+       "title": "Hero",
+       "sel": "section.type-hero",
+       "source": [
+        "src/content/types.ts#plans",
+        "src/components/TypeHero.astro"
+       ]
+      },
+      {
+       "id": "for",
+       "title": "What it's for",
+       "sel": "section[aria-labelledby=\"for-title\"]",
+       "source": [
+        "src/content/types.ts#plans",
+        "src/layouts/TypePage.astro"
+       ]
+      },
+      {
+       "id": "features",
+       "title": "Feature clips",
+       "sel": "section[aria-labelledby=\"features-title\"]",
+       "source": [
+        "src/content/types.ts#plans",
+        "src/components/FeatureRow.astro",
+        "src/components/Clip.astro"
+       ]
+      },
+      {
+       "id": "shared",
+       "title": "Works on every doc",
+       "sel": "section[aria-labelledby=\"shared-title\"]",
+       "source": [
+        "src/content/types.ts#plans",
+        "src/components/ClipCard.astro"
+       ]
+      },
+      {
+       "id": "agent",
+       "title": "How the agent uses it",
+       "sel": "section[aria-labelledby=\"agent-title\"]",
+       "source": [
+        "src/content/types.ts#plans",
+        "src/components/AgentSnippet.astro"
+       ]
+      },
+      {
+       "id": "install",
+       "title": "Install",
+       "sel": "#install",
+       "source": [
+        "src/content/site.ts#install",
+        "src/components/Install.astro"
+       ]
+      },
+      {
+       "id": "other-types",
+       "title": "Other doc types",
+       "sel": "section[aria-labelledby=\"other-types-title\"]",
+       "source": [
+        "src/content/types.ts#typePageLabels",
+        "src/components/TypeLinks.astro"
+       ]
+      }
+     ],
+     "x": 6080,
+     "y": 0
+    },
+    {
+     "id": "reviews",
+     "title": "Reviews",
+     "device": "page",
+     "fidelity": "hifi",
+     "url": "http://localhost:4321/bluedoc-site/reviews/",
+     "source": [
+      "src/pages/reviews.astro",
+      "src/layouts/TypePage.astro"
+     ],
+     "sections": [
+      {
+       "id": "hero",
+       "title": "Hero",
+       "sel": "section.type-hero",
+       "source": [
+        "src/content/types.ts#reviews",
+        "src/components/TypeHero.astro"
+       ]
+      },
+      {
+       "id": "for",
+       "title": "What it's for",
+       "sel": "section[aria-labelledby=\"for-title\"]",
+       "source": [
+        "src/content/types.ts#reviews",
+        "src/layouts/TypePage.astro"
+       ]
+      },
+      {
+       "id": "features",
+       "title": "Feature clips",
+       "sel": "section[aria-labelledby=\"features-title\"]",
+       "source": [
+        "src/content/types.ts#reviews",
+        "src/components/FeatureRow.astro",
+        "src/components/Clip.astro"
+       ]
+      },
+      {
+       "id": "shared",
+       "title": "Works on every doc",
+       "sel": "section[aria-labelledby=\"shared-title\"]",
+       "source": [
+        "src/content/types.ts#reviews",
+        "src/components/ClipCard.astro"
+       ]
+      },
+      {
+       "id": "agent",
+       "title": "How the agent uses it",
+       "sel": "section[aria-labelledby=\"agent-title\"]",
+       "source": [
+        "src/content/types.ts#reviews",
+        "src/components/AgentSnippet.astro"
+       ]
+      },
+      {
+       "id": "install",
+       "title": "Install",
+       "sel": "#install",
+       "source": [
+        "src/content/site.ts#install",
+        "src/components/Install.astro"
+       ]
+      },
+      {
+       "id": "other-types",
+       "title": "Other doc types",
+       "sel": "section[aria-labelledby=\"other-types-title\"]",
+       "source": [
+        "src/content/types.ts#typePageLabels",
+        "src/components/TypeLinks.astro"
+       ]
+      }
+     ],
+     "x": 7600,
+     "y": 0
+    },
+    {
+     "id": "presentations",
+     "title": "Presentations",
+     "device": "page",
+     "fidelity": "hifi",
+     "url": "http://localhost:4321/bluedoc-site/presentations/",
+     "source": [
+      "src/pages/presentations.astro",
+      "src/layouts/TypePage.astro"
+     ],
+     "sections": [
+      {
+       "id": "hero",
+       "title": "Hero",
+       "sel": "section.type-hero",
+       "source": [
+        "src/content/types.ts#presentations",
+        "src/components/TypeHero.astro"
+       ]
+      },
+      {
+       "id": "for",
+       "title": "What it's for",
+       "sel": "section[aria-labelledby=\"for-title\"]",
+       "source": [
+        "src/content/types.ts#presentations",
+        "src/layouts/TypePage.astro"
+       ]
+      },
+      {
+       "id": "features",
+       "title": "Feature clips",
+       "sel": "section[aria-labelledby=\"features-title\"]",
+       "source": [
+        "src/content/types.ts#presentations",
+        "src/components/FeatureRow.astro",
+        "src/components/Clip.astro"
+       ]
+      },
+      {
+       "id": "shared",
+       "title": "Works on every doc",
+       "sel": "section[aria-labelledby=\"shared-title\"]",
+       "source": [
+        "src/content/types.ts#presentations",
+        "src/components/ClipCard.astro"
+       ]
+      },
+      {
+       "id": "agent",
+       "title": "How the agent uses it",
+       "sel": "section[aria-labelledby=\"agent-title\"]",
+       "source": [
+        "src/content/types.ts#presentations",
+        "src/components/AgentSnippet.astro"
+       ]
+      },
+      {
+       "id": "install",
+       "title": "Install",
+       "sel": "#install",
+       "source": [
+        "src/content/site.ts#install",
+        "src/components/Install.astro"
+       ]
+      },
+      {
+       "id": "other-types",
+       "title": "Other doc types",
+       "sel": "section[aria-labelledby=\"other-types-title\"]",
+       "source": [
+        "src/content/types.ts#typePageLabels",
+        "src/components/TypeLinks.astro"
+       ]
+      }
+     ],
+     "x": 9120,
+     "y": 0
+    },
+    {
+     "id": "other",
+     "title": "Other",
+     "device": "page",
+     "fidelity": "hifi",
+     "url": "http://localhost:4321/bluedoc-site/other/",
+     "source": [
+      "src/pages/other.astro",
+      "src/layouts/TypePage.astro"
+     ],
+     "sections": [
+      {
+       "id": "hero",
+       "title": "Hero",
+       "sel": "section.type-hero",
+       "source": [
+        "src/content/types.ts#other",
+        "src/components/TypeHero.astro"
+       ]
+      },
+      {
+       "id": "for",
+       "title": "What it's for",
+       "sel": "section[aria-labelledby=\"for-title\"]",
+       "source": [
+        "src/content/types.ts#other",
+        "src/layouts/TypePage.astro"
+       ]
+      },
+      {
+       "id": "features",
+       "title": "Feature clips",
+       "sel": "section[aria-labelledby=\"features-title\"]",
+       "source": [
+        "src/content/types.ts#other",
+        "src/components/FeatureRow.astro",
+        "src/components/Clip.astro"
+       ]
+      },
+      {
+       "id": "shared",
+       "title": "Works on every doc",
+       "sel": "section[aria-labelledby=\"shared-title\"]",
+       "source": [
+        "src/content/types.ts#other",
+        "src/components/ClipCard.astro"
+       ]
+      },
+      {
+       "id": "agent",
+       "title": "How the agent uses it",
+       "sel": "section[aria-labelledby=\"agent-title\"]",
+       "source": [
+        "src/content/types.ts#other",
+        "src/components/AgentSnippet.astro"
+       ]
+      },
+      {
+       "id": "install",
+       "title": "Install",
+       "sel": "#install",
+       "source": [
+        "src/content/site.ts#install",
+        "src/components/Install.astro"
+       ]
+      },
+      {
+       "id": "other-types",
+       "title": "Other doc types",
+       "sel": "section[aria-labelledby=\"other-types-title\"]",
+       "source": [
+        "src/content/types.ts#typePageLabels",
+        "src/components/TypeLinks.astro"
+       ]
+      }
+     ],
+     "x": 10640,
+     "y": 0
+    },
+    {
+     "id": "features",
+     "title": "Features",
+     "device": "page",
+     "fidelity": "hifi",
+     "url": "http://localhost:4321/bluedoc-site/features/",
+     "source": [
+      "src/pages/features.astro"
+     ],
+     "sections": [
+      {
+       "id": "hero",
+       "title": "Hero",
+       "sel": "section.type-hero",
+       "source": [
+        "src/content/types.ts#featuresPage",
+        "src/components/TypeHero.astro"
+       ]
+      },
+      {
+       "id": "commenting",
+       "title": "Commenting",
+       "sel": "#commenting",
+       "source": [
+        "src/content/types.ts#featuresPage",
+        "src/components/ClipCard.astro"
+       ]
+      },
+      {
+       "id": "deciding",
+       "title": "Deciding",
+       "sel": "#deciding",
+       "source": [
+        "src/content/types.ts#featuresPage",
+        "src/components/ClipCard.astro"
+       ]
+      },
+      {
+       "id": "sending",
+       "title": "Sending and approving",
+       "sel": "#sending",
+       "source": [
+        "src/content/types.ts#featuresPage",
+        "src/components/ClipCard.astro"
+       ]
+      },
+      {
+       "id": "revisions",
+       "title": "Revisions",
+       "sel": "#revisions",
+       "source": [
+        "src/content/types.ts#featuresPage",
+        "src/components/ClipCard.astro"
+       ]
+      },
+      {
+       "id": "home",
+       "title": "The home page",
+       "sel": "#home",
+       "source": [
+        "src/content/types.ts#featuresPage",
+        "src/components/ClipCard.astro"
+       ]
+      },
+      {
+       "id": "display",
+       "title": "Themes and width",
+       "sel": "#display",
+       "source": [
+        "src/content/types.ts#featuresPage",
+        "src/components/ClipCard.astro"
+       ]
+      },
+      {
+       "id": "install",
+       "title": "Install",
+       "sel": "#install",
+       "source": [
+        "src/content/site.ts#install",
+        "src/components/Install.astro"
+       ]
+      }
+     ],
+     "x": 12160,
+     "y": 0
+    },
+    {
+     "id": "legal",
+     "title": "Credits & privacy",
+     "device": "page",
+     "fidelity": "hifi",
+     "url": "http://localhost:4321/bluedoc-site/legal/",
+     "source": [
+      "src/pages/legal.astro"
+     ],
+     "sections": [
+      {
+       "id": "licence",
+       "title": "Licence",
+       "sel": "#licence",
+       "source": [
+        "src/content/site.ts#legal",
+        "src/pages/legal.astro"
+       ]
+      },
+      {
+       "id": "privacy",
+       "title": "Privacy",
+       "sel": "#privacy",
+       "source": [
+        "src/content/site.ts#legal",
+        "src/pages/legal.astro"
+       ]
+      },
+      {
+       "id": "credits",
+       "title": "Credits",
+       "sel": "#credits",
+       "source": [
+        "src/content/site.ts#legal",
+        "src/pages/legal.astro"
+       ]
+      }
+     ],
+     "x": 13680,
+     "y": 0
     }
    ]
   }

@@ -3,7 +3,6 @@
 // What it's for, the feature rows, the strip of shared clips (linking to /features/), How the agent uses it, the
 // install CTA and the other types. Only the hero clip loads early; every other clip waits for the reader to scroll to it.
 import ArrowRight from '@lucide/astro/icons/arrow-right';
-import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
 import Base from './Base.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
@@ -56,12 +55,6 @@ const docType = docTypes.items.find((t) => t.id === page.type);
         <div class="max-w-2xl" data-reveal>
           <p class="kicker">{labels.featuresKicker}</p>
           <h2 id="features-title" class="h2 mt-4">{labels.featuresTitle}</h2>
-          <p class="lead mt-5">
-            {labels.featuresLeadPrefix}{' '}
-            <a class="example-link" href={page.example.href} rel="noopener"
-              >{page.example.id}<ArrowUpRight class="ml-0.5 inline size-4 align-[-2px]" aria-hidden="true" /></a
-            >, {page.example.about}.
-          </p>
         </div>
         <div class="mt-14 grid gap-16 sm:mt-16 lg:gap-24">
           {page.features.map((item, i) => <FeatureRow item={item} index={i} />)}
@@ -150,17 +143,6 @@ const docType = docTypes.items.find((t) => t.id === page.type);
     background: var(--cyan);
   }
 
-  .example-link {
-    color: var(--fg);
-    font-family: var(--font-mono);
-    font-size: 0.92em;
-    text-decoration: underline;
-    text-decoration-color: var(--line-strong);
-    text-underline-offset: 4px;
-  }
-  .example-link:hover {
-    text-decoration-color: var(--cyan);
-  }
 
   .shared {
     background: linear-gradient(to bottom, var(--bg), var(--bg-2) 50%, var(--bg));

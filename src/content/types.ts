@@ -2,8 +2,6 @@
 // lays out one type page; src/pages/features.astro lays out featuresPage.
 // Each clip is named by its id in the showcase plan; its files are public/clips/<clip>.{mp4,webm,poster.webp}.
 // A clip whose files aren't recorded yet shows as a card with its title (see Clip.astro).
-import { repoUrl } from './site';
-
 export type ClipCopy = {
   /** file name in public/clips/, without extension */
   clip: string;
@@ -28,8 +26,6 @@ export type TypePageCopy = {
   metaDescription: string;
   title: string;
   pitch: string;
-  /** the Acme example the clips are recorded from */
-  example: { id: string; about: string; href: string };
   hero: ClipCopy & { url: string };
   forTitle: string;
   forLead: string;
@@ -40,7 +36,6 @@ export type TypePageCopy = {
   agent: { lead: string; commands: string[]; files: CodeFile[]; note: string };
 };
 
-const exampleHref = (file: string) => `${repoUrl}/blob/main/skills/bluedoc/examples/${file}`;
 
 // ---- shared clips: features every doc type has; all of them are on /features/, a few on each type page ----
 
@@ -191,11 +186,6 @@ const docs: TypePageCopy = {
   title: 'A system on one page, with a drawing you can open.',
   pitch:
     'A docs page explains a system that exists. The system is a blueprint canvas you zoom into, flows play across it step by step, and procedures are checklists whose ticks the local server keeps.',
-  example: {
-    id: 'acme-orders',
-    about: 'the Acme order path from checkout to pick ticket, with a runbook for the local stack',
-    href: exampleHref('acme-orders.bluedoc.json'),
-  },
   hero: {
     clip: 'docs-nested-zoom',
     title: 'Zoom three levels into the order path and back',
@@ -328,11 +318,6 @@ const plans: TypePageCopy = {
   title: 'A plan you approve before any code is written.',
   pitch:
     'The agent writes its plan as a page: the goal, the proposed design on a canvas, the steps and the files each one touches, then the open questions with its recommendation starred. Approve it, or send it back with your notes.',
-  example: {
-    id: 'acme-saved-carts-plan',
-    about: 'a 7-step plan for saved carts in the Acme shop, with three open questions',
-    href: exampleHref('acme-saved-carts-plan.bluedoc.json'),
-  },
   hero: {
     clip: 'plan-status',
     title: 'Watch the status chip follow the review',
@@ -442,11 +427,6 @@ const reviews: TypePageCopy = {
   title: 'Review findings next to the code, one decision each.',
   pitch:
     'A review page shows each finding under the lines it is about, in a diff the server reads from git. Each finding offers Fix in PR, Ticket or Decline with the agent’s pick starred; you choose, and send your answers back.',
-  example: {
-    id: 'acme-review-findings',
-    about: '11 findings on two acme-shop pull requests, over two revisions',
-    href: exampleHref('acme-review-findings.bluedoc.json'),
-  },
   hero: {
     clip: 'review-merged',
     title: 'Read findings next to their code',
@@ -572,11 +552,6 @@ const designs: TypePageCopy = {
   title: 'App screens on a board you can tap through.',
   pitch:
     'A design is a board of UI screens in device frames, from a round watch to a browser. Screens link to each other, Present plays them as an app, and each comment names the element it is about.',
-  example: {
-    id: 'acme-fit-design',
-    about: 'the Acme Fit activity tracker: a round watch, eight linked phone screens, an app icon and a web dashboard, over three revisions',
-    href: exampleHref('acme-fit-design.bluedoc.json'),
-  },
   hero: {
     clip: 'design-present',
     title: 'Tap through the app in Present',
@@ -739,11 +714,6 @@ const presentations: TypePageCopy = {
   title: 'A slide deck you rehearse, mark up and approve.',
   pitch:
     'A presentation is a deck of 16:9 HTML slides, stacked in the order they play. Present plays it full-window with the speaker notes one key away, and each comment names the element on the slide it is about.',
-  example: {
-    id: 'acme-fit-deck',
-    about: 'a five-slide Q3 launch review of the Acme Fit apps, with speaker notes',
-    href: exampleHref('acme-fit-deck.bluedoc.json'),
-  },
   hero: {
     clip: 'pres-present',
     title: 'Present the deck full-window',
@@ -846,11 +816,6 @@ const websites: TypePageCopy = {
   title: 'Your site, live on a board you can mark up.',
   pitch:
     'A website doc puts a site’s pages on a board, live from its local dev server. Comment on any element and the agent learns which source file to edit; pick between versions of a section in the real layout.',
-  example: {
-    id: 'acme-site',
-    about: 'the Acme Fit marketing site: the home page as a mockup with hero and pricing versions, and the blog live from a dev server',
-    href: exampleHref('acme-site.bluedoc.json'),
-  },
   hero: {
     clip: 'web-versions',
     title: 'Pick a hero version in place',
@@ -971,11 +936,6 @@ const other: TypePageCopy = {
   title: 'Status pages and reports, with the number up top.',
   pitch:
     'Any page that isn’t a system doc, a plan, a review or a design: a status page, an incident report, an inventory. It opens with a TL;DR and one stat that sums it up; ticks, picks and comments work as on every type.',
-  example: {
-    id: 'acme-status',
-    about: 'the Acme shop’s week 41 status: orders, uptime, one incident and next week’s tasks',
-    href: exampleHref('acme-status.bluedoc.json'),
-  },
   hero: {
     clip: 'other-status',
     title: 'Read a weekly status page',
@@ -1040,8 +1000,7 @@ export const typePages = { docs, plans, reviews, designs, presentations, website
 export const typePageLabels = {
   forKicker: 'What it’s for',
   featuresKicker: 'Features',
-  featuresTitle: 'Every feature, in a short clip.',
-  featuresLeadPrefix: 'Each clip is recorded from',
+  featuresTitle: 'What you can do on the page.',
   sharedKicker: 'Works on every doc',
   sharedTitle: 'Comments, revisions and approval, the same on every type.',
   sharedLink: 'See every shared feature',
@@ -1065,12 +1024,12 @@ export type FeatureGroup = {
 export const featuresPage = {
   metaTitle: 'Features on every doc type: comments, decisions, approval · bluedoc',
   metaDescription:
-    'What every bluedoc page has, whatever its type: comments pinned, selected or drawn, decision pills, change requests, approval, revisions you compare word by word, and a home page for every doc. 22 short clips.',
+    'What every bluedoc page has, whatever its type: comments pinned, selected or drawn, decision pills, change requests, approval, revisions you compare word by word, and a home page for every doc.',
   kicker: 'Every doc type',
   display: 'Features',
   title: 'Comment, decide and approve, on every page.',
   pitch:
-    'Docs, plans, reviews, designs, decks, websites and status pages all answer the same way: you comment on any part, pick options, send your notes and approve. Each clip is recorded from one of the Acme examples.',
+    'Docs, plans, reviews, designs, decks, websites and status pages all answer the same way: you comment on any part, pick options, send your notes and approve.',
   hero: { ...every.pin, url: '127.0.0.1 / acme-orders' },
   groupsLabel: 'On this page',
   groups: [
