@@ -1,6 +1,6 @@
 # Builds the site and publishes it to GitHub Pages on every push to main.
 # In the repo: Settings → Pages → Build and deployment → Source: GitHub Actions.
-# The URL comes from `site` and `base` in astro.config.mjs (andreiverdes.github.io/bluedoc-site by default).
+# The URL comes from `site` and `base` in astro.config.mjs (https://bluedoc.ai; public/CNAME holds the domain).
 name: Deploy to GitHub Pages
 
 on:

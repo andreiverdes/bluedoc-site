@@ -8,7 +8,7 @@ Needs Node 22.12 or later.
 
 ```sh
 npm i            # install
-npm run dev      # dev server with hot reload, http://localhost:4321/bluedoc-site/
+npm run dev      # dev server with hot reload, http://localhost:4321/
 npm run build    # static site in dist/
 npm run preview  # serve dist/ locally
 npm run check    # type-check the .astro and .ts files
@@ -50,16 +50,11 @@ Page title and description: `meta` in `site.ts`. Colours, fonts and shared style
 
 ## Deploy
 
-`.github/workflows/deploy.yml` builds the site and publishes it to GitHub Pages on every push to `main`. In the GitHub repo, open **Settings → Pages** and set **Source** to **GitHub Actions**.
+`.github/workflows/deploy.yml` builds the site and publishes it to GitHub Pages on every push to `main`, at https://bluedoc.ai. In the GitHub repo, **Settings → Pages** has **Source** set to **GitHub Actions** and the custom domain `bluedoc.ai`.
 
-The URL comes from `astro.config.mjs`:
+The URL comes from `astro.config.mjs` (`site: 'https://bluedoc.ai'`, `base: '/'`), and `public/CNAME` holds the domain. The sitemap, `robots.txt`, canonical URL and social image URLs follow these settings.
 
-```js
-site: 'https://andreiverdes.github.io',
-base: '/bluedoc-site',
-```
-
-For a custom domain, set `site` to it (for example `https://bluedoc.acme.dev`), set `base` to `'/'`, and add a `public/CNAME` file containing the domain. The sitemap, `robots.txt`, canonical URL and social image URLs follow these two settings.
+DNS (Namecheap): four A records on `@` to `185.199.108.153`, `.109`, `.110` and `.111`, and a CNAME on `www` to `andreiverdes.github.io.`; GitHub redirects `www.bluedoc.ai` to `bluedoc.ai`.
 
 Any static host works too: upload `dist/` after `npm run build`.
 

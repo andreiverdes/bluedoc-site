@@ -3,12 +3,10 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
-// GitHub Pages project site: https://andreiverdes.github.io/bluedoc-site/
-// For a custom domain (e.g. https://bluedoc.acme.dev), set `site` to it and `base` to '/'
-// (and add public/CNAME with the domain).
+// GitHub Pages with the custom domain https://bluedoc.ai (public/CNAME holds it).
 export default defineConfig({
-  site: 'https://andreiverdes.github.io',
-  base: '/bluedoc-site',
+  site: 'https://bluedoc.ai',
+  base: '/',
   trailingSlash: 'always',
   integrations: [sitemap()],
   // One small page: inline its CSS so the first paint waits on no stylesheet request.
