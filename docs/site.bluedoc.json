@@ -6,8 +6,8 @@
     "org": "bluedoc",
     "kind": "Website",
     "type": "website",
-    "rev": "6",
-    "date": "2026-10-14"
+    "rev": "7",
+    "date": "2026-10-18"
   },
   "state": [
     {
@@ -783,7 +783,7 @@
                   ]
                 }
               ],
-              "x": 10640,
+              "x": 12160,
               "y": 0
             },
             {
@@ -869,7 +869,7 @@
                   ]
                 }
               ],
-              "x": 12160,
+              "x": 13680,
               "y": 0
             },
             {
@@ -910,7 +910,86 @@
                   ]
                 }
               ],
-              "x": 13680,
+              "x": 15200,
+              "y": 0
+            },
+            {
+              "id": "store-listings",
+              "title": "Store listings",
+              "device": "page",
+              "fidelity": "hifi",
+              "url": "http://localhost:4321/bluedoc-site/store-listings/",
+              "source": [
+                "src/pages/store-listings.astro",
+                "src/layouts/TypePage.astro"
+              ],
+              "sections": [
+                {
+                  "id": "hero",
+                  "title": "Hero",
+                  "sel": "section.type-hero",
+                  "source": [
+                    "src/content/types.ts#storeListings",
+                    "src/components/TypeHero.astro"
+                  ]
+                },
+                {
+                  "id": "for",
+                  "title": "What it's for",
+                  "sel": "section[aria-labelledby=\"for-title\"]",
+                  "source": [
+                    "src/content/types.ts#storeListings",
+                    "src/layouts/TypePage.astro"
+                  ]
+                },
+                {
+                  "id": "features",
+                  "title": "Feature clips",
+                  "sel": "section[aria-labelledby=\"features-title\"]",
+                  "source": [
+                    "src/content/types.ts#storeListings",
+                    "src/components/FeatureRow.astro",
+                    "src/components/Clip.astro"
+                  ]
+                },
+                {
+                  "id": "shared",
+                  "title": "Works on every doc",
+                  "sel": "section[aria-labelledby=\"shared-title\"]",
+                  "source": [
+                    "src/content/types.ts#storeListings",
+                    "src/components/ClipCard.astro"
+                  ]
+                },
+                {
+                  "id": "agent",
+                  "title": "How the agent uses it",
+                  "sel": "section[aria-labelledby=\"agent-title\"]",
+                  "source": [
+                    "src/content/types.ts#storeListings",
+                    "src/components/AgentSnippet.astro"
+                  ]
+                },
+                {
+                  "id": "install",
+                  "title": "Install",
+                  "sel": "#install",
+                  "source": [
+                    "src/content/site.ts#install",
+                    "src/components/Install.astro"
+                  ]
+                },
+                {
+                  "id": "other-types",
+                  "title": "Other doc types",
+                  "sel": "section[aria-labelledby=\"other-types-title\"]",
+                  "source": [
+                    "src/content/types.ts#typePageLabels",
+                    "src/components/TypeLinks.astro"
+                  ]
+                }
+              ],
+              "x": 10640,
               "y": 0
             }
           ]
@@ -919,12 +998,6 @@
     }
   ],
   "changes": [
-    "Type pages: the features heading reads *What you can do on the page.*, with no line about recordings or the example project.",
-    "Features page and menus: the same; no clip counts or \"recorded from\" lines.",
-    "Board: your layout, the pages in one row from Landing to Credits & privacy."
-  ],
-  "resolves": [
-    "cmv7yg9lgc0al",
-    "cmv7yhizfwt08"
+    "Store listings: a type page at /store-listings/ with 13 clips from acme-fit-listing, a card on the home page and an entry in the Doc types menu; the board puts it after Presentations."
   ]
 }

@@ -11,13 +11,14 @@ import designShot from '../assets/shots/design-hero.webp';
 import presentationShot from '../assets/shots/presentation-hero.webp';
 import otherShot from '../assets/shots/other-hero.webp';
 import websiteShot from '../assets/shots/website-hero.webp';
+import storeListingShot from '../assets/shots/storelisting-hero.webp';
 
 export const repoUrl = 'https://github.com/andreiverdes/bluedoc';
 
 export const meta = {
   title: 'bluedoc: point, pick, approve. Your agent does the rest.',
   description:
-    'An agent skill for docs, plans, code reviews, UI designs, slide decks and app icons. The agent writes one JSON file; a local server renders it as a page you comment on, decide and approve.',
+    'An agent skill for docs, plans, code reviews, UI designs, slide decks, app icons and store listings. The agent writes one JSON file; a local server renders it as a page you comment on, decide and approve.',
   ogImageAlt: 'bluedoc: a pixel-art night bay with a ringed planet, the bluedoc logo and the headline “Point, pick, approve. Your agent does the rest.”',
 };
 
@@ -45,7 +46,7 @@ export const hero = {
   kicker: 'Beta · Agent skill · Local · MIT',
   headline: 'Point, pick, approve. Your agent does the rest.',
   subline:
-    'bluedoc turns plans, code reviews, architecture docs, UI designs and slide decks into interactive pages. Comment on any element, pick an option, approve. Your agent reads the answers and gets on with it.',
+    'bluedoc turns plans, code reviews, architecture docs, UI designs, slide decks and store listings into interactive pages. Comment on any element, pick an option, approve. Your agent reads the answers and gets on with it.',
   primaryCta: { label: 'Install', href: '#install' },
   secondaryCta: { label: 'View on GitHub', href: repoUrl },
   bannerAlt:
@@ -93,7 +94,7 @@ export type DocType = {
 export const docTypes = {
   id: 'doc-types',
   kicker: 'Doc types',
-  title: 'Seven kinds of page, one way to answer them.',
+  title: 'Eight kinds of page, one way to answer them.',
   lead: 'Each type has its own layout and its own decisions. Comments, revisions and approval work the same on all of them.',
   items: [
     {
@@ -165,6 +166,20 @@ export const docTypes = {
       href: `${base}websites/`,
     },
     {
+      id: 'store-listings',
+      name: 'Store listings',
+      tag: 'storelisting',
+      pitch: 'An app’s Google Play and App Store listing, checked against the stores’ rules.',
+      bullets: [
+        'Screenshots per device at each store’s sizes',
+        'Store text per locale, with live counters',
+        'Store checks, variants, ads and a fastlane ZIP',
+      ],
+      image: storeListingShot,
+      alt: 'The Acme Fit store listing on Google Play: the Text tab with the caption Typography and the store text with its counters, the toolbar’s platform switch, locale menu and Export to…, and the Wear OS and phone screenshot sets.',
+      href: `${base}store-listings/`,
+    },
+    {
       id: 'other',
       name: 'Other',
       tag: 'other',
@@ -204,7 +219,7 @@ export const features = {
     {
       icon: 'approve',
       title: 'Approve, and the agent proceeds',
-      body: 'Plans, designs and decks wait for approval on the current revision. Request changes sends them back.',
+      body: 'Plans, designs, decks and store listings wait for approval on the current revision. Request changes sends them back.',
     },
     {
       icon: 'local',
@@ -344,7 +359,7 @@ export const finalCta = {
 };
 
 export const footer = {
-  tagline: 'An agent skill for docs, plans, reviews, designs and decks you can decide on.',
+  tagline: 'An agent skill for docs, plans, reviews, designs, decks and store listings you can decide on.',
   // the columns after the brand: the doc types (from docTypes, with Features) and the site's own links
   typesTitle: 'Doc types',
   siteTitle: 'bluedoc',

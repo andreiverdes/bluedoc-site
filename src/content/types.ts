@@ -1,4 +1,4 @@
-// Copy and clip lists for the seven type pages (/docs/ … /other/) and the Features page (/features/). TypePage.astro
+// Copy and clip lists for the eight type pages (/docs/ … /other/) and the Features page (/features/). TypePage.astro
 // lays out one type page; src/pages/features.astro lays out featuresPage.
 // Each clip is named by its id in the showcase plan; its files are public/clips/<clip>.{mp4,webm,poster.webp}.
 // A clip whose files aren't recorded yet shows as a card with its title (see Clip.astro).
@@ -924,6 +924,148 @@ const websites: TypePageCopy = {
   },
 };
 
+// ---- Store listings ----
+
+const storeListings: TypePageCopy = {
+  type: 'store-listings',
+  display: 'Store listings',
+  name: 'Store listings',
+  metaTitle: 'Store listings: Google Play and App Store pages you check and approve · bluedoc',
+  metaDescription:
+    'A bluedoc store listing lays out an app’s Google Play and App Store pages: every device’s screenshots at their store sizes, the store text per locale with live counters, styles and colours, store checks, variants and ads, then a fastlane ZIP.',
+  title: 'Both store pages, checked before you upload.',
+  pitch:
+    'A store listing lays out an app’s Google Play and App Store pages: the screenshots for every device, the icon and feature graphic, the store text in each locale. You check it against the stores’ rules, edit the text in place, approve it, and get the fastlane folders to upload.',
+  hero: {
+    clip: 'listing-platforms',
+    title: 'Switch between Google Play and the App Store',
+    body: 'Each store has its own page: a Shared section, then a section per device row, each set with its count against the store’s maximum.',
+    shows: 'On acme-fit-listing, Google Play’s page shows its Shared assets and Wear OS set; App Store switches to the Apple Watch and iPhone sets at 10 / 10 and scrolls down, then Google Play switches back.',
+    url: '127.0.0.1 / acme-fit-listing',
+  },
+  forTitle: 'Everything the two stores ask for, on one page.',
+  forLead: 'One HTML file per shot renders at every set’s size, so a change lands in each set at once. Sizes and limits come from a dated rules file, never from the agent.',
+  kinds: [
+    { label: 'Screenshots', body: 'Watch, phone and tablet sets at each store’s sizes; TV, desktop, XR and car as optional rows.' },
+    { label: 'Store text', body: 'The name, descriptions, keywords and release notes per locale, each with its limit.' },
+    { label: 'Locales', body: 'Text, captions and captures per locale, with machine translations badged MT.' },
+    { label: 'Variants', body: 'App Store custom pages and A/B tests, Play custom listings and experiments.' },
+    { label: 'Ads', body: 'Google App campaign text and images, Apple Ads variations and the search asset.' },
+  ],
+  features: [
+    {
+      clip: 'listing-locales',
+      title: 'Switch locales, with machine translations flagged',
+      body: 'The locale menu switches the text, captions and captures, and counts each locale’s machine-translated strings. An MT string keeps its badge until you accept it.',
+      shows: 'On acme-fit-listing, the locale menu lists en-US and es-ES · 15 MT; es-ES is picked, the phone captions turn Spanish, and the Short description shows its MT badge.',
+    },
+    {
+      clip: 'listing-views',
+      title: 'See the store preview and the ads',
+      body: 'Sections shows every set by device. Store preview draws the product page and a search result at phone width, as a mock; Ads holds the campaign text and images.',
+      shows: 'On acme-fit-listing, Store preview shows the Google Play product page and a search result; Ads shows the Google App campaign’s headlines, descriptions and images; Sections returns to the sets.',
+    },
+    {
+      clip: 'listing-text',
+      title: 'Edit the store text, then save it as a draft',
+      body: 'Each store text and caption is a field with its counter, red past the store’s limit. Save turns the changed fields into drafts the agent writes into the doc.',
+      shows: 'On acme-fit-listing, the end of the Short description is retyped while its counter follows against 80; Save tags the field Draft.',
+    },
+    {
+      clip: 'listing-typography',
+      title: 'Set the caption font',
+      body: 'The Typography panel at the top of Text sets the captions’ font, weight, size, spacing and alignment, from the fonts installed on your machine.',
+      shows: 'On acme-fit-listing, the caption weight goes from ExtraBold to Medium and the size to 120%; the phone captions re-render with each pick.',
+    },
+    {
+      clip: 'listing-style',
+      title: 'Pick a caption style and a layout',
+      body: 'The Style tab offers five message styles (M1–M5) and five layouts (L1–L5) per platform, each with its evidence. A pick re-renders every shot live.',
+      shows: 'On acme-fit-listing, L4 Dark hero is picked in the Style tab and every phone shot re-renders in it.',
+    },
+    {
+      clip: 'listing-colors',
+      title: 'Take the colours from an image',
+      body: 'Drop an image on the Colors tab and its colours become the palette. Each text pair shows its contrast ratio against 4.5:1.',
+      shows: 'On acme-fit-listing, a brand image is chosen on the Colors tab; its swatches fill the palette, the shots recolour, and the contrast pairs show their ratios.',
+    },
+    {
+      clip: 'listing-checks',
+      title: 'Check the listing against the stores’ rules',
+      body: 'The build checks text limits, set counts, sizes, alpha, locales and mock-up UI against a dated rules file. The Checks tab lists each finding and shows the shot it is about.',
+      shows: 'On acme-fit-listing, the toolbar’s Checks count opens the Checks tab with three warnings; the mock-up UI warning scrolls the page to the Wear OS set.',
+    },
+    {
+      clip: 'listing-variants',
+      title: 'Compare a custom product page with the default',
+      body: 'A tab per custom page or A/B test lists what it changes against the default page. Compare to default puts each set’s default shots beside the variant’s.',
+      shows: 'On acme-fit-listing’s App Store page, the CPP: Runners tab lists its changes, then Compare to default shows each iPhone set’s default page beside the Runners page, which starts with Run route.',
+    },
+    {
+      clip: 'listing-upload',
+      title: 'Drop a real screenshot into a set',
+      body: 'A set with room ends in a Drop PNG slot with its size. The page and the server check the PNG’s size and alpha; it stays a draft until the agent records it.',
+      shows: 'On acme-fit-listing, a 1080×1920 PNG is chosen for the last slot of Play’s phone set and appears there as a draft.',
+    },
+    {
+      clip: 'listing-export',
+      title: 'Export the fastlane ZIP',
+      body: 'Export to… writes the fastlane ZIP, the same files in plain folders, a PDF or an HTML file. The key counts the files as it renders each PNG at its store size.',
+      shows: 'On acme-fit-listing, Export to… ZIP (fastlane) for Google Play in en-US counts 67 files on the key, then saves the ZIP: fastlane’s Android text and screenshot folders, the ad files, the Lifestyle variant and manifest.json.',
+    },
+    {
+      clip: 'listing-undo',
+      title: 'Undo and redo any draft',
+      body: 'Every draft is a step of one undo history that a reload keeps: a Save of text, a style pick, a colour, an upload. Undo and Redo name the step.',
+      shows: 'On acme-fit-listing, Undo names the L4 Dark hero pick and takes it back, then Redo puts it back.',
+    },
+    {
+      clip: 'listing-approve',
+      title: 'Approve the listing',
+      body: 'Approve listing counts the MT strings not yet accepted and the shots with mock-up UI, and names the variants it covers. The agent then exports the ZIP for you.',
+      shows: 'On acme-fit-listing, Approve listing’s dialog counts the MT strings and mock-up shots and names the variants; after Approve the chip reads Approved · rev D.',
+    },
+  ],
+  shared: [every.pin, every.panel],
+  agent: {
+    lead: 'The agent writes one shot file per screenshot, the store text per platform and locale, and the captions as strings. It never types a size or limit: those live in `assets/store-rules.json`.',
+    commands: [
+      'python3 <skill>/scripts/build.py new storelisting docs/store/acme-fit.bluedoc.json --title "Acme Fit: store listing"',
+      'python3 <skill>/scripts/capture.py docs/store/acme-fit.bluedoc.json --dry-run',
+      'python3 <skill>/scripts/build.py docs/store/acme-fit.bluedoc.json',
+      'python3 <skill>/scripts/serve.py open docs/store/acme-fit.bluedoc.json',
+      'python3 <skill>/scripts/build.py docs/store/acme-fit.bluedoc.json --listing acme-fit.zip',
+    ],
+    files: [
+      {
+        name: 'acme-fit-listing.bluedoc.json · a shot',
+        lang: 'json',
+        code: `{
+  "id": "today",
+  "title": "Today",
+  "device": "shot",
+  "fidelity": "hifi",
+  "sets": ["play/phone", "play/tablet7", "play/tablet10", "appstore/iphone-69", "appstore/iphone", "appstore/ipad"],
+  "recipe": { "targets": ["web"], "route": "today", "locales": ["en-US"] }
+}`,
+      },
+      {
+        name: 'acme-fit-listing.design/today.html · the shot',
+        lang: 'html',
+        code: `<main class="shot" data-bd="today">
+  <h1 class="shot-cap" data-bd="cap" data-l10n="today.title">See your week at a glance</h1>
+  <div class="shot-frame" data-bd="frame">
+    <div class="shot-ui" data-bd="ui">
+      <main class="screen safe stack gap-4" data-bd="screen">…</main>
+    </div>
+  </div>
+</main>`,
+      },
+    ],
+    note: 'The page renders the one file at every set’s frame. The caption is the string `today.title` in `listing.strings`, so each locale swaps it; the agent never uploads to a store.',
+  },
+};
+
 // ---- Other ----
 
 const other: TypePageCopy = {
@@ -995,7 +1137,7 @@ const other: TypePageCopy = {
   },
 };
 
-export const typePages = { docs, plans, reviews, designs, presentations, websites, other } satisfies Record<string, TypePageCopy>;
+export const typePages = { docs, plans, reviews, designs, presentations, websites, 'store-listings': storeListings, other } satisfies Record<string, TypePageCopy>;
 
 export const typePageLabels = {
   forKicker: 'What it’s for',
@@ -1007,7 +1149,7 @@ export const typePageLabels = {
   agentKicker: 'How the agent uses it',
   agentTitle: 'The agent writes JSON. The server draws the page.',
   otherKicker: 'Other doc types',
-  otherTitle: 'Six more kinds of page.',
+  otherTitle: 'Seven more kinds of page.',
 };
 
 // ---- Features: the clips of what every doc type has, in groups ----
@@ -1029,7 +1171,7 @@ export const featuresPage = {
   display: 'Features',
   title: 'Comment, decide and approve, on every page.',
   pitch:
-    'Docs, plans, reviews, designs, decks, websites and status pages all answer the same way: you comment on any part, pick options, send your notes and approve.',
+    'Docs, plans, reviews, designs, decks, websites, store listings and status pages all answer the same way: you comment on any part, pick options, send your notes and approve.',
   hero: { ...every.pin, url: '127.0.0.1 / acme-orders' },
   groupsLabel: 'On this page',
   groups: [
@@ -1051,7 +1193,7 @@ export const featuresPage = {
       id: 'sending',
       kicker: 'Sending and approving',
       title: 'Send your notes, or approve.',
-      lead: 'Plans, designs, presentations and websites wait for approval of the current revision. Reviews and other pages send answers instead.',
+      lead: 'Plans, designs, presentations, websites and store listings wait for approval of the current revision. Reviews and other pages send answers instead.',
       clips: [every.request, every.sendAnswers, every.approve],
     },
     {

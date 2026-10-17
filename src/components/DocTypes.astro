@@ -4,9 +4,9 @@ import Check from '@lucide/astro/icons/check';
 import ArrowRight from '@lucide/astro/icons/arrow-right';
 import { docTypes } from '../content/site';
 
-// Bento spans on a 6-column grid from 1024 px: wide, narrow / narrow, wide / three thirds. On the 2-column grid
+// Bento spans on a 6-column grid from 1024 px: wide, narrow / narrow, wide / halves / halves. On the 2-column grid
 // (640–1023 px) the last card of an odd count spans both columns.
-const spans = ['lg:col-span-4', 'lg:col-span-2', 'lg:col-span-2', 'lg:col-span-4', 'lg:col-span-2', 'lg:col-span-2', 'lg:col-span-2'];
+const spans = ['lg:col-span-4', 'lg:col-span-2', 'lg:col-span-2', 'lg:col-span-4', 'lg:col-span-3', 'lg:col-span-3', 'lg:col-span-3', 'lg:col-span-3'];
 const oddLast = docTypes.items.length % 2 === 1 ? docTypes.items.length - 1 : -1;
 ---
 
