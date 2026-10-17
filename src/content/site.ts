@@ -213,8 +213,8 @@ export const features = {
     },
     {
       icon: 'agents',
-      title: 'Works with your agent',
-      body: 'Claude Code, Codex, pi and omp install it as a plugin. Any other agent gets it through the skills CLI.',
+      title: 'Works with your agent, plan mode too',
+      body: 'Claude Code, Codex, Copilot CLI, Antigravity CLI, pi and omp install it as a plugin, with /bluedoc-* commands. In plan mode, the plan opens as a page and waits for your approval.',
     },
   ] satisfies { icon: FeatureIcon; title: string; body: string }[],
 };
@@ -267,19 +267,31 @@ export const install = {
       id: 'codex',
       label: 'Codex',
       commands: ['codex plugin marketplace add andreiverdes/bluedoc', 'codex plugin add bluedoc@bluedoc'],
-      note: 'Restart Codex. The skill is listed as bluedoc:bluedoc; mention it with $bluedoc or let Codex pick it from your request.',
+      note: 'Restart Codex. Mention the skill with $bluedoc or let Codex pick it from your request. Plan mode (/plan) opens the plan as a page; the README has the sandbox lines that skip the approval prompts.',
     },
     {
       id: 'pi',
       label: 'pi',
       commands: ['pi install git:github.com/andreiverdes/bluedoc'],
-      note: 'Restart pi. Run it as /skill:bluedoc or let pi pick it from your request.',
+      note: 'Restart pi. /bluedoc-plan-mode turns on plan mode, and the plan opens as a page for your approval.',
     },
     {
       id: 'omp',
       label: 'omp',
       commands: ['omp plugin marketplace add andreiverdes/bluedoc', 'omp plugin install bluedoc@bluedoc'],
-      note: 'Run /reload-plugins in an open session, or start a new one.',
+      note: 'Run /reload-plugins in an open session, or start a new one. omp’s plan reviews open as pages: Approve runs the plan, Request changes refines it.',
+    },
+    {
+      id: 'copilot',
+      label: 'Copilot CLI',
+      commands: ['copilot plugin install andreiverdes/bluedoc'],
+      note: 'Start a new session. When Copilot leaves plan mode, its plan opens as a page and waits for your approval.',
+    },
+    {
+      id: 'antigravity',
+      label: 'Antigravity CLI',
+      commands: ['git clone https://github.com/andreiverdes/bluedoc.git', 'agy plugin install bluedoc/antigravity'],
+      note: 'Restart agy. In plan mode (agy --mode plan or /plan), the implementation plan opens as a page for your approval.',
     },
     {
       id: 'skills',
@@ -302,7 +314,7 @@ export const faq = {
     },
     {
       q: 'Which agents does it work with?',
-      a: 'Claude Code, Codex, pi and omp install it as a plugin. Any other agent that reads skills can get it with the skills CLI (npx skills add andreiverdes/bluedoc) or a copy of the skill folder.',
+      a: 'Claude Code, Codex, Copilot CLI, Antigravity CLI, pi and omp install it as a plugin, with a plan-mode gate and /bluedoc-* commands. Any other agent that reads skills can get it with the skills CLI (npx skills add andreiverdes/bluedoc) or a copy of the skill folder.',
     },
     {
       q: 'Where does my data live?',
@@ -313,8 +325,8 @@ export const faq = {
       a: 'No. The server runs on 127.0.0.1 and serves its fonts, styles and UI kits itself. Design screens run sandboxed with no network. Only importing GitHub review threads, or diffing a PR whose repo isn’t checked out, calls gh.',
     },
     {
-      q: 'Can I export a doc as HTML?',
-      a: 'Yes. Add -o name.html to the build command and bluedoc writes a standalone HTML file you can send to someone.',
+      q: 'Can I export a doc?',
+      a: 'Yes. Add -o name.html to the build command for a standalone HTML file you can send to someone. Decks also export as PDF, and store listings as a fastlane ZIP, a plain-folders ZIP, a PDF or HTML.',
     },
     {
       q: 'What licence is it under?',
