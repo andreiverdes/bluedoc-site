@@ -160,6 +160,12 @@ const every = {
     body: 'Decisions counts what is decided across the docs, Waiting on agent lists what you sent, and By type splits the docs and filters them.',
     shows: 'On the home page, the Decisions, Waiting on agent and By type widgets; a By type row filters the cards below.',
   },
+  homeArchive: {
+    clip: 'every-home-archive',
+    title: 'Archive a doc that’s done',
+    body: 'Archive it from its card or page. It leaves the views and counts; a search that hides it says so.',
+    shows: 'On the home page, a card’s menu archives its doc; it leaves the cards and the counts, and the Archived chip lists it alone, dimmed.',
+  },
   theme: {
     clip: 'every-theme',
     title: 'Switch between light and dark',
@@ -1208,7 +1214,7 @@ export const featuresPage = {
       kicker: 'The home page',
       title: 'Every doc, on one dashboard.',
       lead: 'The local server lists every doc with its type, status and revision, across your projects.',
-      clips: [every.homeSearch, every.homeFilters, every.homeCards, every.homeOverview],
+      clips: [every.homeSearch, every.homeFilters, every.homeCards, every.homeOverview, every.homeArchive],
     },
     {
       id: 'display',
