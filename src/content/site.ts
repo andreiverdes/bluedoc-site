@@ -43,7 +43,7 @@ export const nav = {
 };
 
 export const hero = {
-  kicker: 'Beta · Agent skill · Local · MIT',
+  kicker: 'v1.0 · Agent skill · Local · MIT',
   headline: 'Point, pick, approve. Your agent does the rest.',
   subline:
     'bluedoc turns plans, code reviews, architecture docs, UI designs, slide decks and store listings into interactive pages. Comment on any element, pick an option, approve. Your agent reads the answers and gets on with it.',
