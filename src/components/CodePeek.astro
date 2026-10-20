@@ -166,7 +166,9 @@ const total = t;
   }
 
   /* Typing: each line widens one character a step after the lines above it. Its caret shows only while that line
-     types (an animation with no fill), and the last line's caret then keeps blinking. */
+     types (an animation with no fill), and the last line's caret then keeps blinking. jump-start shows a line's
+     first character at once and its last one a step before the end: with jump-end, Chrome could hold some lines at
+     their last step but one, cutting their final character. */
   @media (prefers-reduced-motion: no-preference) {
     :global(.js) .editor .ln {
       width: 0;
@@ -175,7 +177,7 @@ const total = t;
       opacity: 0;
     }
     :global(.js) .editor.is-in .ln {
-      animation: type var(--dur) steps(var(--len)) var(--delay) forwards;
+      animation: type var(--dur) steps(var(--len), jump-start) var(--delay) forwards;
     }
     :global(.js) .editor.is-in .caret {
       animation: caret-on var(--dur) linear var(--delay);

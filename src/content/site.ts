@@ -118,7 +118,7 @@ export const docTypes = {
       pitch: 'A plan you approve or send back before the agent writes code.',
       bullets: ['Steps, files, risks and checks on one page', 'Open questions with the recommendation starred', 'The agent waits for Approve plan'],
       image: planShot,
-      alt: 'The Acme saved carts plan: three open questions with the recommended options starred, and Approve plan in the bottom tray.',
+      alt: 'The Acme saved carts plan: open questions as option rows, 90 days picked and the recommended options starred, a pending comment in the panel, and Approve plan in the bottom tray.',
       href: `${base}plans/`,
     },
     {
@@ -239,23 +239,25 @@ export const codePeek = {
   title: 'The agent writes JSON. You get a page.',
   lead: 'Agents never write page HTML. The server renders each doc from its JSON on every request, so an edit and a reload is the whole build.',
   fileName: 'saved-carts.bluedoc.json',
-  // Shown with a typing animation. Keep it short: about 20 lines fit the editor.
+  // Shown with a typing animation. Keep it short (about 20 lines fit the editor) and narrow: a line over about 60
+  // characters runs past the box at 1440 px.
   snippet: `{
   "title": "Acme Shop: saved carts",
   "meta": { "type": "plan", "rev": "1" },
   "sections": [{
     "title": "Open questions",
     "blocks": [{
-      "type": "checklist",
-      "id": "decisions",
+      "type": "checklist", "id": "decisions",
       "items": [{
-        "id": "retention",
+        "id": "retention", "recommend": "d180",
         "text": "How long does a saved cart stay?",
-        "recommend": "d180",
         "choices": [
-          { "id": "d90", "label": "90 days" },
-          { "id": "d180", "label": "180 days" },
-          { "id": "forever", "label": "Until deleted" }
+          { "id": "d90", "label": "90 days",
+            "md": "Half the storage." },
+          { "id": "d180", "label": "180 days",
+            "md": "Most reorders fit." },
+          { "id": "forever", "label": "Until deleted",
+            "md": "No sweeper." }
         ]
       }]
     }]
