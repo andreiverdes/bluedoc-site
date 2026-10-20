@@ -12,8 +12,8 @@ export default {
 
   async setup(c) {
     await findingsView(c, 'pr-412', 'merged');
-    // createOrder.ts's range and its finding under the view bar, tiers.ts below it
-    await scrollTop(c, '#pr-412 .bd-mg.bd-xf', 130);
+    // createOrder.ts's changed lines and its finding under the view bar, tiers.ts's Show more lines above the tool tray
+    await scrollTop(c, '#pr-412 .bd-mg.bd-xf', 0);
     await c.ev(`[...document.querySelectorAll('#pr-412 .bd-mg.bd-xf')].find((g) => g.querySelector('.bd-fh b')?.textContent === 'tiers.ts').dataset.clip = 'tiers'`);
   },
 

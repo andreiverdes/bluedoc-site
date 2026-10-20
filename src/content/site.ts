@@ -263,7 +263,7 @@ export const codePeek = {
 }`,
   resultLabel: 'Rendered by the local server',
   image: planShot,
-  alt: 'The rendered Acme saved carts plan: the retention question with 90 days, 180 days (starred) and Until deleted as pills.',
+  alt: 'The rendered Acme saved carts plan: the retention question with its options 90 days, 180 days (starred) and Until deleted.',
 };
 
 export const install = {

@@ -1,6 +1,6 @@
-// Other: what changed since last week. The agent rebuilds the status page for week 42 as rev 2 of the same doc;
-// from the Revisions tab, Changes from 1 marks the new title, dates and TL;DR word by word, then the numbers table
-// cell by cell.
+// Other: what changed since last week. The agent rebuilds the status page for week 42 as the next rev of the same
+// doc; from the Revisions tab, Changes from the rev before marks the new title, dates and TL;DR word by word, then the
+// numbers table cell by cell.
 
 export default {
   doc: 'acme-status',

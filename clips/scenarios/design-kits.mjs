@@ -14,15 +14,14 @@ export const crf = 27;
 export default {
   doc: 'acme-fit-design',
   posterAt: 0.4,
-  cursor: [1180, 650],
+  cursor: [760, 650],
 
   prepare(ctx) {
     ctx.py('build.py', 'patch', ctx.bd.docPath('acme-fit-design'), 'artboard:dashboard', '--json', JSON.stringify(DASH), '--no-bump');
   },
 
   async setup(c) {
-    await panels(c, { left: true });
-    await c.click({ text: 'Brief', in: '.bd-lp' }, { ms: 1 });
+    await panels(c, { right: 'brief' });
     await c.waitForSelector(ROW);
     await c.ev(`document.querySelector('${ROW}').scrollIntoView({block: 'center'})`);
     await view(c, { x: -330, y: 1830, k: 0.3 }); // the dashboard, Sign in and its variant, Today
@@ -36,7 +35,7 @@ export default {
     await c.pause(400);
     await glide(c, { x: DASH.x + 720, y: DASH.y + 450, k: 0.6, ms: 1000 }); // the dashboard: HorizonUI
     await settled(c);
-    await c.moveTo(`${ROW} .bp-choice.rec`, { ms: 800 }); // HorizonUI (recommended)
+    await c.moveTo(`${ROW} .bp-opt[data-id="horizon"] .rec`, { ms: 800 }); // HorizonUI (recommended)
     await c.pause(1200);
   },
 };

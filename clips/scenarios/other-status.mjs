@@ -28,7 +28,7 @@ export default {
 
     await c.wheel(await c.ev(to('#next')), { ms: 550 });
     await c.pause(200);
-    await c.moveTo({ sel: '#next .bp-choice.rec', y: 0.6 }, { ms: 600 });
+    await c.moveTo({ sel: '#next .bp-opt:has(.rec) .rec', y: 0.6 }, { ms: 600 });
     await c.pause(1100); // the tasks, the decision with its recommendation
   },
 };

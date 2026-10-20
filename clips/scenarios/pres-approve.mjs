@@ -8,20 +8,19 @@ const ROW = '#item-brief-theme';
 export default {
   doc: 'acme-fit-deck',
   posterAt: -0.4,
-  cursor: [760, 560],
+  cursor: [600, 560],
 
   async setup(c) {
-    await panels(c, { left: true });
-    await c.click({ text: 'Brief', in: '.bd-lp' }, { ms: 1 });
+    await panels(c, { right: 'brief' });
     await c.waitForSelector(ROW);
     await c.ev(`document.querySelector('${ROW}').scrollIntoView({block: 'center'})`);
-    await view(c, { x: 960, y: 3260, k: 0.22, to: [800, 430] });
+    await view(c, { x: 960, y: 3260, k: 0.22, to: [467, 430] });
     await settled(c);
   },
 
   async run(c) {
     await c.pause(700);
-    await c.click(`${ROW} .bp-choice:not(.rec)`, { ms: 650 }); // Forest
+    await c.click(`${ROW} .bp-opt[data-id="forest"] .pk`, { ms: 650 }); // Forest
     await c.waitFor(`BP.board().theme === 'forest'`);
     await c.pause(500);
     await c.click('.bd-anntb .approve', { ms: 700 });

@@ -74,7 +74,7 @@ const every = {
     clip: 'every-item-comment',
     title: 'Comment on one item',
     body: 'Each step, question and finding has its own comment box. An item comment counts toward Request changes on its own.',
-    shows: 'On acme-saved-carts-plan, a comment is written in a question’s comment box and saved; the item shows a comment mark and Request changes counts it.',
+    shows: 'On acme-saved-carts-plan, a question is opened, which shows its details and comment box; a comment is written and saved, and Request changes counts it.',
   },
   conversation: {
     clip: 'every-conversation',
@@ -82,17 +82,11 @@ const every = {
     body: 'Each item, pin and general comment is a conversation. A sent comment becomes a message tagged with its rev; the agent’s replies sit between yours, marked New until you see them.',
     shows: 'On acme-saved-carts-plan, the retention question shows your question at rev 1 and the agent’s reply at rev 2, marked New; a follow-up is sent with Request changes, lists as your message at rev 2, and the box empties.',
   },
-  pills: {
-    clip: 'every-pills',
-    title: 'Pick an option from decision pills',
-    body: 'Each open question shows its options as pills, the agent’s recommendation starred. Pick one and the question counts as decided.',
-    shows: 'On acme-saved-carts-plan, the cursor hovers the starred option, then picks another; the dot fills and Decisions reads 1/3.',
-  },
   accept: {
     clip: 'every-accept',
     title: 'Accept every recommendation at once',
     body: 'Accept recommended picks every starred option in one go. Change the ones you disagree with afterwards.',
-    shows: 'On acme-saved-carts-plan, Accept recommended picks all three starred options; Decisions reads 3/3 and the key’s count drops to 0.',
+    shows: 'On acme-saved-carts-plan, Accept recommended picks every starred option; the three questions are answered and the key’s count drops to 0.',
   },
   optionRows: {
     clip: 'every-option-rows',
@@ -104,7 +98,7 @@ const every = {
     clip: 'every-more',
     title: 'Ask for more details',
     body: 'Need more details marks a question and asks the agent what is missing before you pick.',
-    shows: 'On acme-saved-carts-plan, Need more details turns a decision’s dot amber and asks what is missing; Approve greys out.',
+    shows: 'On acme-saved-carts-plan, Need more details, the last option row, turns a decision’s dot amber and opens its reply box to ask what is missing; Approve greys out.',
   },
   request: {
     clip: 'every-request',
@@ -116,7 +110,7 @@ const every = {
     clip: 'every-send-answers',
     title: 'Send ticks and picks without approval',
     body: 'Pages with no approval step, such as a status report or a review, send your ticks, picks and comments with Send answers.',
-    shows: 'On acme-status, a task is ticked and the rollout date picked; Send answers turns green and opens a dialog with what goes to the agent.',
+    shows: 'On acme-status, the rollout date is picked and a task ticked; Send answers turns green and opens a dialog with what goes to the agent.',
   },
   approve: {
     clip: 'every-approve',
@@ -387,7 +381,7 @@ const plans: TypePageCopy = {
       shows: 'On acme-saved-carts-plan, rev 2 opens and Show what changed compares it with rev 1: the author’s notes up top, the sweeper step’s text marked word by word and the retention question’s recommendation moved to 90 days.',
     },
   ],
-  shared: [every.pills, every.accept, every.more, every.request, every.approve, every.carry],
+  shared: [every.optionRows, every.accept, every.more, every.request, every.approve, every.carry],
   agent: {
     lead: 'The agent fills in the steps and the files, then turns each choice it can’t make alone into an open question with a `recommend`. It waits for your answer before it writes code.',
     commands: [
@@ -1123,7 +1117,7 @@ const other: TypePageCopy = {
       clip: 'other-week',
       title: 'See what changed since last week',
       body: 'Next week’s update is a new revision of the same page. Compare the two and the title, the TL;DR and the table cells that moved are marked word by word.',
-      shows: 'On acme-status, rev 2 for week 42 opens with Changes from rev 1; the title, subtitle, TL;DR, lead and the numbers table’s cells are marked word by word.',
+      shows: 'On acme-status, rev 3 for week 42 opens with Changes from rev 2; the title, subtitle, TL;DR, lead and the numbers table’s cells are marked word by word.',
     },
   ],
   shared: [every.sendAnswers, every.draw, every.general],
@@ -1205,7 +1199,7 @@ export const featuresPage = {
       kicker: 'Deciding',
       title: 'Pick an option, or ask for more.',
       lead: 'Open questions and findings list their options as rows, with the agent’s recommendation starred.',
-      clips: [every.optionRows, every.pills, every.accept, every.more],
+      clips: [every.optionRows, every.accept, every.more],
     },
     {
       id: 'sending',

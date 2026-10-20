@@ -1,19 +1,22 @@
-// Shared steps for the pres-* scenarios on acme-fit-deck: the panels (a deck's left panel is "Slides and brief") and
-// rev B (a reworded Weekly actives slide) for pres-compare. The camera helpers (view, settled) are the design board's:
-// a deck is a board of slides.
+// Shared steps for the pres-* scenarios on acme-fit-deck: the panels (a deck's left panel is "Slides"; its brief is the
+// right panel's Brief tab) and rev B (a reworded Weekly actives slide) for pres-compare. The camera helpers (view,
+// settled) are the design board's: a deck is a board of slides.
 import { join } from 'node:path';
 
 const here = new URL('.', import.meta.url).pathname;
 
-/** Show or hide the Slides/Brief panel (left) and the Comments/Revisions panel (right), as the reader does. */
+/**
+ * Show or hide the Slides panel (left) and the right panel; right is true or false, or the right panel's tab to open
+ * ('brief', 'comments', 'revisions').
+ */
 export async function panels(c, { left = false, right = false } = {}) {
   await c.waitFor(`!!(window.BP && BP.board() && document.querySelector('.bd-board'))`);
   await c.pause(300);
   for (let i = 0; i < 5 && (await c.ev('BP.board().panel')) !== left; i++) {
-    await c.click('button[aria-label="Slides and brief ([)"]', { ms: 1 });
+    await c.click('button[aria-label="Slides ([)"]', { ms: 1 });
     await c.pause(400);
   }
-  await c.ev(`BP.sidebar({open: ${right}})`);
+  await c.ev(`BP.sidebar(${JSON.stringify(typeof right === 'string' ? { open: true, section: right } : { open: right })})`);
   // the board refits while the panels slide: wait until its width holds
   let w = -1;
   for (let i = 0; i < 40; i++) {

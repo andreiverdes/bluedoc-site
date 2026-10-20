@@ -11,7 +11,8 @@ export default {
 
   async setup(c) {
     await findingsView(c, 'pr-412', 'checklist');
-    await scrollTop(c, '#item-t412-float-cents', 128);
+    // bulkSavingsCents, then the tier-tests row whose pick changes
+    await scrollTop(c, '#item-t412-savings-coupon', 128);
   },
 
   async run(c) {
@@ -19,8 +20,8 @@ export default {
     await c.click('.bd-anntb .acc', { ms: 650 });
     await c.waitFor(`BP.progress().every((p) => p.done === p.total)`);
     await c.pause(600);
-    await c.click(`${ROW} .bp-choice[data-id="ticket"]`, { ms: 650 });
-    await c.waitFor(`document.querySelector('${ROW} .bp-choice[data-id="ticket"]').getAttribute('aria-checked') === 'true'`);
+    await c.click(`${ROW} > .bp-opts .bp-opt[data-id="ticket"] .pk`, { ms: 650 });
+    await c.waitFor(`document.querySelector('${ROW} > .bp-opts .bp-opt[data-id="ticket"] .pk').getAttribute('aria-checked') === 'true'`);
     await c.pause(500);
     await c.click('.bd-anntb .send', { ms: 650 });
     await c.waitForSelector('.bd-send:not(.bd-chgs) summary');
