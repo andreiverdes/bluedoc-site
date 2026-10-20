@@ -76,6 +76,12 @@ const every = {
     body: 'Each step, question and finding has its own comment box. An item comment counts toward Request changes on its own.',
     shows: 'On acme-saved-carts-plan, a comment is written in a question’s comment box and saved; the item shows a comment mark and Request changes counts it.',
   },
+  conversation: {
+    clip: 'every-conversation',
+    title: 'Talk it through with the agent',
+    body: 'Each item, pin and general comment is a conversation. A sent comment becomes a message tagged with its rev; the agent’s replies sit between yours, marked New until you see them.',
+    shows: 'On acme-saved-carts-plan, the retention question shows your question at rev 1 and the agent’s reply at rev 2, marked New; a follow-up is sent with Request changes, lists as your message at rev 2, and the box empties.',
+  },
   pills: {
     clip: 'every-pills',
     title: 'Pick an option from decision pills',
@@ -87,6 +93,12 @@ const every = {
     title: 'Accept every recommendation at once',
     body: 'Accept recommended picks every starred option in one go. Change the ones you disagree with afterwards.',
     shows: 'On acme-saved-carts-plan, Accept recommended picks all three starred options; Decisions reads 3/3 and the key’s count drops to 0.',
+  },
+  optionRows: {
+    clip: 'every-option-rows',
+    title: 'Pick from option rows, one or several',
+    body: 'Each option is a row with a radio or checkbox, the label, ★ Recommended and one line that opens to the full explanation. A question can take several answers; Need more details is the last row.',
+    shows: 'On acme-saved-carts-plan, Who can save a cart? opens one option’s explanation, then two options are ticked and the question reads 2 picked.',
   },
   more: {
     clip: 'every-more',
@@ -1172,7 +1184,7 @@ export type FeatureGroup = {
 export const featuresPage = {
   metaTitle: 'Features on every doc type: comments, decisions, approval · bluedoc',
   metaDescription:
-    'What every bluedoc page has, whatever its type: comments pinned, selected or drawn, decision pills, change requests, approval, revisions you compare word by word, and a home page for every doc.',
+    'What every bluedoc page has, whatever its type: comments pinned, selected or drawn, conversations with the agent, option rows, change requests, approval, revisions you compare word by word, and a home page for every doc.',
   kicker: 'Every doc type',
   display: 'Features',
   title: 'Comment, decide and approve, on every page.',
@@ -1186,14 +1198,14 @@ export const featuresPage = {
       kicker: 'Commenting',
       title: 'Comment on any part of the page.',
       lead: 'Point, select or draw. Each note is filed under the part it is about, so the agent knows what to edit. Pinning is the clip at the top of the page.',
-      clips: [every.select, every.draw, every.general, every.itemComment, every.marks],
+      clips: [every.select, every.draw, every.general, every.itemComment, every.conversation, every.marks],
     },
     {
       id: 'deciding',
       kicker: 'Deciding',
       title: 'Pick an option, or ask for more.',
-      lead: 'Open questions and findings show their options as pills, with the agent’s recommendation starred.',
-      clips: [every.pills, every.accept, every.more],
+      lead: 'Open questions and findings list their options as rows, with the agent’s recommendation starred.',
+      clips: [every.optionRows, every.pills, every.accept, every.more],
     },
     {
       id: 'sending',

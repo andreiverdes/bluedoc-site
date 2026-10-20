@@ -203,13 +203,13 @@ export const features = {
   items: [
     {
       icon: 'comment',
-      title: 'Comments on any element',
-      body: 'Point at an element, select a passage or draw a box. Notes collect as Pending, Open and Resolved.',
+      title: 'Comments that become conversations',
+      body: 'Point at an element, select a passage or draw a box. Each note, item and general comment is a thread the agent replies in.',
     },
     {
       icon: 'star',
-      title: 'Decision pills, recommendation starred',
-      body: 'Pick one option per question, or press Accept recommended to take every starred option at once.',
+      title: 'Options as rows, recommendation starred',
+      body: 'Each option explains itself in a line. Pick one, or several where a question allows, or Accept recommended to take every starred option.',
     },
     {
       icon: 'compare',
