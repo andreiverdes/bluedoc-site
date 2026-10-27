@@ -1,21 +1,25 @@
 ---
+// Row 10: the questions as numbered disclosure rows beside the title.
 import Plus from '@lucide/astro/icons/plus';
+import Row from './Row.astro';
 import { faq } from '../content/site';
+import { rich } from '../lib/rich';
 ---
 
-<section id={faq.id} class="section-y" aria-labelledby="faq-title">
-  <div class="container-x grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:gap-16">
+<Row n="10" id={faq.id} labelledby="faq-title">
+  <div class="faq rail-pad row-y">
     <div data-reveal>
       <p class="kicker">{faq.kicker}</p>
-      <h2 id="faq-title" class="h2 mt-4">{faq.title}</h2>
+      <h2 id="faq-title" class="h2 mt-5" set:html={rich(faq.title)} />
     </div>
-    <div class="faq-list" data-reveal>
+    <div class="list" data-reveal="1">
       {
-        faq.items.map((item) => (
+        faq.items.map((item, i) => (
           <details class="qa">
-            <summary>
-              <h3 class="q">{item.q}</h3>
-              <Plus class="plus size-5 flex-none" aria-hidden="true" />
+            <summary class="q">
+              <span class="q-n">{String(i + 1).padStart(2, '0')}</span>
+              <span class="flex-1">{item.q}</span>
+              <Plus class="q-icon size-4" aria-hidden="true" />
             </summary>
             <p class="a">{item.a}</p>
           </details>
@@ -23,47 +27,59 @@ import { faq } from '../content/site';
       }
     </div>
   </div>
-</section>
+</Row>
 
 <style>
-  .faq-list {
+  .faq {
+    display: grid;
+    gap: 2.5rem;
+  }
+  @media (min-width: 1024px) {
+    .faq {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: 4rem;
+    }
+  }
+  .list {
     border-top: 1px solid var(--line);
   }
   .qa {
     border-bottom: 1px solid var(--line);
   }
-  summary {
+  .q {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem;
-    padding: 1.35rem 0.25rem;
+    gap: 1.25rem;
+    padding-block: 1.25rem;
+    font-size: 1.0625rem;
+    font-weight: 500;
     cursor: pointer;
     list-style: none;
-    border-radius: 0.5rem;
   }
-  summary::-webkit-details-marker {
+  .q::-webkit-details-marker {
     display: none;
   }
-  .q {
-    font-family: var(--font-display);
-    font-size: clamp(1.05rem, 1rem + 0.3vw, 1.25rem);
-    font-weight: 500;
-    letter-spacing: -0.01em;
-  }
-  summary:hover .q {
+  .q:hover {
     color: var(--brand-fg);
   }
-  .plus {
-    color: var(--cyan);
-    transition: transform 0.3s var(--ease-out-soft);
+  .q-n {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--fg-subtle);
   }
-  .qa[open] .plus {
-    transform: rotate(45deg);
+  .q :global(.q-icon) {
+    flex: none;
+    color: var(--fg-subtle);
+    transition: rotate 0.25s var(--ease-out-soft);
+  }
+  .qa[open] :global(.q-icon) {
+    rotate: 45deg;
+    color: var(--brand-fg);
   }
   .a {
-    max-width: 44rem;
-    padding: 0 2.5rem 1.5rem 0.25rem;
+    max-width: 40rem;
+    padding: 0 2.5rem 1.4rem 2.6rem;
     color: var(--fg-muted);
   }
   @media (prefers-reduced-motion: no-preference) {
@@ -74,7 +90,7 @@ import { faq } from '../content/site';
   @keyframes open {
     from {
       opacity: 0;
-      translate: 0 -6px;
+      translate: 0 -4px;
     }
   }
 </style>

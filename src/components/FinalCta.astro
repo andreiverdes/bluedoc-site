@@ -1,170 +1,57 @@
 ---
-import Star from '@lucide/astro/icons/star';
+// The closing row, a band under a pixel sky: the closing line and the two ways in.
 import ArrowDown from '@lucide/astro/icons/arrow-down';
 import GithubMark from './GithubMark.astro';
 import PixelSky from './PixelSky.astro';
+import Row from './Row.astro';
 import { finalCta } from '../content/site';
+import { rich } from '../lib/rich';
 
-// A ringed planet over a pixel starfield. The planet is drawn on a coarse grid at build time so it stays crisp:
-// a banded disc lit from the upper left with a rim of light, and a tilted ring that passes in front of it below the
-// equator and behind it above. One cell is one art pixel.
-const P_W = 160;
-const P_H = 104;
-const cx = 80;
-const cy = 52;
-const r = 31;
-const tilt = -0.32;
-type Cell = 'body' | 'band' | 'shade' | 'rim' | 'ring' | 'ringHi' | 'ringBack';
-const grid: (Cell | null)[][] = Array.from({ length: P_H }, () => Array(P_W).fill(null));
-for (let y = 0; y < P_H; y++) {
-  for (let x = 0; x < P_W; x++) {
-    const dx = x + 0.5 - cx;
-    const dy = y + 0.5 - cy;
-    // the ring and the bands live in the planet's tilted frame
-    const rx = dx * Math.cos(tilt) + dy * Math.sin(tilt);
-    const ry = -dx * Math.sin(tilt) + dy * Math.cos(tilt);
-    const outer = (rx / 72) ** 2 + (ry / 16.5) ** 2;
-    const inner = (rx / 54) ** 2 + (ry / 10.2) ** 2;
-    const onRing = outer <= 1 && inner >= 1;
-    const ringCell: Cell = outer > 0.8 ? 'ringHi' : 'ring';
-    const d = Math.hypot(dx, dy);
-    if (d <= r) {
-      const lit = (dx * -0.6 + dy * -0.8) / r; // -1 … 1, light from the upper left
-      let c: Cell = lit < -0.3 ? 'shade' : Math.floor((ry + r) / 6) % 3 === 0 ? 'band' : 'body';
-      if (d > r - 2 && lit > 0.35) c = 'rim';
-      grid[y][x] = onRing && ry > 0 ? ringCell : c;
-    } else if (onRing) {
-      grid[y][x] = ry > 0 ? ringCell : 'ringBack';
-    }
-  }
+interface Props {
+  n?: string;
 }
-// one path per colour: each horizontal run of cells is a 1-unit-high rectangle
-const planet = new Map<Cell, string>();
-grid.forEach((row, y) => {
-  let x = 0;
-  while (x < P_W) {
-    const c = row[x];
-    if (!c) {
-      x++;
-      continue;
-    }
-    let w = 1;
-    while (row[x + w] === c) w++;
-    planet.set(c, `${planet.get(c) ?? ''}M${x} ${y}h${w}v1h-${w}z`);
-    x += w;
-  }
-});
+
+const { n } = Astro.props;
 ---
 
-<section class="cta" aria-labelledby="cta-title">
-  <PixelSky class="sky" />
-  <svg class="planet" viewBox={`0 0 ${P_W} ${P_H}`} shape-rendering="crispEdges" aria-hidden="true">
-    {[...planet].map(([c, d]) => <path d={d} class={c} />)}
-  </svg>
-
-  <div class="container-x relative text-center">
-    <p class="kicker justify-center" data-reveal>{finalCta.kicker}</p>
-    <h2 id="cta-title" class="cta-title mx-auto mt-5" data-reveal>{finalCta.title}</h2>
-    <p class="lead mx-auto mt-5 max-w-xl text-balance" data-reveal>{finalCta.body}</p>
-    <div class="mt-9 flex flex-wrap items-center justify-center gap-3" data-reveal>
+<Row n={n} band labelledby="cta-title" class="overflow-hidden">
+  <div slot="back" class="cta-back" aria-hidden="true">
+    <PixelSky class="sky" seed={5} count={220} />
+  </div>
+  <div class="rail-pad cta-body">
+    <p class="kicker" data-reveal>{finalCta.kicker}</p>
+    <h2 id="cta-title" class="display mt-7" data-reveal="1" set:html={rich(finalCta.title)} />
+    <p class="lead mt-7 max-w-[34rem]" data-reveal="2">{finalCta.body}</p>
+    <div class="mt-10 flex flex-wrap items-center gap-3" data-reveal="3">
       <a class="btn btn-primary" href={finalCta.primary.href} rel="noopener">
-        <GithubMark class="size-[18px]" />
+        <GithubMark class="size-4" />
         {finalCta.primary.label}
-        <Star class="size-4 text-amber" aria-hidden="true" />
       </a>
-      <a class="btn btn-ghost" href={finalCta.secondary.href}>
-        <ArrowDown class="size-[18px] -rotate-180" aria-hidden="true" />
+      <a class="btn btn-box" href={finalCta.secondary.href}>
         {finalCta.secondary.label}
+        <ArrowDown class="size-4" aria-hidden="true" />
       </a>
     </div>
   </div>
-</section>
+</Row>
 
 <style>
-  .cta {
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
-    padding-block: clamp(6rem, 4rem + 9vw, 11rem);
-    background:
-      radial-gradient(70% 90% at 50% 120%, color-mix(in oklab, var(--brand) 32%, transparent), transparent 70%),
-      linear-gradient(to bottom, var(--bg), #08112a 40%, #0b1430);
-    border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-    /* This band is a night sky in both themes. */
-    --fg: #eaf4ff;
-    --fg-muted: #b3c2df;
-    --cyan: #5fd4ff;
-    --surface: #0c1530;
-    --line-strong: rgb(140 170 255 / 0.28);
-    color: var(--fg);
+  .cta-back {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 85% 100%, rgb(10 109 255 / 0.32), transparent 70%);
+    /* stars thicken towards the right, away from the heading */
+    -webkit-mask-image: linear-gradient(to right, rgb(0 0 0 / 0.18) 15%, #000 75%);
+    mask-image: linear-gradient(to right, rgb(0 0 0 / 0.18) 15%, #000 75%);
   }
-  :global([data-theme='light']) .cta {
-    background:
-      radial-gradient(70% 90% at 50% 120%, color-mix(in oklab, var(--brand) 40%, transparent), transparent 70%),
-      linear-gradient(to bottom, #0b1430, #0b1a44);
-  }
-  /* PixelSky's svg: styled from here through its class, which a child component's scope doesn't cover */
-  .cta :global(.sky) {
+  .cta-back :global(.sky) {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    z-index: -1;
-    /* fewer stars behind the copy */
-    -webkit-mask-image: radial-gradient(ellipse 38% 46% at 50% 50%, transparent 35%, #000 100%);
-    mask-image: radial-gradient(ellipse 38% 46% at 50% 50%, transparent 35%, #000 100%);
   }
-  .planet {
-    position: absolute;
-    z-index: -1;
-    right: max(-8rem, calc(50% - 50rem));
-    top: 50%;
-    width: clamp(18rem, 10rem + 24vw, 38rem);
-    translate: 0 -50%;
-    opacity: 0.7;
-  }
-  .planet .body {
-    fill: #1d3f94;
-  }
-  .planet .band {
-    fill: #2a52b4;
-  }
-  .planet .shade {
-    fill: #0f2360;
-  }
-  .planet .rim {
-    fill: #6f9bff;
-  }
-  .planet .ring {
-    fill: #3d6fd8;
-  }
-  .planet .ringHi {
-    fill: #7fb0ff;
-  }
-  .planet .ringBack {
-    fill: #1a347a;
-  }
-  @media (max-width: 767px) {
-    .cta :global(.sky) {
-      -webkit-mask-image: radial-gradient(ellipse 70% 32% at 50% 50%, rgb(0 0 0 / 0.1), #000 100%);
-      mask-image: radial-gradient(ellipse 70% 32% at 50% 50%, rgb(0 0 0 / 0.1), #000 100%);
-    }
-    .planet {
-      right: -8rem;
-      top: 2rem;
-      translate: none;
-      opacity: 0.35;
-    }
-  }
-  .cta-title {
-    max-width: 16ch;
-    font-size: clamp(2.3rem, 1.3rem + 4vw, 4.6rem);
-    line-height: 1.04;
-    font-weight: 700;
-    letter-spacing: -0.035em;
-  }
-  .cta .kicker {
-    color: var(--amber);
+  .cta-body {
+    position: relative;
+    padding-block: clamp(5rem, 3rem + 9vw, 10rem);
   }
 </style>

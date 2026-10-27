@@ -1,4 +1,5 @@
-// The page's only JavaScript: theme toggle, sticky nav state, copy buttons, install tabs, scroll reveals and clips.
+// Behaviour that works with or without motion: theme toggle, sticky nav state, menus, copy buttons, tabs and clips.
+// Everything that animates is in motion.ts.
 
 const THEME_KEY = 'bd-site-theme';
 const root = document.documentElement;
@@ -9,7 +10,7 @@ function syncThemeButton(): void {
   document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((b) => {
     b.setAttribute('aria-label', `Switch to ${next} theme`);
   });
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', root.dataset.theme === 'light' ? '#f5f8ff' : '#05070f');
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', root.dataset.theme === 'light' ? '#f3f6fc' : '#05070f');
 }
 document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((b) => {
   b.addEventListener('click', () => {
@@ -76,7 +77,8 @@ document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((b) => {
   });
 });
 
-// ---- tabs (WAI-ARIA tabs pattern: arrows, Home, End; automatic activation) ----
+// ---- tabs (WAI-ARIA tabs pattern: arrows, Home, End; automatic activation). Up and Down work too, for the
+// install tabs that run down the page on a desktop. ----
 document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((box) => {
   const tabs = [...box.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
   const select = (tab: HTMLButtonElement, focus: boolean) => {
@@ -93,7 +95,9 @@ document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((box) => {
     tab.addEventListener('click', () => select(tab, false));
     tab.addEventListener('keydown', (e) => {
       const n = tabs.length;
-      const to = { ArrowRight: (i + 1) % n, ArrowLeft: (i - 1 + n) % n, Home: 0, End: n - 1 }[e.key];
+      const next = (i + 1) % n;
+      const prev = (i - 1 + n) % n;
+      const to = { ArrowRight: next, ArrowDown: next, ArrowLeft: prev, ArrowUp: prev, Home: 0, End: n - 1 }[e.key];
       if (to === undefined) return;
       e.preventDefault();
       select(tabs[to], true);
@@ -101,32 +105,17 @@ document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((box) => {
   });
 });
 
-// ---- scroll reveals: add .is-in once, when an element enters the viewport ----
-const revealed = document.querySelectorAll('[data-reveal], [data-loop], [data-type]');
-if ('IntersectionObserver' in window) {
-  const io = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        if (!e.isIntersecting) continue;
-        e.target.classList.add('is-in');
-        io.unobserve(e.target);
-      }
-    },
-    { rootMargin: '0px 0px -12% 0px', threshold: 0.15 },
-  );
-  revealed.forEach((el) => io.observe(el));
-} else {
-  revealed.forEach((el) => el.classList.add('is-in'));
-}
-
 // ---- clips (Clip.astro): play while in view; with reduced motion, only after the play button ----
 // The button's pick wins over both: a clip the reader paused stays paused, one they started plays while in view.
+// Clips that share one spot (the loop's sticky stage, motion.ts) get `bd:stage` to say whether theirs is the one on
+// show; a clip that isn't stays paused.
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
 document.querySelectorAll<HTMLElement>('[data-clip]').forEach((clip) => {
   const video = clip.querySelector('video');
   const toggle = clip.querySelector<HTMLButtonElement>('[data-clip-toggle]');
   if (!video || !toggle) return;
   let inView = false;
+  let onStage = true;
   let picked: 'play' | 'pause' | null = null;
   const paint = () => {
     const playing = !video.paused;
@@ -134,7 +123,7 @@ document.querySelectorAll<HTMLElement>('[data-clip]').forEach((clip) => {
     toggle.setAttribute('aria-label', playing ? 'Pause clip' : 'Play clip');
   };
   const update = () => {
-    const want = inView && (picked ? picked === 'play' : !reduceMotion.matches);
+    const want = inView && onStage && (picked ? picked === 'play' : !reduceMotion.matches);
     if (want && video.paused) video.play().catch(() => {});
     else if (!want && !video.paused) video.pause();
   };
@@ -146,6 +135,10 @@ document.querySelectorAll<HTMLElement>('[data-clip]').forEach((clip) => {
   video.addEventListener('pause', paint);
   toggle.addEventListener('click', () => {
     picked = video.paused ? 'play' : 'pause';
+    update();
+  });
+  clip.addEventListener('bd:stage', (e) => {
+    onStage = (e as CustomEvent<boolean>).detail;
     update();
   });
   reduceMotion.addEventListener('change', syncMotion);

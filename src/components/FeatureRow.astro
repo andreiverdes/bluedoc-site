@@ -1,57 +1,59 @@
 ---
-// One feature on a type page: its clip on one side, a title and 1–2 sentences on the other. Rows alternate sides
-// from 1024 px; below that the clip sits on top.
+// One feature on a type page, as a ruled row: its number, title and 1–2 sentences in one cell and its clip in the
+// other. Rows alternate sides from 1024 px; below that the clip sits under the text.
 import Clip from './Clip.astro';
 import type { ClipCopy } from '../content/types';
 
 interface Props {
   item: ClipCopy;
-  /** the row's position, from 0: odd rows put the clip on the right */
+  /** the row's position, from 0: odd rows put the clip on the left */
   index: number;
 }
 
 const { item, index } = Astro.props;
 ---
 
-<article class:list={['feature-row', { flip: index % 2 === 1 }]} data-reveal>
-  <div class="clip-col">
-    <Clip name={item.clip} label={item.shows} title={item.title} />
-  </div>
-  <div>
-    <p class="row-num" aria-hidden="true">{String(index + 1).padStart(2, '0')}</p>
-    <h3 class="row-title">{item.title}</h3>
+<article class:list={['feature-row', { flip: index % 2 === 1 }]}>
+  <div class="text" data-reveal>
+    <p class="label">{String(index + 1).padStart(2, '0')}</p>
+    <h3 class="h3 mt-4">{item.title}</h3>
     <p class="mt-3 text-fg-muted">{item.body}</p>
+  </div>
+  <div class="clip-col" data-reveal="1">
+    <Clip name={item.clip} label={item.shows} title={item.title} />
   </div>
 </article>
 
 <style>
   .feature-row {
     display: grid;
-    gap: 1.5rem;
-    align-items: center;
+    border-top: 1px solid var(--rail);
   }
   @media (min-width: 1024px) {
     .feature-row {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
-      gap: 3.5rem;
-    }
-    .feature-row.flip {
       grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
     }
-    .flip .clip-col {
+    .feature-row.flip {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    }
+    .flip .text {
       order: 2;
+      border-left: 1px solid var(--rail);
+    }
+    .feature-row:not(.flip) .clip-col {
+      border-left: 1px solid var(--rail);
     }
   }
-  .row-num {
-    font-family: var(--font-pixel);
-    font-size: 0.8125rem;
-    letter-spacing: 0.06em;
-    color: var(--cyan);
+  .text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(1.5rem, 3vw, 2.75rem) clamp(1.25rem, 3.5vw, 3rem);
   }
-  .row-title {
-    margin-top: 0.6rem;
-    font-size: clamp(1.3rem, 1.1rem + 0.7vw, 1.75rem);
-    line-height: 1.2;
-    font-weight: 600;
+  .clip-col {
+    padding: clamp(1rem, 2.5vw, 2rem);
+    background:
+      linear-gradient(to right, var(--line) 1px, transparent 1px) 0 0 / 1.5rem 1.5rem,
+      linear-gradient(to bottom, var(--line) 1px, transparent 1px) 0 0 / 1.5rem 1.5rem;
   }
 </style>

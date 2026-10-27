@@ -1,110 +1,79 @@
 ---
-import ArrowRight from '@lucide/astro/icons/arrow-right';
-import MessageSquareText from '@lucide/astro/icons/message-square-text';
-import Star from '@lucide/astro/icons/star';
-import GitCompare from '@lucide/astro/icons/git-compare';
-import CircleCheck from '@lucide/astro/icons/circle-check';
-import HardDrive from '@lucide/astro/icons/hard-drive';
-import Bot from '@lucide/astro/icons/bot';
-import { features, type FeatureIcon } from '../content/site';
-
-const ICONS: Record<FeatureIcon, typeof Star> = {
-  comment: MessageSquareText,
-  star: Star,
-  compare: GitCompare,
-  approve: CircleCheck,
-  local: HardDrive,
-  agents: Bot,
-};
+// Row 07: the six features every doc type has, as ruled cells with a pixel icon each.
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
+import Row from './Row.astro';
+import SectionHead from './SectionHead.astro';
+import PixelIcon from './PixelIcon.astro';
+import { features } from '../content/site';
 ---
 
-<section id={features.id} class="features section-y" aria-labelledby="features-title">
-  <div class="container-x">
-    <div class="mx-auto max-w-2xl text-center" data-reveal>
-      <p class="kicker justify-center">{features.kicker}</p>
-      <h2 id="features-title" class="h2 mt-4">{features.title}</h2>
-      <p class="lead mt-5">{features.lead}</p>
-    </div>
+<Row n="07" id={features.id} labelledby="features-title">
+  <SectionHead kicker={features.kicker} title={features.title} titleId="features-title" lead={features.lead}>
+    <a class="link-arrow mt-5" href={features.more.href}>
+      {features.more.label}
+      <ArrowUpRight class="size-4" aria-hidden="true" />
+    </a>
+  </SectionHead>
 
-    <ul class="mt-12 grid gap-4 sm:mt-16 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
-      {
-        features.items.map((f, i) => {
-          const Icon = ICONS[f.icon];
-          return (
-            <li class="feature card p-6 sm:p-7" data-reveal style={`--reveal-i:${i % 3}`}>
-              <span class:list={['badge', { amber: f.icon === 'approve' || f.icon === 'star' }]}>
-                <Icon class="size-5" aria-hidden="true" />
-              </span>
-              <h3 class="mt-5 text-lg font-semibold">{f.title}</h3>
-              <p class="mt-2 text-fg-muted">{f.body}</p>
-            </li>
-          );
-        })
-      }
-    </ul>
-
-    <div class="mt-10 flex justify-center" data-reveal>
-      <a class="btn btn-ghost" href={features.more.href}>
-        {features.more.label}
-        <ArrowRight class="size-4" aria-hidden="true" />
-      </a>
-    </div>
-  </div>
-</section>
+  <ul class="grid-cells">
+    {
+      features.items.map((f, i) => (
+        <li class="cell" data-reveal={String(i % 3)}>
+          <PixelIcon name={f.icon} size={36} class="cell-icon" />
+          <h3 class="mt-8 text-lg leading-snug font-medium tracking-tight">{f.title}</h3>
+          <p class="mt-2.5 text-[0.9375rem] text-fg-muted">{f.body}</p>
+        </li>
+      ))
+    }
+  </ul>
+</Row>
 
 <style>
-  .features {
-    background: radial-gradient(50% 40% at 50% 0%, color-mix(in oklab, var(--cyan) 7%, transparent), transparent 70%);
+  .grid-cells {
+    display: grid;
+    border-top: 1px solid var(--rail);
   }
-  .feature {
-    position: relative;
-    transition:
-      border-color 0.3s,
-      transform 0.3s var(--ease-out-soft);
-  }
-  .feature:hover {
-    border-color: var(--line-strong);
-    transform: translateY(-3px);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .feature:hover {
-      transform: none;
+  @media (min-width: 640px) {
+    .grid-cells {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
-  .badge {
-    position: relative;
-    display: grid;
-    place-items: center;
-    width: 2.75rem;
-    height: 2.75rem;
-    color: var(--cyan);
-    background: color-mix(in oklab, var(--cyan) 12%, transparent);
-    /* stepped corners, a nod to the pixel art */
-    clip-path: polygon(
-      0 6px,
-      3px 6px,
-      3px 3px,
-      6px 3px,
-      6px 0,
-      calc(100% - 6px) 0,
-      calc(100% - 6px) 3px,
-      calc(100% - 3px) 3px,
-      calc(100% - 3px) 6px,
-      100% 6px,
-      100% calc(100% - 6px),
-      calc(100% - 3px) calc(100% - 6px),
-      calc(100% - 3px) calc(100% - 3px),
-      calc(100% - 6px) calc(100% - 3px),
-      calc(100% - 6px) 100%,
-      6px 100%,
-      6px calc(100% - 3px),
-      3px calc(100% - 3px),
-      3px calc(100% - 6px),
-      0 calc(100% - 6px)
-    );
+  @media (min-width: 1024px) {
+    .grid-cells {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
   }
-  .badge.amber {
-    color: var(--amber-fg);
-    background: color-mix(in oklab, var(--amber) 16%, transparent);
+  .cell {
+    padding: clamp(1.5rem, 2.5vw, 2.25rem);
+    border-right: 1px solid var(--rail);
+    border-bottom: 1px solid var(--rail);
+    margin-bottom: -1px;
+    transition: background-color 0.25s;
+  }
+  .cell:hover {
+    background: var(--surface);
+  }
+  @media (min-width: 640px) and (max-width: 1023px) {
+    .cell:nth-child(2n) {
+      border-right: 0;
+    }
+  }
+  @media (min-width: 1024px) {
+    .cell:nth-child(3n) {
+      border-right: 0;
+    }
+  }
+  @media (max-width: 639px) {
+    .cell {
+      border-right: 0;
+    }
+  }
+  .cell :global(.cell-icon) {
+    color: var(--fg-subtle);
+    --px-accent: var(--brand-fg);
+    transition: color 0.25s;
+  }
+  .cell:hover :global(.cell-icon) {
+    color: var(--fg);
   }
 </style>

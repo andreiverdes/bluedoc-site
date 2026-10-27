@@ -1,109 +1,125 @@
 ---
+// The install row: one tab per agent (numbered, down the left on a desktop) and that agent's commands in a
+// terminal panel, then what bluedoc needs. The hero has the same tabs in compact form.
 import Copy from '@lucide/astro/icons/copy';
 import Check from '@lucide/astro/icons/check';
-import Info from '@lucide/astro/icons/info';
+import Row from './Row.astro';
+import SectionHead from './SectionHead.astro';
 import { install } from '../content/site';
+
+interface Props {
+  /** the row's number in the gutter */
+  n?: string;
+}
+
+const { n } = Astro.props;
 ---
 
-<section id={install.id} class="install section-y" aria-labelledby="install-title">
-  <div class="container-x">
-    <div class="mx-auto max-w-2xl text-center" data-reveal>
-      <p class="kicker justify-center">{install.kicker}</p>
-      <h2 id="install-title" class="h2 mt-4">{install.title}</h2>
-      <p class="lead mt-5">{install.lead}</p>
-    </div>
+<Row n={n} id={install.id} labelledby="install-title">
+  <SectionHead kicker={install.kicker} title={install.title} titleId="install-title" lead={install.lead} />
 
-    <div class="tabs card mx-auto mt-12 max-w-3xl sm:mt-14" data-tabs data-reveal>
-      <div class="tablist" role="tablist" aria-label="Agent">
-        {
-          install.tabs.map((t, i) => (
-            <button
-              type="button"
-              role="tab"
-              id={`tab-${t.id}`}
-              aria-controls={`panel-${t.id}`}
-              aria-selected={i === 0 ? 'true' : 'false'}
-              tabindex={i === 0 ? 0 : -1}
-              class="tab"
-            >
-              {t.label}
-            </button>
-          ))
-        }
-      </div>
+  <div class="box" data-tabs>
+    <div class="tablist" role="tablist" aria-label="Agent">
       {
-        install.tabs.map((t, i) => {
-          const all = t.commands.join('\n');
-          return (
-            <div
-              role="tabpanel"
-              id={`panel-${t.id}`}
-              aria-labelledby={`tab-${t.id}`}
-              tabindex="0"
-              class="panel"
-              hidden={i !== 0}
-            >
-              <div class="term">
-                <div class="term-cmds">
-                  {t.commands.map((c) => (
-                    <div class="cmd">
-                      <span class="text-cyan select-none" aria-hidden="true">
-                        $
-                      </span>
-                      <code>{c}</code>
-                    </div>
-                  ))}
-                </div>
+        install.tabs.map((t, i) => (
+          <button
+            type="button"
+            role="tab"
+            id={`install-tab-${t.id}`}
+            aria-controls={`install-panel-${t.id}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            tabindex={i === 0 ? 0 : -1}
+            class="tab"
+          >
+            <span class="tab-n">{String(i + 1).padStart(2, '0')}</span>
+            {t.label}
+          </button>
+        ))
+      }
+    </div>
+    <div class="panels">
+      {
+        install.tabs.map((t, i) => (
+          <div
+            role="tabpanel"
+            id={`install-panel-${t.id}`}
+            aria-labelledby={`install-tab-${t.id}`}
+            tabindex="0"
+            class="panel"
+            hidden={i !== 0}
+          >
+            <div class="term">
+              <div class="term-bar">
+                <span class="label">{t.label}</span>
                 <button
                   type="button"
                   class="copy-btn"
-                  data-copy={all}
+                  data-copy={t.commands.join('\n')}
                   aria-label={`Copy the ${t.label} install ${t.commands.length > 1 ? 'commands' : 'command'}`}
                 >
                   <Copy class="i-copy size-4" aria-hidden="true" />
                   <Check class="i-done size-4" aria-hidden="true" />
                 </button>
               </div>
-              <p class="note">
-                <Info class="mt-0.5 size-4 flex-none text-fg-subtle" aria-hidden="true" />
-                <span>{t.note}</span>
-              </p>
+              <div class="term-cmds">
+                {t.commands.map((c) => (
+                  <div class="cmd">
+                    <span class="text-brand-fg select-none" aria-hidden="true">
+                      $
+                    </span>
+                    <code>{c}</code>
+                  </div>
+                ))}
+              </div>
             </div>
-          );
-        })
+            <p class="note">{t.note}</p>
+          </div>
+        ))
       }
     </div>
-
-    <p class="mx-auto mt-6 max-w-3xl text-center text-sm text-fg-subtle">
-      Needs: {install.requirements.join(' · ')}.
-    </p>
-    <slot />
   </div>
-</section>
+
+  <div class="needs">
+    <span class="label">Needs</span>
+    <ul class="needs-list">
+      {install.requirements.map((r) => <li>{r}</li>)}
+    </ul>
+  </div>
+</Row>
 
 <style>
-  .install {
-    background: linear-gradient(to bottom, var(--bg), var(--bg-2) 50%, var(--bg));
+  .box {
+    display: grid;
+    border-top: 1px solid var(--rail);
   }
-  .tabs {
-    padding: 0.5rem;
-    background: color-mix(in oklab, var(--surface) 92%, transparent);
+  @media (min-width: 900px) {
+    .box {
+      grid-template-columns: 15rem minmax(0, 1fr);
+    }
   }
   .tablist {
     display: flex;
-    gap: 0.25rem;
-    padding: 0.25rem;
-    flex-wrap: wrap;
-    border-radius: 0.9rem;
-    background: var(--line);
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid var(--rail);
+  }
+  @media (min-width: 900px) {
+    .tablist {
+      flex-direction: column;
+      overflow: visible;
+      border-bottom: 0;
+      border-right: 1px solid var(--rail);
+    }
   }
   .tab {
-    flex: 1 0 auto;
-    height: 2.5rem;
-    padding-inline: 1rem;
-    border-radius: 0.7rem;
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 0.9rem;
+    height: 3.25rem;
+    padding-inline: 1.25rem;
+    border-right: 1px solid var(--rail);
     font-size: 0.9375rem;
-    font-weight: 500;
     color: var(--fg-muted);
     white-space: nowrap;
     cursor: pointer;
@@ -111,42 +127,54 @@ import { install } from '../content/site';
       color 0.15s,
       background-color 0.15s;
   }
+  @media (min-width: 900px) {
+    .tab {
+      border-right: 0;
+      border-bottom: 1px solid var(--rail);
+    }
+  }
   .tab:hover {
     color: var(--fg);
+  }
+  .tab:focus-visible {
+    outline-offset: -2px;
+  }
+  .tab-n {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--fg-subtle);
   }
   .tab[aria-selected='true'] {
     color: var(--fg);
     background: var(--surface);
-    box-shadow:
-      0 0 0 1px var(--line-strong),
-      0 6px 18px -8px var(--glow);
+    box-shadow: inset 2px 0 0 var(--brand-fg);
+  }
+  .tab[aria-selected='true'] .tab-n {
+    color: var(--brand-fg);
   }
   .panel {
-    padding: 1.25rem 0.75rem 0.75rem;
-    border-radius: 0.75rem;
+    padding: clamp(1.25rem, 3vw, 2.5rem);
   }
-  @media (min-width: 640px) {
-    .panel {
-      padding: 1.5rem 1.25rem 1.1rem;
-    }
+  .panel:focus-visible {
+    outline-offset: -2px;
   }
   .term {
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+  }
+  .term-bar {
     display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    padding: 1rem 0.75rem 1rem 1.1rem;
-    border-radius: 0.8rem;
-    border: 1px solid var(--line);
-    background: color-mix(in oklab, var(--bg) 70%, var(--surface));
-    font-family: var(--font-mono);
-    font-size: clamp(0.78rem, 0.74rem + 0.2vw, 0.9rem);
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.25rem 0.35rem 0.25rem 1rem;
+    border-bottom: 1px solid var(--line);
   }
   .term-cmds {
-    flex: 1;
-    min-width: 0;
     display: grid;
-    gap: 0.45rem;
-    padding-top: 0.35rem;
+    gap: 0.55rem;
+    padding: 1.1rem 1rem 1.2rem;
+    font-family: var(--font-mono);
+    font-size: clamp(0.78rem, 0.74rem + 0.2vw, 0.875rem);
   }
   .cmd {
     display: flex;
@@ -156,10 +184,35 @@ import { install } from '../content/site';
     overflow-wrap: anywhere;
   }
   .note {
-    display: flex;
-    gap: 0.6rem;
-    margin-top: 1rem;
-    font-size: 0.9rem;
+    max-width: 44rem;
+    margin-top: 1.1rem;
+    font-size: 0.9375rem;
     color: var(--fg-muted);
+  }
+  .needs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.5rem;
+    padding: 1.1rem clamp(1.25rem, 3.5vw, 3rem);
+    border-top: 1px solid var(--rail);
+  }
+  .needs-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    font-size: 0.875rem;
+    color: var(--fg-muted);
+  }
+  .needs-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+  .needs-list li::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    background: var(--brand-fg);
   }
 </style>

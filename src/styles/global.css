@@ -1,64 +1,95 @@
 @import 'tailwindcss';
-@import '@fontsource-variable/lexend/wght.css';
-@import '@fontsource-variable/inter/wght.css';
-@import '@fontsource-variable/jetbrains-mono/wght.css';
-@import '@fontsource/silkscreen/latin-400.css';
+@import '@fontsource-variable/geist/wght.css';
+@import '@fontsource-variable/geist-mono/wght.css';
+@import '@fontsource/geist-pixel/latin-400.css';
 
 /* Theme switch: <html data-theme="dark|light">, set before paint by the inline script in Base.astro. */
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 @custom-variant light (&:where([data-theme='light'], [data-theme='light'] *));
 
+/* bluedoc's colours on a ruled page: hairline rails frame one column, every row is numbered in the left gutter,
+   and bands (.band) set some rows apart. */
 :root,
 [data-theme='dark'] {
   color-scheme: dark;
   --bg: #05070f;
   --bg-2: #0b1430;
-  --surface: #0c1530;
-  --surface-2: #111d40;
-  --line: rgb(140 170 255 / 0.14);
-  --line-strong: rgb(140 170 255 / 0.28);
+  --surface: #0a1024;
+  --surface-2: #101a38;
+  --line: rgb(140 170 255 / 0.13);
+  --line-strong: rgb(140 170 255 / 0.26);
+  --rail: rgb(140 170 255 / 0.11);
   --fg: #eaf4ff;
-  --fg-muted: #b3c2df;
-  --fg-subtle: #8494b5;
+  --fg-muted: #a9b8d6;
+  --fg-subtle: #7584a6;
   --brand: #0a6dff;
   --brand-fg: #4f9bff;
+  --brand-tint: rgb(10 109 255 / 0.14);
   --cyan: #5fd4ff;
-  --amber: #ffc46b;
-  --amber-fg: #ffc46b;
   --logo-blue: #eaf4ff;
   --logo-doc: #4f9bff;
   --glow: rgb(10 109 255 / 0.35);
-  --shadow: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 24px 60px -24px rgb(0 0 0 / 0.7);
   --code-key: #7cc4ff;
   --code-str: #ffc46b;
   --code-num: #c4a7ff;
   --code-punct: #7f8fb3;
+  /* pixel stars (PixelSky) and the footer's giant wordmark */
+  --star: #dbe9ff;
+  --wm-dim: rgb(140 170 255 / 0.1);
+  --wm-lit: rgb(79 155 255 / 0.55);
 }
 
 [data-theme='light'] {
   color-scheme: light;
-  --bg: #f5f8ff;
-  --bg-2: #e8f0ff;
+  --bg: #f3f6fc;
+  --bg-2: #e6edfa;
   --surface: #ffffff;
-  --surface-2: #eef3ff;
-  --line: rgb(11 37 96 / 0.12);
-  --line-strong: rgb(11 37 96 / 0.24);
+  --surface-2: #edf2fb;
+  --line: rgb(11 37 96 / 0.11);
+  --line-strong: rgb(11 37 96 / 0.22);
+  --rail: rgb(11 37 96 / 0.12);
   --fg: #0a1838;
-  --fg-muted: #34456b;
-  --fg-subtle: #56668a;
+  --fg-muted: #3d4d70;
+  --fg-subtle: #66759a;
   --brand: #0a6dff;
   --brand-fg: #0a5ad6;
+  --brand-tint: rgb(10 109 255 / 0.09);
   --cyan: #0b7fa8;
-  --amber: #ffc46b;
-  --amber-fg: #94570a;
   --logo-blue: #0b2560;
   --logo-doc: #0a6dff;
   --glow: rgb(10 109 255 / 0.18);
-  --shadow: 0 1px 0 rgb(255 255 255 / 0.6) inset, 0 24px 50px -28px rgb(11 37 96 / 0.35);
   --code-key: #0a5ad6;
   --code-str: #8a4b00;
   --code-num: #6b3fd1;
   --code-punct: #5b6a8c;
+  --star: rgb(10 90 214 / 0.5);
+  --wm-dim: rgb(11 37 96 / 0.07);
+  --wm-lit: rgb(10 109 255 / 0.5);
+}
+
+/* A band: a row set apart from the page. In the dark theme it is the night palette, a deeper blue than the page;
+   in the light theme a pale blue. Components inside read the same tokens as anywhere. */
+.band {
+  background: var(--bg);
+  color: var(--fg);
+}
+[data-theme='dark'] .band {
+  --bg: #0a1230;
+  --surface: #0d1634;
+  --surface-2: #13204a;
+  --line: rgb(140 170 255 / 0.14);
+  --line-strong: rgb(140 170 255 / 0.28);
+  --rail: rgb(140 170 255 / 0.12);
+  --brand-tint: rgb(10 109 255 / 0.16);
+}
+[data-theme='light'] .band {
+  --bg: #e4ecfa;
+  --surface: #f8faff;
+  --surface-2: #edf2fb;
+  --line: rgb(11 37 96 / 0.12);
+  --line-strong: rgb(11 37 96 / 0.24);
+  --rail: rgb(11 37 96 / 0.13);
+  --brand-tint: rgb(10 109 255 / 0.11);
 }
 
 @theme inline {
@@ -74,15 +105,13 @@
   --color-brand: var(--brand);
   --color-brand-fg: var(--brand-fg);
   --color-cyan: var(--cyan);
-  --color-amber: var(--amber);
-  --color-amber-fg: var(--amber-fg);
 }
 
 @theme {
-  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Lexend Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
-  --font-pixel: 'Silkscreen', ui-monospace, monospace;
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-pixel: 'Geist Pixel', 'Geist Mono Variable', ui-monospace, monospace;
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -104,8 +133,8 @@
     background: var(--bg);
     color: var(--fg);
     font-family: var(--font-sans);
-    font-size: clamp(1rem, 0.96rem + 0.18vw, 1.0625rem);
-    line-height: 1.6;
+    font-size: 1rem;
+    line-height: 1.55;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     overflow-x: clip;
@@ -114,7 +143,8 @@
   h2,
   h3 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    font-weight: 500;
+    letter-spacing: -0.03em;
     text-wrap: balance;
   }
   p {
@@ -124,111 +154,187 @@
     background: rgb(10 109 255 / 0.35);
   }
   :focus-visible {
-    outline: 2px solid var(--cyan);
+    outline: 2px solid var(--brand-fg);
     outline-offset: 3px;
-    border-radius: 6px;
   }
 }
 
 /* ---------- shared pieces ---------- */
 
 @layer components {
-  .container-x {
-    width: 100%;
-    max-width: 76rem;
+  /* The ruled column: every Row's content sits between these two rails, so the rails run unbroken down the page. */
+  .rail {
+    position: relative;
+    width: min(100% - 2 * var(--gutter), 72rem);
     margin-inline: auto;
-    padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+    border-inline: 1px solid var(--rail);
   }
-  .section-y {
-    padding-block: clamp(4.5rem, 3rem + 6vw, 8.5rem);
+  :root {
+    --gutter: clamp(0.75rem, 4.2vw, 4.5rem);
   }
+  .rail-pad {
+    padding-inline: clamp(1.25rem, 3.5vw, 3rem);
+  }
+  .row-y {
+    padding-block: clamp(4rem, 2.5rem + 6vw, 7.5rem);
+  }
+
+  /* mono label: SECTION NAMES, STATUS, META */
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 450;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+  /* the tag above a section title: a blue pixel square, then the label */
   .kicker {
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
-    font-family: var(--font-pixel);
-    font-size: 0.8125rem;
-    letter-spacing: 0.06em;
+    gap: 0.55rem;
+    padding: 0.3rem 0.6rem 0.3rem 0.5rem;
+    border: 1px solid var(--line-strong);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--cyan);
+    color: var(--fg-muted);
   }
   .kicker::before {
     content: '';
-    width: 8px;
-    height: 8px;
-    background: currentColor;
-    box-shadow: 0 0 12px currentColor;
+    width: 6px;
+    height: 6px;
+    background: var(--brand-fg);
+  }
+  /* a word set in the pixel face, in bluedoc blue */
+  .px {
+    font-family: var(--font-pixel);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    color: var(--brand-fg);
+  }
+  .display {
+    font-size: clamp(2.6rem, 1.2rem + 5.4vw, 5.6rem);
+    line-height: 1;
+    letter-spacing: -0.045em;
   }
   .h2 {
-    font-size: clamp(2rem, 1.35rem + 2.6vw, 3.4rem);
-    line-height: 1.08;
-    font-weight: 650;
+    font-size: clamp(2rem, 1.2rem + 2.8vw, 3.5rem);
+    line-height: 1.04;
+    letter-spacing: -0.04em;
+  }
+  .h3 {
+    font-size: clamp(1.35rem, 1.1rem + 0.8vw, 1.75rem);
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+  }
+  /* a two-tone heading: the second part in the muted ink */
+  .h-soft {
+    color: var(--fg-subtle);
   }
   .lead {
-    font-size: clamp(1.05rem, 0.98rem + 0.35vw, 1.25rem);
+    font-size: clamp(1.05rem, 0.98rem + 0.3vw, 1.2rem);
     color: var(--fg-muted);
-    line-height: 1.6;
+    line-height: 1.55;
   }
+
+  /* square buttons: blue block, box, and the dashed text link with an arrow */
   .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.55rem;
+    gap: 0.7rem;
     height: 3rem;
-    padding-inline: 1.35rem;
-    border-radius: 0.8rem;
-    font-weight: 600;
-    font-size: 1rem;
+    padding-inline: 1.15rem 1.35rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
     white-space: nowrap;
     transition:
-      transform 0.2s var(--ease-out-soft),
-      box-shadow 0.2s,
       background-color 0.2s,
-      border-color 0.2s;
-  }
-  .btn:hover {
-    transform: translateY(-1px);
-  }
-  .btn:active {
-    transform: translateY(0);
+      border-color 0.2s,
+      color 0.2s;
   }
   .btn-primary {
     background: var(--brand);
     color: #fff;
-    box-shadow:
-      0 0 0 1px rgb(255 255 255 / 0.12) inset,
-      0 10px 30px -8px rgb(10 109 255 / 0.7);
   }
   .btn-primary:hover {
-    background: #1f7bff;
-    box-shadow:
-      0 0 0 1px rgb(255 255 255 / 0.18) inset,
-      0 14px 40px -8px rgb(10 109 255 / 0.85);
+    background: #2b82ff;
   }
-  .btn-ghost {
-    background: color-mix(in oklab, var(--surface) 70%, transparent);
-    color: var(--fg);
+  .btn-box {
     border: 1px solid var(--line-strong);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    color: var(--fg);
+    background: color-mix(in oklab, var(--surface) 60%, transparent);
   }
-  .btn-ghost:hover {
+  .btn-box:hover {
     border-color: var(--brand-fg);
   }
-  .card {
-    background: color-mix(in oklab, var(--surface) 82%, transparent);
-    border: 1px solid var(--line);
-    border-radius: 1.25rem;
-    box-shadow: var(--shadow);
+  .link-arrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding-block: 0.2rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--fg);
+    background: linear-gradient(to right, var(--fg-subtle) 50%, transparent 0) repeat-x left bottom / 6px 1px;
+    transition: color 0.15s;
   }
+  .link-arrow:hover {
+    color: var(--brand-fg);
+    background-image: linear-gradient(to right, var(--brand-fg) 50%, transparent 0);
+  }
+  .link-arrow svg {
+    transition: translate 0.2s var(--ease-out-soft);
+  }
+  .link-arrow:hover svg {
+    translate: 2px -2px;
+  }
+
+  /* the four L marks at a panel's corners */
+  .corners {
+    position: relative;
+    --c: var(--brand-fg);
+    --cs: 9px;
+    background-image:
+      linear-gradient(var(--c), var(--c)), linear-gradient(var(--c), var(--c)), linear-gradient(var(--c), var(--c)),
+      linear-gradient(var(--c), var(--c)), linear-gradient(var(--c), var(--c)), linear-gradient(var(--c), var(--c)),
+      linear-gradient(var(--c), var(--c)), linear-gradient(var(--c), var(--c));
+    background-repeat: no-repeat;
+    background-size:
+      var(--cs) 1px, 1px var(--cs), var(--cs) 1px, 1px var(--cs),
+      var(--cs) 1px, 1px var(--cs), var(--cs) 1px, 1px var(--cs);
+    background-position:
+      0 0, 0 0, 100% 0, 100% 0,
+      0 100%, 0 100%, 100% 100%, 100% 100%;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.28rem 0.55rem;
+    border: 1px solid var(--line-strong);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+  }
+  .pill::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    background: var(--brand-fg);
+  }
+
   .copy-btn {
     display: inline-grid;
     place-items: center;
     width: 2.25rem;
     height: 2.25rem;
     flex: none;
-    border-radius: 0.6rem;
-    color: var(--fg-muted);
+    color: var(--fg-subtle);
     transition:
       color 0.15s,
       background-color 0.15s;
@@ -239,7 +345,7 @@
   }
   .copy-btn .i-done {
     display: none;
-    color: var(--amber-fg);
+    color: var(--brand-fg);
   }
   .copy-btn[data-copied] .i-copy {
     display: none;
@@ -255,27 +361,53 @@
     clip-path: inset(50%);
     white-space: nowrap;
   }
+
+  /* a ruled grid of ClipCards: two columns from 768 px, three from 1024 px with .clip-grid-3 */
+  .clip-grid {
+    display: grid;
+    border-top: 1px solid var(--rail);
+  }
+  .clip-grid > li {
+    padding: clamp(1.25rem, 2.5vw, 2rem);
+    border-bottom: 1px solid var(--rail);
+    margin-bottom: -1px;
+  }
+  @media (min-width: 768px) {
+    .clip-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .clip-grid > li:nth-child(odd) {
+      border-right: 1px solid var(--rail);
+    }
+  }
+  @media (min-width: 1024px) {
+    .clip-grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .clip-grid-3 > li {
+      border-right: 1px solid var(--rail);
+    }
+    .clip-grid-3 > li:nth-child(3n) {
+      border-right: 0;
+    }
+  }
 }
 
-/* ---------- scroll reveal (only when JS runs and motion is fine) ----------
-   An animation on `translate`, so it never fights a component's own transform or transition. */
-
-@media (prefers-reduced-motion: no-preference) {
-  .js [data-reveal]:not(.is-in) {
-    opacity: 0;
-  }
-  .js [data-reveal].is-in {
-    animation: reveal 0.8s var(--ease-out-soft) both;
-    animation-delay: calc(var(--reveal-i, 0) * 90ms);
-  }
+/* ---------- motion ----------
+   html.motion is set before paint when motion is allowed (Base.astro). Above the fold, .enter plays a CSS entrance
+   right away (--d delays it). Further down, [data-reveal] starts hidden and src/scripts/motion.ts brings it in with
+   Motion as it scrolls into view. Without .motion everything simply shows. */
+.motion .enter {
+  animation: enter 0.9s var(--ease-out-soft) both;
+  animation-delay: var(--d, 0s);
 }
-@keyframes reveal {
+@keyframes enter {
   from {
     opacity: 0;
-    translate: 0 20px;
+    translate: 0 24px;
+    filter: blur(6px);
   }
-  to {
-    opacity: 1;
-    translate: 0 0;
-  }
+}
+.motion [data-reveal]:not(.is-in) {
+  opacity: 0;
 }

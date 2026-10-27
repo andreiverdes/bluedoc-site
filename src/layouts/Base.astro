@@ -1,7 +1,8 @@
 ---
 import '../styles/global.css';
-import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
-import lexendLatin from '@fontsource-variable/lexend/files/lexend-latin-wght-normal.woff2?url';
+import geistLatin from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url';
+import geistMonoLatin from '@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2?url';
+import geistPixelLatin from '@fontsource/geist-pixel/files/geist-pixel-latin-400-normal.woff2?url';
 import { meta } from '../content/site';
 import { base } from '../lib/paths';
 
@@ -28,7 +29,8 @@ const ogImage = new URL(`${base}og.png`, Astro.site);
     <meta name="color-scheme" content="dark light" />
 
     <script is:inline>
-      // Theme before first paint: a saved pick wins, otherwise dark.
+      // Before first paint: the theme (a saved pick wins, otherwise dark), .js, and .motion when the reader allows
+      // motion, which is what lets src/scripts/motion.ts start elements hidden and animate them in.
       (function () {
         var t = 'dark';
         try {
@@ -37,11 +39,13 @@ const ogImage = new URL(`${base}og.png`, Astro.site);
         var d = document.documentElement;
         d.dataset.theme = t === 'light' ? 'light' : 'dark';
         d.classList.add('js');
+        if (!matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('motion');
       })();
     </script>
 
-    <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={lexendLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={geistLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={geistMonoLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={geistPixelLatin} as="font" type="font/woff2" crossorigin />
 
     <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
     <link rel="icon" href={`${base}favicon.ico`} sizes="32x32" />
@@ -68,6 +72,7 @@ const ogImage = new URL(`${base}og.png`, Astro.site);
     <slot />
     <script>
       import '../scripts/site';
+      import '../scripts/motion';
     </script>
   </body>
 </html>

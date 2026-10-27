@@ -1,9 +1,13 @@
 ---
+// The top of the home page: the night bay as a large background behind it, softly blurred and dissolving into the
+// page on every side in Bayer-dithered steps (as on bluedoc's own home page); over it the version strip (01), then
+// the headline, the buttons and the install tabs for every agent (02).
 import { Picture } from 'astro:assets';
-import ArrowDown from '@lucide/astro/icons/arrow-down';
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
 import Copy from '@lucide/astro/icons/copy';
 import Check from '@lucide/astro/icons/check';
-import GithubMark from './GithubMark.astro';
+import Row from './Row.astro';
+import PixelIcon from './PixelIcon.astro';
 import heroDark from '../assets/hero/hero-dark.webp';
 import heroLight from '../assets/hero/hero-light.webp';
 import shipDarkA from '../assets/hero/ships/dark-a.webp';
@@ -13,6 +17,7 @@ import shipLightA from '../assets/hero/ships/light-a.webp';
 import shipLightB from '../assets/hero/ships/light-b.webp';
 import shipLightC from '../assets/hero/ships/light-c.webp';
 import { hero, install } from '../content/site';
+import { rich } from '../lib/rich';
 
 // Banner source size; ship sprites are cut from it at these boxes (source px), so they sit exactly over the
 // ships painted in the banner and only drift a few px from there.
@@ -30,13 +35,14 @@ const ships = [
   style: `left:${((s.x / W) * 100).toFixed(3)}%;top:${((s.y / H) * 100).toFixed(3)}%;width:${((s.img.width / W) * 100).toFixed(3)}%;--dur:${s.dur}s`,
 }));
 
-// The dissolve: 15 dither levels on one 4 × 4 Bayer grid, 1 CSS px per cell, each a band of the bottom of the
-// banner painted in the page colour, then a solid band. The same idea as bluedoc's own home page.
+// The dissolve: 15 dither levels on one 4 × 4 Bayer grid, 2 CSS px per cell. Each level paints the page colour
+// through its tile in one elliptical ring (from 52 % to 100 % of the way to the edge), then the corners beyond go
+// solid, so the art breaks up into pixels towards every edge.
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
-const START = 54;
-const END = 96;
+const START = 52;
+const END = 100;
 const step = (END - START) / 15;
-const bands = Array.from({ length: 15 }, (_, i) => {
+const rings = Array.from({ length: 15 }, (_, i) => {
   const level = i + 1;
   const rects = BAYER.map((v, idx) =>
     v < level ? `<rect x='${idx % 4}' y='${Math.floor(idx / 4)}' width='1' height='1'/>` : '',
@@ -48,31 +54,31 @@ const bands = Array.from({ length: 15 }, (_, i) => {
 });
 ---
 
-<section id="top" class="hero" aria-labelledby="hero-title">
-  <div class="hero-stage">
-    <div class="hero-art">
+<div id="top" class="hero pt-16">
+  <div class="bay" aria-hidden="true">
+    <div class="bay-art" data-parallax>
       <Picture
         formats={['avif']}
         fallbackFormat="webp"
         src={heroDark}
-        alt={hero.bannerAlt}
-        widths={[828, 1300, 1672]}
-        sizes="max(100vw, 1300px)"
-        quality={50}
+        alt=""
+        widths={[1300, 1672]}
+        sizes="max(115vw, 1500px)"
+        quality={55}
         loading="eager"
         fetchpriority="high"
-        class="hero-img theme-dark"
+        class="bay-img theme-dark"
       />
       <Picture
         formats={['avif']}
         fallbackFormat="webp"
         src={heroLight}
-        alt={hero.bannerAltLight}
-        widths={[828, 1300, 1672]}
-        sizes="max(100vw, 1300px)"
-        quality={50}
+        alt=""
+        widths={[1300, 1672]}
+        sizes="max(115vw, 1500px)"
+        quality={55}
         loading="lazy"
-        class="hero-img theme-light"
+        class="bay-img theme-light"
       />
       {
         ships.map((s) => (
@@ -89,105 +95,121 @@ const bands = Array.from({ length: 15 }, (_, i) => {
         ))
       }
     </div>
-    {bands.map((style) => <div class="dz" style={style} />)}
-    <div class="dz dz-solid" style={`--a:${END}%`}></div>
+    {rings.map((style) => <div class="dz" style={style} />)}
+    <div class="dz dz-solid"></div>
   </div>
-  <div class="hero-scrim" aria-hidden="true"></div>
 
-  <div class="hero-content container-x">
-    <p class="kicker justify-center">{hero.kicker}</p>
-    <h1 id="hero-title" class="hero-title">{hero.headline}</h1>
-    <p class="hero-sub">{hero.subline}</p>
-    <div class="mt-9 flex flex-wrap items-center justify-center gap-3">
-      <a class="btn btn-primary" href={hero.primaryCta.href}>
-        <ArrowDown class="size-[18px]" aria-hidden="true" />
-        {hero.primaryCta.label}
-      </a>
-      <a class="btn btn-ghost" href={hero.secondaryCta.href} rel="noopener">
-        <GithubMark class="size-[18px]" />
-        {hero.secondaryCta.label}
-      </a>
-    </div>
-    <div class="install-chip mt-8" data-tabs>
-      <div class="chip-tabs" role="tablist" aria-label="Install for">
+  <Row n="01" plain>
+    <p class="strip label"><span class="live" aria-hidden="true"></span>{hero.kicker}</p>
+  </Row>
+
+  <Row n="02" labelledby="hero-title">
+    <div class="hero-body rail-pad">
+      <h1 id="hero-title" class="display hero-title">
+        <PixelIcon name="spark" size={40} class="hero-spark" />
+        <Fragment set:html={rich(hero.headline, { words: true })} />
+      </h1>
+      <div class="hero-grid">
+        <p class="lead hero-lead enter max-w-[34rem]" style="--d:0.45s">{hero.subline}</p>
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-3 enter" style="--d:0.6s">
+          <a class="btn btn-primary" href={hero.primaryCta.href}>
+            <PixelIcon name="spark" size={14} />
+            {hero.primaryCta.label}
+          </a>
+          <a class="link-arrow" href={hero.secondaryCta.href} rel="noopener">
+            {hero.secondaryCta.label}
+            <ArrowUpRight class="size-4" aria-hidden="true" />
+          </a>
+        </div>
+      </div>
+
+      <div class="qi enter" style="--d:0.75s" data-tabs>
+        <div class="qi-tabs" role="tablist" aria-label="Install for" style={`--tabs:${install.tabs.length}`}>
+          {
+            install.tabs.map((t, i) => (
+              <button
+                type="button"
+                role="tab"
+                id={`hero-tab-${t.id}`}
+                aria-controls={`hero-panel-${t.id}`}
+                aria-selected={i === 0 ? 'true' : 'false'}
+                tabindex={i === 0 ? 0 : -1}
+                class="qi-tab"
+              >
+                {t.label}
+              </button>
+            ))
+          }
+        </div>
         {
           install.tabs.map((t, i) => (
-            <button
-              type="button"
-              role="tab"
-              id={`hero-tab-${t.id}`}
-              aria-controls={`hero-panel-${t.id}`}
-              aria-selected={i === 0 ? 'true' : 'false'}
-              tabindex={i === 0 ? 0 : -1}
-              class="chip-tab"
-            >
-              {t.label}
-            </button>
+            <div role="tabpanel" id={`hero-panel-${t.id}`} aria-labelledby={`hero-tab-${t.id}`} tabindex="0" class="qi-panel" hidden={i !== 0}>
+              <div class="qi-cmds">
+                {t.commands.map((c) => (
+                  <div class="qi-cmd">
+                    <span class="text-brand-fg select-none" aria-hidden="true">
+                      $
+                    </span>
+                    <code>{c}</code>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                class="copy-btn"
+                data-copy={t.commands.join('\n')}
+                aria-label={`Copy the ${t.label} install ${t.commands.length > 1 ? 'commands' : 'command'}`}
+              >
+                <Copy class="i-copy size-3.5" aria-hidden="true" />
+                <Check class="i-done size-3.5" aria-hidden="true" />
+              </button>
+            </div>
           ))
         }
+        <a class="qi-note label" href={hero.commandNote.href}>{hero.commandNote.label} ↓</a>
       </div>
-      {
-        install.tabs.map((t, i) => (
-          <div
-            role="tabpanel"
-            id={`hero-panel-${t.id}`}
-            aria-labelledby={`hero-tab-${t.id}`}
-            tabindex="0"
-            class="chip-panel"
-            hidden={i !== 0}
-          >
-            <div class="chip-cmds">
-              {t.commands.map((c) => (
-                <div class="chip-cmd">
-                  <span class="select-none text-cyan" aria-hidden="true">
-                    $
-                  </span>
-                  <code>{c}</code>
-                </div>
-              ))}
-            </div>
-            <button
-              type="button"
-              class="copy-btn"
-              data-copy={t.commands.join('\n')}
-              aria-label={`Copy the ${t.label} install ${t.commands.length > 1 ? 'commands' : 'command'}`}
-            >
-              <Copy class="i-copy size-4" aria-hidden="true" />
-              <Check class="i-done size-4" aria-hidden="true" />
-            </button>
-          </div>
-        ))
-      }
     </div>
-  </div>
-</section>
+  </Row>
+</div>
 
 <style>
   .hero {
     position: relative;
     isolation: isolate;
-    container-type: inline-size;
-    overflow: clip;
-    padding-bottom: clamp(3rem, 6vw, 5rem);
+    /* the bay is wider than the screen; clip it sideways only, so it still runs down behind the copy */
+    overflow-x: clip;
   }
 
-  /* The banner box keeps the art's aspect ratio. It spans the hero from 1300 px up; below that it keeps a 407 px
-     height and shows the left part of the art (the billboard, the ships and the city). */
-  .hero-stage {
-    --w: max(100cqw, 1300px);
+  /* The bay: wider than the page (115 vw, at least 1500 px) and centred, so its edges fall well outside the rails;
+     below 900 px it shifts to keep the billboard, the ships and the city in view. It sits behind everything in the
+     hero, a touch blurred and dimmed so the headline reads over it. */
+  .bay {
+    --w: max(115vw, 1500px);
     position: absolute;
-    top: 0;
-    left: clamp(calc(100cqw - var(--w)), calc(50cqw - var(--w) * 0.17), 0px);
+    top: 4rem;
+    left: calc(50% - var(--w) / 2);
+    z-index: -1;
     width: var(--w);
     aspect-ratio: 1672 / 523;
     overflow: hidden;
-    z-index: -2;
+    pointer-events: none;
   }
-  .hero-art {
+  @media (max-width: 899px) {
+    .bay {
+      --w: 1150px;
+      left: -3rem;
+    }
+  }
+  .bay-art {
     position: absolute;
-    inset: 0;
+    inset: -4% 0;
+    filter: blur(1.6px) saturate(1.1);
+    opacity: 0.78;
   }
-  .hero-img {
+  :global([data-theme='light']) .bay-art {
+    opacity: 0.7;
+  }
+  .bay-img {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -202,19 +224,17 @@ const bands = Array.from({ length: 15 }, (_, i) => {
   :global([data-theme='light']) .theme-dark {
     display: none;
   }
-
   .dz {
     position: absolute;
     inset: 0;
     background: var(--bg);
-    pointer-events: none;
-    -webkit-mask-image: var(--tile), linear-gradient(transparent var(--a), #000 var(--a) var(--b), transparent var(--b));
-    mask-image: var(--tile), linear-gradient(transparent var(--a), #000 var(--a) var(--b), transparent var(--b));
+    -webkit-mask-image: var(--tile), radial-gradient(ellipse 50% 50% at 50% 46%, transparent var(--a), #000 var(--a) var(--b), transparent var(--b));
+    mask-image: var(--tile), radial-gradient(ellipse 50% 50% at 50% 46%, transparent var(--a), #000 var(--a) var(--b), transparent var(--b));
     -webkit-mask-size:
-      4px 4px,
+      8px 8px,
       100% 100%;
     mask-size:
-      4px 4px,
+      8px 8px,
       100% 100%;
     -webkit-mask-repeat: repeat, no-repeat;
     mask-repeat: repeat, no-repeat;
@@ -222,161 +242,182 @@ const bands = Array.from({ length: 15 }, (_, i) => {
     mask-composite: intersect;
   }
   .dz-solid {
-    top: calc(var(--a) - 1px);
-    bottom: -2px;
-    -webkit-mask: none;
-    mask: none;
+    -webkit-mask: radial-gradient(ellipse 50% 50% at 50% 46%, transparent 99.5%, #000 100%);
+    mask: radial-gradient(ellipse 50% 50% at 50% 46%, transparent 99.5%, #000 100%);
   }
 
-  .hero-scrim {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background: radial-gradient(
-      ellipse 60% 42% at 50% calc(max(31.28cqw, 407px) * 0.7 + 9rem),
-      color-mix(in oklab, var(--bg) 62%, transparent),
-      transparent 72%
-    );
-  }
-
-  .hero-content {
+  .strip {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    text-align: center;
-    /* the copy starts where the banner starts to dissolve, so the billboard, ships and planet stay clear above it */
-    padding-top: max(14rem, calc(max(31.28cqw, 407px) * 0.7));
+    justify-content: center;
+    gap: 0.6rem;
+    height: 2.6rem;
+    background: color-mix(in oklab, var(--surface) 62%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--fg-muted);
+  }
+  .live {
+    width: 6px;
+    height: 6px;
+    background: var(--brand-fg);
+    box-shadow: 0 0 10px var(--brand-fg);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .live {
+      animation: blink 2.4s steps(1) infinite;
+    }
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  /* the copy starts low enough that the planet, the ships and the billboard stay clear above the headline */
+  .hero-body {
+    padding-block: clamp(9rem, 4rem + 13vw, 15rem) clamp(3rem, 2rem + 4vw, 5.5rem);
   }
   .hero-title {
-    max-width: 18ch;
-    margin-top: 1.1rem;
-    font-size: clamp(2.3rem, 1.2rem + 4.4vw, 5rem);
-    line-height: 1.02;
-    font-weight: 700;
-    letter-spacing: -0.035em;
+    position: relative;
+    max-width: 13.5em;
     text-shadow:
-      0 2px 28px color-mix(in oklab, var(--bg) 85%, transparent),
+      0 2px 30px color-mix(in oklab, var(--bg) 85%, transparent),
       0 1px 2px color-mix(in oklab, var(--bg) 70%, transparent);
   }
-  .hero-sub {
-    max-width: 40rem;
-    margin-top: 1.4rem;
-    font-size: clamp(1.05rem, 0.97rem + 0.4vw, 1.3rem);
-    line-height: 1.6;
-    color: var(--fg-muted);
+  .hero-lead {
     text-shadow: 0 1px 16px color-mix(in oklab, var(--bg) 90%, transparent);
   }
-  .hero .kicker {
-    padding: 0.4rem 0.8rem;
-    border-radius: 0.5rem;
-    border: 1px solid var(--line);
-    background: color-mix(in oklab, var(--bg) 72%, transparent);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+  .hero-title :global(.hero-spark) {
+    display: inline-block;
+    width: 0.42em;
+    height: 0.42em;
+    margin-right: 0.18em;
+    vertical-align: 0.08em;
+    color: var(--fg);
+    --px-accent: var(--fg);
+  }
+  .hero-title :global(.w) {
+    display: inline-block;
+  }
+  /* the headline's words come in one by one, in CSS so they don't wait for the page's script */
+  :global(.motion) .hero-title :global(.w) {
+    animation: word-in 0.9s var(--ease-out-soft) both;
+    animation-delay: calc(0.1s + var(--i) * 60ms);
+  }
+  @keyframes word-in {
+    from {
+      opacity: 0;
+      translate: 0 0.35em;
+      filter: blur(10px);
+    }
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+    margin-top: clamp(2rem, 1.4rem + 2vw, 3rem);
+  }
+  @media (min-width: 1024px) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: center;
+      gap: 4rem;
+    }
   }
 
-  /* The install chip: the Install section's agents as compact tabs over that agent's commands. It keeps one width
-     and a fixed number of command lines for every agent (two; three or four on a phone, where commands wrap), so
-     switching agents never moves the page. */
-  .install-chip {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    width: min(100%, 35rem);
-    padding: 0.4rem;
-    border-radius: 1rem;
+  /* The install tabs: every agent's tab always in view (one row of equal cells on a desktop, wrapping rows below),
+     over that agent's commands. Each panel keeps room for two command lines (three on a phone, where commands
+     wrap), so switching agents never moves the page. */
+  .qi {
+    margin-top: clamp(2.25rem, 1.5rem + 2vw, 3.25rem);
     border: 1px solid var(--line-strong);
-    background: color-mix(in oklab, var(--surface) 78%, transparent);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    color: var(--fg);
-    text-align: left;
-    box-shadow: 0 10px 40px -20px var(--glow);
+    background: color-mix(in oklab, var(--surface) 82%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
-  .chip-tabs {
-    display: flex;
-    gap: 0.125rem;
-    padding: 0.2rem;
-    border-radius: 0.7rem;
-    background: var(--line);
-    overflow-x: auto;
-    scrollbar-width: none;
+  .qi-tabs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+    border-bottom: 1px solid var(--line);
   }
-  .chip-tab {
-    flex: 1 0 auto;
-    height: 1.875rem;
-    padding-inline: 0.7rem;
-    border-radius: 0.5rem;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    color: var(--fg-muted);
+  @media (min-width: 1024px) {
+    .qi-tabs {
+      grid-template-columns: repeat(var(--tabs, 7), minmax(0, 1fr));
+    }
+  }
+  .qi-tab {
+    position: relative;
+    height: 2.5rem;
+    padding-inline: 0.5rem;
+    box-shadow:
+      inset -1px 0 0 var(--line),
+      inset 0 -1px 0 var(--line);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     white-space: nowrap;
+    color: var(--fg-subtle);
     cursor: pointer;
     transition:
       color 0.15s,
       background-color 0.15s;
   }
-  .chip-tab:hover {
+  .qi-tab:hover {
     color: var(--fg);
   }
-  .chip-tab:focus-visible {
+  .qi-tab:focus-visible {
     outline-offset: -2px;
   }
-  .chip-tab[aria-selected='true'] {
+  .qi-tab[aria-selected='true'] {
     color: var(--fg);
-    background: var(--surface);
+    background: var(--brand-tint);
     box-shadow:
-      0 0 0 1px var(--line-strong),
-      0 4px 12px -6px var(--glow);
+      inset -1px 0 0 var(--line),
+      inset 0 -2px 0 var(--brand-fg);
   }
-  .chip-panel {
+  .qi-panel {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 0.5rem;
-    padding: 0.2rem 0 0 0.7rem;
-    border-radius: 0.6rem;
+    padding: 0.7rem 0.4rem 0.7rem 1.1rem;
     font-family: var(--font-mono);
-    font-size: clamp(0.72rem, 0.66rem + 0.3vw, 0.875rem);
-    line-height: 1.55;
+    font-size: clamp(0.74rem, 0.7rem + 0.2vw, 0.875rem);
+    line-height: 1.6;
   }
-  .chip-panel:focus-visible {
-    outline-offset: 0;
+  .qi-panel:focus-visible {
+    outline-offset: -2px;
   }
-  .chip-cmds {
+  .qi-cmds {
     --lines: 2;
     flex: 1;
     min-width: 0;
-    min-height: calc(var(--lines) * 1lh + 0.15rem);
+    min-height: calc(var(--lines) * 1lh + 0.3rem);
     display: grid;
     align-content: center;
-    gap: 0.15rem;
-    padding-block: 0.3rem;
-    box-sizing: content-box;
+    gap: 0.2rem;
   }
-  .chip-cmd {
+  .qi-cmd {
     display: flex;
-    gap: 0.5rem;
-    /* long commands wrap at any character, as in the Install section, so the whole command stays readable */
+    gap: 0.7rem;
+    /* long commands wrap at any character, as in the Install row, so the whole command stays readable */
     white-space: pre-wrap;
     overflow-wrap: anywhere;
+    color: var(--fg);
   }
-  @media (max-width: 539px) {
-    .chip-tab {
-      padding-inline: 0.5rem;
-      font-size: 0.78rem;
-    }
-    .chip-panel {
-      padding-left: 0.55rem;
-    }
-    .chip-cmds {
+  @media (max-width: 639px) {
+    .qi-cmds {
       --lines: 3;
     }
   }
-  @media (max-width: 374px) {
-    .chip-cmds {
-      --lines: 4;
-    }
+  .qi-note {
+    display: block;
+    padding: 0.6rem 1.1rem;
+    border-top: 1px solid var(--line);
+  }
+  .qi-note:hover {
+    color: var(--fg);
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -385,14 +426,6 @@ const bands = Array.from({ length: 15 }, (_, i) => {
     }
     .drift-l {
       animation: drift-l var(--dur) ease-in-out infinite;
-    }
-    /* Parallax with no JS: the art moves at 70 % of the scroll speed. The dither stays put, so it stays crisp. */
-    @supports (animation-timeline: scroll()) {
-      .hero-art {
-        animation: hero-parallax linear both;
-        animation-timeline: scroll(root block);
-        animation-range: 0px 100vh;
-      }
     }
   }
   @keyframes drift-r {
@@ -411,11 +444,6 @@ const bands = Array.from({ length: 15 }, (_, i) => {
     }
     50% {
       translate: -3px 1.5px;
-    }
-  }
-  @keyframes hero-parallax {
-    to {
-      transform: translateY(30vh);
     }
   }
 </style>

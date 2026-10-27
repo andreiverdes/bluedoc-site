@@ -1,100 +1,127 @@
 ---
-// The doc types at the foot of a showcase page: a card linking to each type's page. A type page leaves itself out;
-// the Features page lists all eight.
+// The doc types at the foot of a showcase page, as ruled cells linking to each type's page: a screenshot, the
+// pixel icon, the name and the pitch. A type page leaves itself out; the Features page lists all eight.
 import { Picture } from 'astro:assets';
-import ArrowRight from '@lucide/astro/icons/arrow-right';
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
+import PixelIcon from './PixelIcon.astro';
+import Row from './Row.astro';
+import SectionHead from './SectionHead.astro';
 import { docTypes } from '../content/site';
 import { typePageLabels as labels } from '../content/types';
 
 interface Props {
   /** the current page's type id, left out of the list */
   current?: string;
+  n?: string;
 }
 
-const { current } = Astro.props;
+const { current, n } = Astro.props;
 const types = docTypes.items.filter((t) => t.id !== current);
 const kicker = current ? labels.otherKicker : docTypes.kicker;
 const title = current ? labels.otherTitle : docTypes.title;
-// with an odd count, the last card spans both columns
-const oddLast = types.length % 2 === 1 ? types.length - 1 : -1;
 ---
 
-<section class="section-y" aria-labelledby="other-types-title">
-  <div class="container-x">
-    <div class="max-w-2xl" data-reveal>
-      <p class="kicker">{kicker}</p>
-      <h2 id="other-types-title" class="h2 mt-4">{title}</h2>
-    </div>
-
-    <ul class="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-2 lg:gap-5">
-      {
-        types.map((t, i) => (
-          <li class:list={['type-card card', { 'sm:col-span-2': i === oddLast }]} data-reveal style={`--reveal-i:${i % 2}`}>
-            <a href={t.href} class="block h-full">
-              <div class="shot">
-                <Picture
-                  formats={['avif']}
-                  fallbackFormat="webp"
-                  src={t.image}
-                  alt=""
-                  widths={[400, 560, 720, 960, 1200]}
-                  sizes={i === oddLast ? '(min-width: 1024px) 72rem, 94vw' : '(min-width: 1024px) 36rem, (min-width: 640px) 50vw, 94vw'}
-                  quality={65}
-                  loading="lazy"
-                  class="shot-img"
-                />
-              </div>
-              <div class="flex items-start justify-between gap-4 p-6">
-                <div>
-                  <h3 class="text-xl font-semibold">{t.name}</h3>
-                  <p class="mt-1.5 text-fg-muted">{t.pitch}</p>
-                </div>
-                <ArrowRight class="arrow mt-1 size-5 flex-none text-cyan" aria-hidden="true" />
-              </div>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-  </div>
-</section>
+<Row n={n} labelledby="other-types-title">
+  <SectionHead kicker={kicker} title={title} titleId="other-types-title" />
+  <ul class="types">
+    {
+      types.map((t, i) => (
+        <li data-reveal={String(i % 4)}>
+          <a href={t.href} class="type">
+            <div class="shot">
+              <Picture
+                formats={['avif']}
+                fallbackFormat="webp"
+                src={t.image}
+                alt=""
+                widths={[320, 480, 640, 800]}
+                sizes="(min-width: 1024px) 18rem, (min-width: 640px) 50vw, 94vw"
+                quality={65}
+                loading="lazy"
+                class="shot-img"
+              />
+            </div>
+            <div class="flex items-center justify-between gap-3">
+              <span class="flex items-center gap-2.5 font-medium">
+                <PixelIcon name={t.id} size={18} class="type-icon" />
+                {t.name}
+              </span>
+              <ArrowUpRight class="arrow size-4" aria-hidden="true" />
+            </div>
+            <p class="mt-2 text-sm text-fg-muted">{t.pitch}</p>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</Row>
 
 <style>
-  .type-card {
-    overflow: hidden;
-    transition:
-      transform 0.35s var(--ease-out-soft),
-      border-color 0.35s;
+  .types {
+    display: grid;
+    border-top: 1px solid var(--rail);
   }
-  .type-card:hover {
-    transform: translateY(-4px);
-    border-color: color-mix(in oklab, var(--brand-fg) 55%, transparent);
+  @media (min-width: 640px) {
+    .types {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
-  .type-card a:focus-visible {
+  @media (min-width: 1024px) {
+    .types {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .types > li {
+    border-right: 1px solid var(--rail);
+    border-bottom: 1px solid var(--rail);
+    margin-bottom: -1px;
+  }
+  .type {
+    display: block;
+    height: 100%;
+    padding: 1.1rem 1.1rem 1.5rem;
+    transition: background-color 0.2s;
+  }
+  .type:hover {
+    background: var(--surface);
+  }
+  .type:focus-visible {
     outline-offset: -3px;
-    border-radius: 1.25rem;
   }
   .shot {
-    height: clamp(11rem, 8rem + 8vw, 16rem);
+    aspect-ratio: 16 / 10;
+    margin-bottom: 1.1rem;
     overflow: hidden;
-    border-bottom: 1px solid var(--line);
-    background: var(--bg-2);
+    border: 1px solid var(--line);
+    background: var(--surface);
   }
   .shot-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: 50% 0%;
+    transition: scale 0.5s var(--ease-out-soft);
   }
-  .arrow {
-    transition: translate 0.25s var(--ease-out-soft);
+  .type:hover .shot-img {
+    scale: 1.04;
   }
-  .type-card:hover .arrow {
-    translate: 4px 0;
+  .type :global(.type-icon) {
+    color: var(--fg-subtle);
+    --px-accent: var(--brand-fg);
+  }
+  .type :global(.arrow) {
+    color: var(--fg-subtle);
+    transition:
+      color 0.2s,
+      translate 0.2s var(--ease-out-soft);
+  }
+  .type:hover :global(.arrow) {
+    color: var(--brand-fg);
+    translate: 2px -2px;
   }
   @media (prefers-reduced-motion: reduce) {
-    .type-card:hover {
-      transform: none;
+    .type:hover .shot-img {
+      scale: none;
     }
   }
 </style>

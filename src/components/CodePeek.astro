@@ -1,7 +1,10 @@
 ---
+// Row 08, a band: the JSON the agent writes, typed out line by line, beside the page the server renders.
 import { Picture } from 'astro:assets';
 import FileJson from '@lucide/astro/icons/file-braces';
 import ArrowRight from '@lucide/astro/icons/arrow-right';
+import Row from './Row.astro';
+import SectionHead from './SectionHead.astro';
 import { codePeek } from '../content/site';
 import { highlightJson } from '../lib/highlight';
 
@@ -18,16 +21,11 @@ const lines = codePeek.snippet.split('\n').map((text) => {
 const total = t;
 ---
 
-<section class="section-y" aria-labelledby="code-title">
-  <div class="container-x">
-    <div class="max-w-2xl" data-reveal>
-      <p class="kicker">{codePeek.kicker}</p>
-      <h2 id="code-title" class="h2 mt-4">{codePeek.title}</h2>
-      <p class="lead mt-5">{codePeek.lead}</p>
-    </div>
+<Row n="08" band labelledby="code-title">
+  <SectionHead kicker={codePeek.kicker} title={codePeek.title} titleId="code-title" lead={codePeek.lead} />
 
-    <div class="peek mt-12 grid gap-5 sm:mt-16 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-6">
-      <figure class="editor card" data-type style={`--total:${total}ms`}>
+  <div class="peek">
+      <figure class="editor" data-type style={`--total:${total}ms`}>
         <figcaption class="bar">
           <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
           <span class="flex min-w-0 items-center gap-2 truncate">
@@ -40,7 +38,7 @@ const total = t;
         ))}</code></pre>
       </figure>
 
-      <figure class="result card">
+      <figure class="result">
         <figcaption class="bar">
           <ArrowRight class="size-4 text-cyan" aria-hidden="true" />
           {codePeek.resultLabel}
@@ -59,11 +57,22 @@ const total = t;
           />
         </div>
       </figure>
-    </div>
   </div>
-</section>
+</Row>
 
 <style>
+  .peek {
+    display: grid;
+    border-top: 1px solid var(--rail);
+  }
+  @media (min-width: 1024px) {
+    .peek {
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    }
+    .result {
+      border-left: 1px solid var(--rail);
+    }
+  }
   .editor,
   .result {
     display: flex;
@@ -71,17 +80,25 @@ const total = t;
     overflow: hidden;
     margin: 0;
   }
+  .result {
+    border-top: 1px solid var(--rail);
+  }
+  @media (min-width: 1024px) {
+    .result {
+      border-top: 0;
+    }
+  }
   .editor {
-    background: color-mix(in oklab, var(--bg) 55%, var(--surface));
+    background: var(--surface);
   }
   .bar {
     display: flex;
     align-items: center;
     gap: 0.9rem;
-    height: 2.75rem;
+    height: 2.5rem;
     padding-inline: 1rem;
     border-bottom: 1px solid var(--line);
-    background: var(--surface-2);
+    background: transparent;
     font-family: var(--font-mono);
     font-size: 0.8rem;
     color: var(--fg-muted);
@@ -91,9 +108,8 @@ const total = t;
     gap: 0.4rem;
   }
   .dots i {
-    width: 0.65rem;
-    height: 0.65rem;
-    border-radius: 50%;
+    width: 0.55rem;
+    height: 0.55rem;
     background: var(--line-strong);
   }
   .code {

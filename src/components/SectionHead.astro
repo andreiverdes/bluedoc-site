@@ -1,0 +1,58 @@
+---
+// The head of a ruled row: the kicker and the title (src/lib/rich.ts markup) on the left, the lead on the right
+// from 1024 px, with anything in the slot under the lead.
+import { rich } from '../lib/rich';
+
+interface Props {
+  kicker: string;
+  title: string;
+  /** the id the row's aria-labelledby points at */
+  titleId: string;
+  lead?: string;
+  /** the lead as HTML that is already escaped (e.g. through inlineCode), instead of `lead` */
+  leadHtml?: string;
+  /** a level-1 heading, for a page's first row */
+  h1?: boolean;
+  class?: string;
+}
+
+const { kicker, title, titleId, lead, leadHtml, h1 = false, class: className } = Astro.props;
+const Heading = h1 ? 'h1' : 'h2';
+---
+
+<div class:list={['rail-pad row-y pb-12!', className]}>
+  <div class="head" data-reveal>
+    <div>
+      <p class="kicker">{kicker}</p>
+      <Heading id={titleId} class="h2 mt-5" set:html={rich(title)} />
+    </div>
+    {
+      (lead || leadHtml || Astro.slots.has('default')) && (
+        <div>
+          {lead && <p class="lead">{lead}</p>}
+          {leadHtml && <p class="lead" set:html={leadHtml} />}
+          <slot />
+        </div>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .head {
+    display: grid;
+    gap: 1.5rem;
+  }
+  @media (min-width: 1024px) {
+    .head {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      align-items: end;
+      gap: 4rem;
+    }
+  }
+  .lead :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    color: var(--fg);
+  }
+</style>

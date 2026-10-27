@@ -1,41 +1,55 @@
 ---
-// The footer: the logo and tagline, then two link columns (the doc types with Features, and the site's own links),
-// then one line with the year, the licence and the credits-and-privacy page. Credits live on /legal/.
+// The footer, a band: a large GitHub cell beside numbered link cells (the doc types with Features, then the
+// site's own links), the logo and tagline, the giant pixel wordmark that a scan line lights up (motion.ts,
+// [data-scan]), and one line with the year, the licence and the credits-and-privacy page.
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
 import Logo from './Logo.astro';
 import GithubMark from './GithubMark.astro';
 import { docTypes, footer, nav, repoUrl } from '../content/site';
 
-const types = [...docTypes.items.map((t) => ({ label: t.name, href: t.href })), { label: 'Features', href: nav.typesMenu.features.href }];
+const links = [
+  ...docTypes.items.map((t) => ({ label: t.name, href: t.href })),
+  { label: 'Features', href: nav.typesMenu.features.href },
+  ...footer.links.filter((l) => l.href !== repoUrl),
+];
 const year = new Date().getFullYear();
 ---
 
-<footer class="site-footer">
-  <div class="container-x footer-grid">
-    <div class="brand">
-      <Logo size={30} />
-      <p class="mt-4 max-w-xs text-fg-muted">{footer.tagline}</p>
-      <a class="repo mt-5" href={repoUrl} rel="noopener">
-        <GithubMark class="size-4" />
-        <span>andreiverdes/bluedoc</span>
+<footer class="band site-footer">
+  <div class="rail">
+    <nav class="top" aria-label="Footer">
+      <a class="star" href={repoUrl} rel="noopener">
+        <span class="label inline-flex items-center gap-2"><GithubMark class="size-4" />andreiverdes/bluedoc</span>
+        <span class="star-title">Star on GitHub</span>
+        <ArrowUpRight class="star-arrow size-6" aria-hidden="true" />
       </a>
-    </div>
-    <nav class="cols" aria-label="Footer">
-      <div>
-        <h2 class="col-title">{footer.typesTitle}</h2>
-        <ul class="col-list two">
-          {types.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
-        </ul>
-      </div>
-      <div>
-        <h2 class="col-title">{footer.siteTitle}</h2>
-        <ul class="col-list">
-          {footer.links.map((l) => <li><a href={l.href} rel={l.href.startsWith('http') ? 'noopener' : undefined}>{l.label}</a></li>)}
-        </ul>
-      </div>
+      <ul class="cells">
+        {
+          links.map((l, i) => (
+            <li>
+              <a class="cell" href={l.href}>
+                <span class="cell-n">{String(i + 1).padStart(2, '0')}</span>
+                <span class="cell-label">{l.label}</span>
+                <ArrowUpRight class="cell-arrow size-4" aria-hidden="true" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
     </nav>
-  </div>
-  <div class="container-x">
-    <p class="base">
+
+    <div class="brand">
+      <Logo size={26} />
+      <p class="max-w-md text-sm text-fg-muted">{footer.tagline}</p>
+    </div>
+
+    <div class="wordmark" data-scan aria-hidden="true">
+      <span class="wm wm-dim">bluedoc</span>
+      <span class="wm wm-lit" data-scan-lit>bluedoc</span>
+      <span class="scan" data-scan-line></span>
+    </div>
+
+    <p class="base label">
       <span>© {year} bluedoc</span>
       <a href={footer.licence.href} rel="noopener">{footer.licence.label}</a>
       <a href={footer.legal.href}>{footer.legal.label}</a>
@@ -45,75 +59,157 @@ const year = new Date().getFullYear();
 
 <style>
   .site-footer {
-    background: var(--bg);
-    border-top: 1px solid var(--line);
+    border-top: 1px solid var(--rail);
   }
-  .footer-grid {
+  .top {
     display: grid;
-    gap: 2.5rem;
-    padding-block: 3.5rem 2.5rem;
+    border-bottom: 1px solid var(--rail);
   }
-  @media (min-width: 768px) {
-    .footer-grid {
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 4rem;
-      padding-block: 4rem 3rem;
+  @media (min-width: 1024px) {
+    .top {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 2fr);
     }
   }
-  .repo {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    color: var(--fg-muted);
+  .star {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 3rem;
+    min-height: 13rem;
+    padding: clamp(1.25rem, 2.5vw, 2rem);
+    border-bottom: 1px solid var(--rail);
+    transition: background-color 0.2s;
   }
-  .repo:hover {
-    color: var(--fg);
+  @media (min-width: 1024px) {
+    .star {
+      border-bottom: 0;
+      border-right: 1px solid var(--rail);
+    }
   }
-  .cols {
+  .star:hover {
+    background: var(--brand-tint);
+  }
+  .star-title {
+    font-size: clamp(1.75rem, 1.3rem + 1.4vw, 2.5rem);
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+  }
+  .star :global(.star-arrow) {
+    position: absolute;
+    top: clamp(1.25rem, 2.5vw, 2rem);
+    right: clamp(1.25rem, 2.5vw, 2rem);
+    color: var(--fg-subtle);
+    transition:
+      color 0.2s,
+      translate 0.2s var(--ease-out-soft);
+  }
+  .star:hover :global(.star-arrow) {
+    color: var(--brand-fg);
+    translate: 3px -3px;
+  }
+  .cells {
     display: grid;
-    grid-template-columns: auto auto;
-    gap: 2.5rem clamp(1.75rem, 1rem + 3vw, 4rem);
-    align-content: start;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .col-title {
-    font-family: var(--font-pixel);
-    font-size: 0.7rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+  @media (min-width: 768px) {
+    .cells {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .cells > li {
+    border-right: 1px solid var(--rail);
+    border-bottom: 1px solid var(--rail);
+    margin-bottom: -1px;
+  }
+  .cell {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    height: 100%;
+    min-height: 3.6rem;
+    padding-inline: 1.1rem;
+    font-size: 0.9375rem;
+    color: var(--fg-muted);
+    transition:
+      color 0.15s,
+      background-color 0.15s;
+  }
+  .cell:hover {
+    color: var(--fg);
+    background: var(--brand-tint);
+  }
+  .cell-n {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
     color: var(--fg-subtle);
   }
-  .col-list {
-    margin-top: 1rem;
-    display: grid;
-    gap: 0.6rem clamp(1.5rem, 1rem + 1.5vw, 2.5rem);
-    font-size: 0.95rem;
-    white-space: nowrap;
+  .cell-label {
+    flex: 1;
   }
-  /* the 9 type links read down each column: Docs, Plans, Reviews, Designs, Presentations, then the rest */
-  .col-list.two {
-    grid-template-columns: repeat(2, auto);
-    grid-template-rows: repeat(5, auto);
-    grid-auto-flow: column;
+  .cell :global(.cell-arrow) {
+    color: var(--fg-subtle);
+    opacity: 0;
+    transition: opacity 0.15s;
   }
-  .col-list a {
-    color: var(--fg-muted);
-    transition: color 0.15s;
+  .cell:hover :global(.cell-arrow) {
+    opacity: 1;
   }
-  .col-list a:hover {
-    color: var(--fg);
+
+  .brand {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    padding: 1.75rem clamp(1.25rem, 2.5vw, 2rem) 0;
   }
+
+  /* The giant wordmark: a dim copy, a lit copy clipped from the left, and the scan line that leads it. Without
+     motion the lit copy simply shows whole. */
+  .wordmark {
+    position: relative;
+    overflow: hidden;
+    padding: 0 clamp(1rem, 2vw, 1.5rem);
+    font-family: var(--font-pixel);
+    font-size: clamp(4rem, 23vw, 20rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    user-select: none;
+  }
+  .wm {
+    display: block;
+  }
+  .wm-dim {
+    color: var(--wm-dim);
+  }
+  .wm-lit {
+    position: absolute;
+    inset: 0;
+    padding: inherit;
+    color: var(--wm-lit);
+  }
+  .scan {
+    position: absolute;
+    top: 8%;
+    bottom: 8%;
+    left: 0;
+    width: 2px;
+    background: var(--brand-fg);
+    box-shadow: 0 0 18px var(--brand-fg);
+    opacity: 0;
+  }
+  :global(.motion) .wm-lit {
+    clip-path: inset(0 100% 0 0);
+  }
+
   .base {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem 1.5rem;
-    padding-block: 1.5rem 2rem;
-    border-top: 1px solid var(--line);
-    font-size: 0.85rem;
-    color: var(--fg-subtle);
-  }
-  .base a {
-    color: var(--fg-subtle);
+    gap: 0.5rem 1.75rem;
+    padding: 1.25rem clamp(1.25rem, 2.5vw, 2rem) 1.5rem;
+    border-top: 1px solid var(--rail);
   }
   .base a:hover {
     color: var(--fg);

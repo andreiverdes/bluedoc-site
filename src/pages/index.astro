@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Nav from '../components/Nav.astro';
 import Hero from '../components/Hero.astro';
+import Why from '../components/Why.astro';
 import ProductShot from '../components/ProductShot.astro';
 import Loop from '../components/Loop.astro';
 import DocTypes from '../components/DocTypes.astro';
@@ -17,14 +18,15 @@ import Footer from '../components/Footer.astro';
   <Nav />
   <main id="main">
     <Hero />
+    <Why />
     <ProductShot />
     <Loop />
     <DocTypes />
     <Features />
     <CodePeek />
-    <Install />
+    <Install n="09" />
     <Faq />
-    <FinalCta />
+    <FinalCta n="11" />
   </main>
   <Footer />
 </Base>

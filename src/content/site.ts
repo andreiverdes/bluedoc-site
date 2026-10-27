@@ -1,7 +1,9 @@
 // Every piece of copy on the page lives here. Edit text, links and images in this one file;
 // the components in src/components only lay it out.
 import type { ImageMetadata } from 'astro';
+import type { PixelIconName } from '../lib/pixel-icons';
 import { base } from '../lib/paths';
+import { every, type ClipCopy } from './types';
 
 import homeShot from '../assets/shots/home-hero.webp';
 import docsShot from '../assets/shots/docs-hero.webp';
@@ -12,6 +14,9 @@ import presentationShot from '../assets/shots/presentation-hero.webp';
 import otherShot from '../assets/shots/other-hero.webp';
 import websiteShot from '../assets/shots/website-hero.webp';
 import storeListingShot from '../assets/shots/storelisting-hero.webp';
+
+// Headings use a small markup that src/lib/rich.ts renders: [words] in the blue pixel face, {words} in the soft
+// second ink, and a line break where the text has one.
 
 export const repoUrl = 'https://github.com/andreiverdes/bluedoc';
 
@@ -44,19 +49,18 @@ export const nav = {
 
 export const hero = {
   kicker: 'v1.0 · Agent skill · Local · MIT',
-  headline: 'Point, pick, approve. Your agent does the rest.',
+  headline: 'Point, pick, approve.\nYour agent does [the rest].',
   subline:
     'bluedoc turns plans, code reviews, architecture docs, UI designs, slide decks and store listings into interactive pages. Comment on any element, pick an option, approve. Your agent reads the answers and gets on with it.',
   primaryCta: { label: 'Install', href: '#install' },
   secondaryCta: { label: 'View on GitHub', href: repoUrl },
-  bannerAlt:
-    'Pixel art of a bay at night: a ringed planet over the water, ships with engine trails, and a city whose rooftop billboard reads “bluedoc”.',
-  bannerAltLight: 'Pixel art of the same bay by day: a ringed planet in a blue sky, ships, clouds and the city’s “bluedoc” billboard.',
+  // under the headline: each agent's install commands as tabs; this link goes to the Install row's notes
+  commandNote: { label: 'Notes and requirements', href: '#install' },
 };
 
 export const productShot = {
   kicker: 'One home for every doc',
-  title: 'Every doc your agent writes, in one place.',
+  title: 'Every doc your agent writes, {in one place.}',
   body: 'The local server lists each doc with its type, status and revision. Filter by type or status, browse projects in the sidebar, and open a doc to read, comment and decide.',
   url: '127.0.0.1 / bluedoc',
   image: homeShot,
@@ -68,19 +72,21 @@ export type LoopIcon = 'write' | 'markup' | 'decide' | 'revise' | 'approve';
 export const loop = {
   id: 'how-it-works',
   kicker: 'How it works',
-  title: 'One loop, from draft to approved.',
+  title: 'One loop, {from draft to approved.}',
   lead: 'The agent writes, you answer on the page, the agent revises. Each round is a revision you can compare with the last.',
+  // `title` is two words: the actor, then the act in the soft ink. A step with a `clip` plays it; the first step
+  // shows the start of the JSON the agent writes (codePeek.snippet).
   steps: [
-    { icon: 'write', title: 'Agent writes', body: 'One JSON file. The local server renders it as a page; no HTML to keep in sync.' },
-    { icon: 'markup', title: 'You mark up', body: 'Pin a comment on any element, a selected passage or a box you draw.' },
-    { icon: 'decide', title: 'You decide', body: 'Pick an option per question. The agent’s recommendation is starred.' },
-    { icon: 'revise', title: 'Agent revises', body: 'It edits one part at a time and marks the comments it resolved.' },
-    { icon: 'approve', title: 'You approve', body: 'Approve the current revision; the agent waits for it before it writes code.' },
-  ] satisfies { icon: LoopIcon; title: string; body: string }[],
+    { icon: 'write', title: 'Agent {writes}', tag: 'One JSON file', body: 'One JSON file. The local server renders it as a page; no HTML to keep in sync.' },
+    { icon: 'markup', title: 'You {mark up}', tag: 'Pins · passages · drawings', body: 'Pin a comment on any element, a selected passage or a box you draw.', clip: every.pin },
+    { icon: 'decide', title: 'You {decide}', tag: 'Option rows · ★ recommended', body: 'Pick an option per question. The agent’s recommendation is starred.', clip: every.optionRows },
+    { icon: 'revise', title: 'Agent {revises}', tag: 'Revisions · word by word', body: 'It edits one part at a time and marks the comments it resolved.', clip: every.compare },
+    { icon: 'approve', title: 'You {approve}', tag: 'Approved · rev 1', body: 'Approve the current revision; the agent waits for it before it writes code.', clip: every.approve },
+  ] satisfies { icon: LoopIcon; title: string; tag: string; body: string; clip?: ClipCopy }[],
 };
 
 export type DocType = {
-  id: string;
+  id: PixelIconName;
   name: string;
   tag: string;
   pitch: string;
@@ -94,7 +100,7 @@ export type DocType = {
 export const docTypes = {
   id: 'doc-types',
   kicker: 'Doc types',
-  title: 'Eight kinds of page, one way to answer them.',
+  title: 'Eight kinds of page, {one way to answer them.}',
   lead: 'Each type has its own layout and its own decisions. Comments, revisions and approval work the same on all of them.',
   items: [
     {
@@ -197,8 +203,8 @@ export type FeatureIcon = 'comment' | 'star' | 'compare' | 'approve' | 'local' |
 export const features = {
   id: 'features',
   kicker: 'Features',
-  title: 'Built for answering, not just reading.',
-  lead: 'A wall of text in a chat asks you to reply in prose. A bluedoc page asks you the questions and keeps your answers.',
+  title: 'Built for answering, {not just reading.}',
+  lead: 'Six things every doc type does, from the first comment to the approval.',
   more: { label: 'See every feature', href: `${base}features/` },
   items: [
     {
@@ -236,7 +242,7 @@ export const features = {
 
 export const codePeek = {
   kicker: 'JSON in, page out',
-  title: 'The agent writes JSON. You get a page.',
+  title: 'The agent writes JSON. {You get a page.}',
   lead: 'Agents never write page HTML. The server renders each doc from its JSON on every request, so an edit and a reload is the whole build.',
   fileName: 'saved-carts.bluedoc.json',
   // Shown with a typing animation. Keep it short (about 20 lines fit the editor) and narrow: a line over about 60
@@ -271,7 +277,7 @@ export const codePeek = {
 export const install = {
   id: 'install',
   kicker: 'Install',
-  title: 'Pick your agent.',
+  title: 'Pick your [agent].',
   lead: 'Each one installs the same skill from the GitHub repository.',
   tabs: [
     {
@@ -320,10 +326,29 @@ export const install = {
   requirements: ['Python 3.9 or later on PATH', 'git, for code reviews', 'gh, only to import GitHub review threads'],
 };
 
+// The band under the hero: what a page gives you that a chat reply doesn't, in four counts. Each `count` is
+// worked out from the lists above, so it stays true when a type or an agent is added.
+const pluginAgents = install.tabs.filter((t) => t.id !== 'skills');
+export const why = {
+  id: 'why',
+  kicker: 'Why a page',
+  title: 'A chat asks you to reply {in prose.}',
+  lead: 'Agents answer in walls of text and wait for a reply in prose. A bluedoc page asks you the questions and keeps your answers.',
+  stats: [
+    { count: docTypes.items.length, label: 'Doc types', body: 'Docs, plans, reviews, designs, decks, sites, store listings and more.' },
+    { count: pluginAgents.length, label: 'Agent plugins', body: `${pluginAgents.map((t) => t.label).join(', ')}. Any other through the skills CLI.` },
+    { count: 1, label: 'JSON file per doc', body: 'The server renders the page from it; no HTML to keep in sync.' },
+    { count: 0, label: 'Accounts', body: 'It runs on 127.0.0.1, MIT, with no hosted service.' },
+  ],
+  withLabel: 'With bluedoc',
+  claim: 'Point, pick, approve, and your agent [reads every answer].',
+  cta: { label: 'See how it works', href: '#how-it-works' },
+};
+
 export const faq = {
   id: 'faq',
   kicker: 'FAQ',
-  title: 'Questions, answered.',
+  title: 'Questions, {answered.}',
   items: [
     {
       q: 'Is it free?',
@@ -354,7 +379,7 @@ export const faq = {
 
 export const finalCta = {
   kicker: 'Approved · rev 1',
-  title: 'Answer your agent on a page.',
+  title: 'Answer your agent\non a [page].',
   body: 'Install the skill, ask your agent for a plan, and answer it on a page.',
   primary: { label: 'Star on GitHub', href: repoUrl },
   secondary: { label: 'Install', href: '#install' },
@@ -402,8 +427,9 @@ export const legal = {
       id: 'credits',
       title: 'Credits',
       body: [
-        '**Fonts:** Lexend, Inter, JetBrains Mono and Silkscreen, under the SIL Open Font License 1.1, served from this site.',
+        '**Fonts:** Geist, Geist Mono and Geist Pixel, under the SIL Open Font License 1.1, served from this site.',
         '**Icons:** [Lucide](https://lucide.dev), under the ISC licence.',
+        '**Animation:** [Motion](https://motion.dev), under the MIT licence.',
         '**Art and recordings:** the pixel-art banners, the screenshots and the clips come from the [bluedoc repository](' + repoUrl + ') (MIT), recorded from its Acme examples. They show bluedoc’s HorizonUI build (Apache-2.0).',
       ],
     },

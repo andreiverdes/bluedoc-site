@@ -1,0 +1,50 @@
+---
+// One ruled row of the page: a hairline across the top, the content between the two rails, and the row's number in
+// the left gutter. `band` sets it apart in the theme's band palette (global.css .band).
+interface Props {
+  /** the number in the gutter, e.g. "04" */
+  n?: string;
+  id?: string;
+  band?: boolean;
+  labelledby?: string;
+  /** a <div> rather than a <section>, for rows that aren't sections of the page (the hero's strips) */
+  plain?: boolean;
+  class?: string;
+  railClass?: string;
+}
+
+const { n, id, band = false, labelledby, plain = false, class: className, railClass } = Astro.props;
+const Tag = plain ? 'div' : 'section';
+---
+
+<Tag id={id} class:list={['row', { band }, className]} aria-labelledby={labelledby}>
+  <slot name="back" />
+  <div class:list={['rail', railClass]}>
+    {n && <span class="row-n" aria-hidden="true">{n}</span>}
+    <slot />
+  </div>
+</Tag>
+
+<style>
+  .row {
+    position: relative;
+    border-top: 1px solid var(--rail);
+  }
+  .row-n {
+    position: absolute;
+    top: 1.15rem;
+    right: 100%;
+    width: var(--gutter);
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    color: var(--fg-subtle);
+    pointer-events: none;
+  }
+  @media (max-width: 899px) {
+    .row-n {
+      display: none;
+    }
+  }
+</style>

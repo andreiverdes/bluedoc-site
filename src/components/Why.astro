@@ -1,0 +1,115 @@
+---
+// Row 03, a band: why a page beats a chat reply, in four counts that count up, then the claim beside a
+// patch of pixel sky.
+import ArrowDown from '@lucide/astro/icons/arrow-down';
+import Row from './Row.astro';
+import SectionHead from './SectionHead.astro';
+import PixelSky from './PixelSky.astro';
+import { why } from '../content/site';
+import { rich } from '../lib/rich';
+---
+
+<Row n="03" id={why.id} band labelledby="why-title">
+  <SectionHead kicker={why.kicker} title={why.title} titleId="why-title" lead={why.lead} />
+
+  <ul class="stats">
+    {
+      why.stats.map((s, i) => (
+        <li class="stat" data-reveal={String(i)}>
+          <span class="stat-n px" data-count>
+            {s.count}
+          </span>
+          <span class="mt-6 block font-medium">{s.label}</span>
+          <span class="mt-1.5 block text-sm text-fg-muted">{s.body}</span>
+        </li>
+      ))
+    }
+  </ul>
+
+  <div class="claim-row">
+    <div class="claim rail-pad" data-reveal>
+      <p class="label text-brand-fg!">{why.withLabel}</p>
+      <p class="claim-text h2" set:html={rich(why.claim)} />
+      <a class="btn btn-box mt-8" href={why.cta.href}>
+        {why.cta.label}
+        <ArrowDown class="size-4" aria-hidden="true" />
+      </a>
+    </div>
+    <div class="sky-cell" aria-hidden="true">
+      <PixelSky class="sky" seed={23} count={170} />
+      <div class="sky-grid"></div>
+    </div>
+  </div>
+</Row>
+
+<style>
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    border-top: 1px solid var(--rail);
+  }
+  .stat {
+    padding: 1.75rem clamp(1.25rem, 2.5vw, 2rem) 2rem;
+    border-right: 1px solid var(--rail);
+    border-bottom: 1px solid var(--rail);
+    margin-bottom: -1px;
+  }
+  .stat:last-child {
+    border-right: 0;
+  }
+  .stat-n {
+    display: inline-grid;
+    place-items: center;
+    min-width: 4.25rem;
+    height: 4.25rem;
+    padding-inline: 0.75rem;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    font-size: 2.5rem;
+    line-height: 1;
+  }
+  .claim-row {
+    display: grid;
+    border-top: 1px solid var(--rail);
+  }
+  @media (min-width: 1024px) {
+    .claim-row {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    }
+  }
+  .claim {
+    padding-block: clamp(3rem, 2rem + 4vw, 5.5rem);
+  }
+  .claim-text {
+    margin-top: 1rem;
+    max-width: 14em;
+  }
+  .sky-cell {
+    position: relative;
+    min-height: 16rem;
+    overflow: hidden;
+    border-top: 1px solid var(--rail);
+    background: radial-gradient(ellipse at 70% 110%, rgb(10 109 255 / 0.35), transparent 65%);
+  }
+  @media (min-width: 1024px) {
+    .sky-cell {
+      border-top: 0;
+      border-left: 1px solid var(--rail);
+    }
+  }
+  .sky-cell :global(.sky) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .sky-grid {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to right, var(--rail) 1px, transparent 1px) 0 0 / 2.5rem 2.5rem,
+      linear-gradient(to bottom, var(--rail) 1px, transparent 1px) 0 0 / 2.5rem 2.5rem;
+    -webkit-mask-image: radial-gradient(ellipse at 60% 60%, #000, transparent 75%);
+    mask-image: radial-gradient(ellipse at 60% 60%, #000, transparent 75%);
+  }
+</style>

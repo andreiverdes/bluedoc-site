@@ -1,195 +1,288 @@
 ---
+// Row 05: the loop's five steps around one full-width stage. On a desktop the row pins while it scrolls past: a bar
+// of the five steps runs across the top and fills as you go, the stage under it shows the current step's clip as
+// wide as the column allows, and the step's tag and line sit beneath (motion.ts, [data-steps]). A step in the bar
+// jumps there. Below 1024 px the steps simply stack, each with its own clip. The first step shows the start of the
+// JSON the agent writes instead of a clip.
+import Row from './Row.astro';
+import SectionHead from './SectionHead.astro';
+import Clip from './Clip.astro';
 import PixelIcon from './PixelIcon.astro';
-import { loop } from '../content/site';
+import { codePeek, loop } from '../content/site';
+import { highlightJson } from '../lib/highlight';
+import { rich } from '../lib/rich';
+
+const total = String(loop.steps.length).padStart(2, '0');
+const json = codePeek.snippet.split('\n').slice(0, 17).map(highlightJson);
 ---
 
-<section id={loop.id} class="loop-section section-y" aria-labelledby="loop-title">
-  <div class="container-x">
-    <div class="max-w-2xl" data-reveal>
-      <p class="kicker">{loop.kicker}</p>
-      <h2 id="loop-title" class="h2 mt-4">{loop.title}</h2>
-      <p class="lead mt-5">{loop.lead}</p>
-    </div>
+<Row n="05" id={loop.id} labelledby="loop-title">
+  <SectionHead kicker={loop.kicker} title={loop.title} titleId="loop-title" lead={loop.lead} class="pb-10!" />
 
-    <ol class="loop mt-14 sm:mt-20" data-loop style={`--n:${loop.steps.length}`}>
-      <li class="track" aria-hidden="true"><span class="track-fill"></span></li>
-      {
-        loop.steps.map((s, i) => (
-          <li class:list={['step', { last: i === loop.steps.length - 1 }]} style={`--i:${i}`}>
-            <span class="node">
-              <PixelIcon name={s.icon} size={36} />
-            </span>
-            <span class="num" aria-hidden="true">
-              {String(i + 1).padStart(2, '0')}
-            </span>
-            <h3 class="step-title">{s.title}</h3>
-            <p class="step-body">{s.body}</p>
-          </li>
-        ))
-      }
-    </ol>
+  <div class="loop" data-steps style={`--steps:${loop.steps.length}`}>
+    <div class="sticky-box">
+      <ol class="bar">
+        {
+          loop.steps.map((s, i) => (
+            <li>
+              <button type="button" class="bar-step" data-step-go data-on={i === 0 ? '' : undefined} style="--fill:0">
+                <span class="bar-head">
+                  <PixelIcon name={s.icon} size={18} class="bar-icon" />
+                  <span class="bar-n">{String(i + 1).padStart(2, '0')}</span>
+                </span>
+                <span class="bar-title" set:html={rich(s.title)} />
+                <span class="bar-fill" aria-hidden="true" />
+              </button>
+            </li>
+          ))
+        }
+      </ol>
+
+      <ol class="slides">
+        {
+          loop.steps.map((s, i) => (
+            <li class="slide" data-step data-on={i === 0 ? '' : undefined}>
+              <div class="slide-media">
+                {s.clip ? (
+                  <Clip name={s.clip.clip} label={s.clip.shows} title={s.clip.title} />
+                ) : (
+                  <figure class="mini-editor" aria-label={`The start of ${codePeek.fileName}`}>
+                    <figcaption class="label">{codePeek.fileName}</figcaption>
+                    <pre><code>{json.map((html, n) => (
+                      <span class="ln"><span class="gut" aria-hidden="true">{n + 1}</span><span set:html={html || ' '} /></span>
+                    ))}</code></pre>
+                  </figure>
+                )}
+              </div>
+              <div class="slide-text">
+                <span class="label slide-n">
+                  {String(i + 1).padStart(2, '0')} / {total}
+                </span>
+                <h3 class="slide-title" set:html={rich(s.title)} />
+                <span class="pill">{s.tag}</span>
+                <p class="slide-body">{s.body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
   </div>
-</section>
+</Row>
 
 <style>
-  .loop-section {
-    background:
-      radial-gradient(60% 50% at 80% 0%, color-mix(in oklab, var(--brand) 10%, transparent), transparent 70%),
-      linear-gradient(to bottom, var(--bg), var(--bg-2) 50%, var(--bg));
-  }
   .loop {
-    --gap: clamp(1rem, 2vw, 2rem);
-    --node: 4.5rem;
-    --stagger: 420ms;
-    position: relative;
-    display: grid;
-    gap: 2.25rem;
-    list-style: none;
+    padding: 0 clamp(1.25rem, 3.5vw, 3rem) clamp(3rem, 2rem + 4vw, 6rem);
   }
-  @media (min-width: 900px) {
-    .loop {
-      grid-template-columns: repeat(var(--n), minmax(0, 1fr));
-      gap: var(--gap);
-    }
+  .bar {
+    display: none;
+  }
+  .slides {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 3.5rem;
+  }
+  .slide-text {
+    display: grid;
+    justify-items: start;
+    gap: 0.9rem;
+    margin-top: 1.5rem;
+  }
+  .slide-title {
+    font-size: clamp(2rem, 1.4rem + 2vw, 3rem);
+    line-height: 1;
+    letter-spacing: -0.045em;
+  }
+  .slide-body {
+    max-width: 36rem;
+    font-size: 1.0625rem;
+    color: var(--fg-muted);
   }
 
-  /* the rail between the nodes: vertical on phones, horizontal from 900 px */
-  .track {
-    position: absolute;
-    left: calc(var(--node) / 2 - 1px);
-    top: calc(var(--node) / 2);
-    bottom: calc(var(--node) / 2);
-    width: 2px;
-    background: repeating-linear-gradient(to bottom, var(--line-strong) 0 4px, transparent 4px 8px);
-  }
-  .track-fill {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, var(--brand), var(--cyan), var(--amber));
-    transform-origin: top;
-    box-shadow: 0 0 12px var(--glow);
-  }
-  @media (min-width: 900px) {
-    .track {
-      left: calc(100% / var(--n) / 2);
-      right: calc(100% / var(--n) / 2);
-      top: calc(var(--node) / 2 - 1px);
-      bottom: auto;
-      width: auto;
-      height: 2px;
-      background: repeating-linear-gradient(to right, var(--line-strong) 0 4px, transparent 4px 8px);
-    }
-    .track-fill {
-      background: linear-gradient(to right, var(--brand), var(--cyan), var(--amber));
-      transform-origin: left;
-    }
-  }
-
-  .step {
-    position: relative;
-    display: grid;
-    grid-template-columns: var(--node) 1fr;
-    column-gap: 1.25rem;
-    align-items: start;
-    --px-accent: var(--cyan);
-  }
-  .step.last {
-    --px-accent: var(--amber);
-  }
-  @media (min-width: 900px) {
-    .step {
-      grid-template-columns: 1fr;
-      justify-items: center;
-      text-align: center;
-    }
-  }
-  .node {
-    grid-row: span 3;
-    display: grid;
-    place-items: center;
-    width: var(--node);
-    height: var(--node);
-    border-radius: 1.1rem;
+  .mini-editor {
+    margin: 0;
     border: 1px solid var(--line-strong);
     background: var(--surface);
-    color: var(--fg);
-    box-shadow:
-      0 0 0 6px var(--bg-2),
-      0 0 28px -4px var(--glow);
-    image-rendering: pixelated;
+    aspect-ratio: 1280 / 800;
+    overflow: hidden;
   }
-  .step.last .node {
-    border-color: color-mix(in oklab, var(--amber) 60%, transparent);
-    box-shadow:
-      0 0 0 6px var(--bg-2),
-      0 0 32px -2px color-mix(in oklab, var(--amber) 45%, transparent);
+  .mini-editor figcaption {
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--line);
   }
-  @media (min-width: 900px) {
-    .node {
-      grid-row: auto;
-    }
+  .mini-editor pre {
+    margin: 0;
+    padding: 0.9rem 0;
+    font-family: var(--font-mono);
+    font-size: clamp(0.68rem, 0.5rem + 0.5vw, 1rem);
+    line-height: 1.7;
+    white-space: pre;
+    overflow: hidden;
   }
-  .num {
-    margin-top: 0.15rem;
-    font-family: var(--font-pixel);
-    font-size: 0.8125rem;
-    color: var(--cyan);
+  .mini-editor code {
+    display: grid;
   }
-  .step.last .num {
-    color: var(--amber-fg);
+  .ln {
+    display: flex;
   }
-  @media (min-width: 900px) {
-    .num {
-      margin-top: 1.1rem;
-    }
+  .gut {
+    flex: none;
+    width: 3rem;
+    padding-right: 1rem;
+    text-align: right;
+    color: var(--fg-subtle);
   }
-  .step-title {
-    margin-top: 0.2rem;
-    font-size: 1.2rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
+  .mini-editor :global(.k) {
+    color: var(--code-key);
   }
-  .step-body {
-    margin-top: 0.4rem;
-    font-size: 0.95rem;
-    color: var(--fg-muted);
-    max-width: 22rem;
+  .mini-editor :global(.s) {
+    color: var(--code-str);
+  }
+  .mini-editor :global(.n) {
+    color: var(--code-num);
+  }
+  .mini-editor :global(.p) {
+    color: var(--code-punct);
   }
 
-  /* lights up in turn once the list scrolls in (site.ts adds .is-in); lit by default without JS or motion */
-  @media (prefers-reduced-motion: no-preference) {
-    :global(.js) .loop .node,
-    :global(.js) .loop .step-title,
-    :global(.js) .loop .num {
-      transition:
-        opacity 0.5s,
-        color 0.5s,
-        box-shadow 0.6s,
-        border-color 0.6s,
-        transform 0.6s var(--ease-out-soft);
-      transition-delay: calc(var(--i) * var(--stagger));
+  /* Desktop with JS: a tall row (about 70 vh of scroll a step) whose sticky box holds the bar, the stage and the
+     caption. All slides share one grid cell and crossfade; the stage is as wide as the column, unless the screen
+     is too short for that, when it keeps its 16:10 shape and narrows. */
+  @media (min-width: 1024px) {
+    :global(.js) .loop {
+      height: calc(var(--steps) * 70vh + 30vh);
+      padding-bottom: 0;
     }
-    :global(.js) .loop:not(.is-in) .node {
-      opacity: 0.35;
-      transform: scale(0.9);
-      box-shadow: 0 0 0 6px var(--bg-2);
+    :global(.js) .sticky-box {
+      position: sticky;
+      top: 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1.5rem;
+      height: calc(100vh - 4rem);
+      padding-block: 1.5rem;
+    }
+    :global(.js) .bar {
+      display: grid;
+      grid-template-columns: repeat(var(--steps), minmax(0, 1fr));
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
+    .bar > li + li {
+      border-left: 1px solid var(--line);
+    }
+    .bar-step {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.85rem 1rem;
+      text-align: left;
       color: var(--fg-subtle);
-      --px-accent: var(--fg-subtle);
+      cursor: pointer;
+      transition:
+        color 0.3s,
+        background-color 0.3s;
     }
-    :global(.js) .loop:not(.is-in) .step-title,
-    :global(.js) .loop:not(.is-in) .num {
-      opacity: 0.4;
+    .bar-step:hover {
+      color: var(--fg-muted);
     }
-    :global(.js) .loop .track-fill {
-      transition: transform calc(var(--n) * var(--stagger)) linear;
+    .bar-step:focus-visible {
+      outline-offset: -2px;
     }
-    :global(.js) .loop:not(.is-in) .track-fill {
-      transform: scale(0, 1);
+    .bar-step[data-on] {
+      color: var(--fg);
+      background: var(--brand-tint);
     }
-    @media (max-width: 899px) {
-      :global(.js) .loop:not(.is-in) .track-fill {
-        transform: scale(1, 0);
-      }
+    .bar-head {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .bar-step :global(.bar-icon) {
+      --px-accent: currentColor;
+    }
+    .bar-step[data-on] :global(.bar-icon) {
+      --px-accent: var(--brand-fg);
+    }
+    .bar-n {
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+    }
+    .bar-title {
+      font-size: 0.9375rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .bar-title :global(.h-soft) {
+      color: inherit;
+      opacity: 0.7;
+    }
+    /* how far the page has scrolled through this step */
+    .bar-fill {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 2px;
+      background: var(--brand-fg);
+      transform-origin: left;
+      transform: scaleX(var(--fill));
+    }
+
+    :global(.js) .slides {
+      gap: 0;
+      flex: 0 1 auto;
+      min-height: 0;
+    }
+    :global(.js) .slide {
+      grid-area: 1 / 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      justify-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s var(--ease-out-soft);
+    }
+    :global(.js) .slide[data-on] {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    /* 16:10 plus the clip's frame; the height left under the bar and over the caption caps the width */
+    :global(.js) .slide-media {
+      width: min(100%, calc((100vh - 4rem - 15rem) * 1.6));
+      scale: 0.985;
+      transition: scale 0.6s var(--ease-out-soft);
+    }
+    :global(.js) .slide[data-on] .slide-media {
+      scale: 1;
+    }
+    :global(.js) .slide-text {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: center;
+      gap: 0.5rem 1.25rem;
+      width: 100%;
+      margin-top: 1.25rem;
+    }
+    :global(.js) .slide-n,
+    :global(.js) .slide-title {
+      display: none;
+    }
+    :global(.js) .slide-body {
+      font-size: 1rem;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .slide,
+    .slide-media,
+    .bar-step {
+      transition: none;
     }
   }
 </style>

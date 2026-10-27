@@ -30,7 +30,7 @@ const files = agent.files.map((f) => ({
 ---
 
 <div class="agent grid gap-5">
-  <div class="term card">
+  <div class="term">
     <div class="term-cmds">
       {
         agent.commands.map((c) => (
@@ -53,7 +53,7 @@ const files = agent.files.map((f) => ({
     files.map((f) => {
       const Icon = ICON[f.lang];
       return (
-        <figure class="editor card">
+        <figure class="editor">
           <figcaption class="bar">
             <span class="dots" aria-hidden="true">
               <i />
@@ -85,7 +85,8 @@ const files = agent.files.map((f) => ({
     align-items: flex-start;
     gap: 0.75rem;
     padding: 1rem 0.75rem 1rem 1.1rem;
-    background: color-mix(in oklab, var(--bg) 70%, var(--surface));
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
     font-family: var(--font-mono);
     font-size: clamp(0.76rem, 0.73rem + 0.18vw, 0.875rem);
   }
@@ -105,16 +106,16 @@ const files = agent.files.map((f) => ({
   .editor {
     margin: 0;
     overflow: hidden;
-    background: color-mix(in oklab, var(--bg) 55%, var(--surface));
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
   }
   .bar {
     display: flex;
     align-items: center;
     gap: 0.9rem;
-    height: 2.75rem;
+    height: 2.5rem;
     padding-inline: 1rem;
     border-bottom: 1px solid var(--line);
-    background: var(--surface-2);
     font-family: var(--font-mono);
     font-size: 0.8rem;
     color: var(--fg-muted);
@@ -124,9 +125,8 @@ const files = agent.files.map((f) => ({
     gap: 0.4rem;
   }
   .dots i {
-    width: 0.65rem;
-    height: 0.65rem;
-    border-radius: 50%;
+    width: 0.55rem;
+    height: 0.55rem;
     background: var(--line-strong);
   }
   .code {

@@ -1,11 +1,12 @@
 ---
-// The hero of a showcase page (a type page or the Features page): the page's large heading (Documentation, Plans…)
-// across the top, then kicker, title, pitch, Install and GitHub, and the page's hero clip on the right (below it on
-// narrow screens). The hero clip is the only one that loads early.
+// The top of a showcase page (a type page or the Features page) in two ruled rows: the strip with the kicker and
+// the type's `"type"` value (01), then the page's large heading, its title, pitch and buttons beside the hero clip
+// (02). The hero clip is the only one that loads early.
 import ArrowDown from '@lucide/astro/icons/arrow-down';
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
 import Clip from './Clip.astro';
-import PixelSky from './PixelSky.astro';
-import GithubMark from './GithubMark.astro';
+import PixelIcon from './PixelIcon.astro';
+import Row from './Row.astro';
 import { repoUrl } from '../content/site';
 import type { ClipCopy } from '../content/types';
 
@@ -16,122 +17,107 @@ interface Props {
   title: string;
   pitch: string;
   hero: ClipCopy & { url: string };
-  /** the doc type's `"type"` value, shown under the buttons */
+  /** the doc type's `"type"` value, shown in the strip */
   tag?: string;
 }
 
 const { kicker, display, title, pitch, hero, tag } = Astro.props;
 ---
 
-<section id="top" class="type-hero" aria-labelledby="type-title">
-  <PixelSky class="type-sky" seed={11} count={110} />
-  <div class="container-x type-head">
-    <p class="kicker">{kicker}</p>
-    <h1 id="type-title" class="type-display" style={`--len: ${display.length}`}>{display}</h1>
-  </div>
-  <div class="container-x hero-grid">
-    <div class="hero-copy">
-      <p class="type-sub">{title}</p>
-      <p class="lead mt-6">{pitch}</p>
-      <div class="mt-8 flex flex-wrap items-center gap-3">
-        <a class="btn btn-primary" href="#install">
-          <ArrowDown class="size-[18px]" aria-hidden="true" />
-          Install
-        </a>
-        <a class="btn btn-ghost" href={repoUrl} rel="noopener">
-          <GithubMark class="size-[18px]" />
-          View on GitHub
-        </a>
+<div id="top" class="pt-16">
+  <Row n="01" plain>
+    <p class="strip label">
+      <span class="live" aria-hidden="true"></span>
+      {kicker}
+      {tag && <code class="strip-tag">"type": "{tag}"</code>}
+    </p>
+  </Row>
+
+  <Row n="02" labelledby="type-title">
+    <div class="rail-pad type-body">
+      <h1 id="type-title" class="display type-display enter">
+        <PixelIcon name="spark" size={40} class="type-spark" />{display}
+      </h1>
+      <div class="type-grid">
+        <div class="type-copy enter" style="--d:0.15s">
+          <p class="h3">{title}</p>
+          <p class="lead mt-5">{pitch}</p>
+          <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <a class="btn btn-primary" href="#install">
+              <ArrowDown class="size-4" aria-hidden="true" />
+              Install
+            </a>
+            <a class="link-arrow" href={repoUrl} rel="noopener">
+              View on GitHub
+              <ArrowUpRight class="size-4" aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+        <div class="enter" style="--d:0.3s">
+          <Clip name={hero.clip} label={hero.shows} title={hero.title} url={hero.url} priority />
+          <p class="caption">
+            <span class="font-medium text-fg">{hero.title}.</span>{' '}
+            {hero.body}
+          </p>
+        </div>
       </div>
-      {tag && <code class="type-tag mt-8">"type": "{tag}"</code>}
     </div>
-    <div class="hero-clip">
-      <Clip name={hero.clip} label={hero.shows} title={hero.title} url={hero.url} priority />
-      <p class="hero-caption">
-        <span class="font-semibold text-fg">{hero.title}.</span>{' '}
-        {hero.body}
-      </p>
-    </div>
-  </div>
-</section>
+  </Row>
+</div>
 
 <style>
-  .type-hero {
-    position: relative;
-    isolation: isolate;
-    overflow: clip;
-    padding-top: clamp(6.5rem, 5rem + 5vw, 9rem);
-    padding-bottom: clamp(3.5rem, 2rem + 4vw, 6rem);
-    background:
-      radial-gradient(55% 60% at 75% 45%, color-mix(in oklab, var(--brand) 22%, transparent), transparent 70%),
-      linear-gradient(to bottom, var(--bg-2), var(--bg));
-    border-bottom: 1px solid var(--line);
+  .strip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    height: 2.6rem;
+    background: var(--surface);
+    color: var(--fg-muted);
   }
-  /* the sky keeps its own aspect at no less than 1440 px wide, so its pixels stay small on a tall phone hero */
-  .type-hero :global(.type-sky) {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    translate: -50% 0;
-    width: max(100%, 1440px);
-    height: auto;
-    z-index: -1;
-    opacity: 0.8;
-    -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 95%);
-    mask-image: linear-gradient(to bottom, #000 30%, transparent 95%);
+  .strip-tag {
+    margin-left: 0.4rem;
+    padding: 0.1rem 0.45rem;
+    border: 1px solid var(--line-strong);
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--brand-fg);
   }
-  :global([data-theme='light']) .type-hero :global(.type-sky) {
-    display: none;
+  .live {
+    width: 6px;
+    height: 6px;
+    background: var(--brand-fg);
+    box-shadow: 0 0 10px var(--brand-fg);
+  }
+  .type-body {
+    padding-block: clamp(3rem, 2rem + 5vw, 6rem) clamp(3rem, 2rem + 4vw, 5.5rem);
+  }
+  .type-display :global(.type-spark) {
+    display: inline-block;
+    width: 0.42em;
+    height: 0.42em;
+    margin-right: 0.22em;
+    vertical-align: 0.08em;
+    color: var(--fg);
+    --px-accent: var(--brand-fg);
   }
   /* minmax(0, …): a long address in the clip's browser bar must not widen the column past the screen */
-  .hero-grid {
+  .type-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 3rem;
     align-items: start;
+    margin-top: clamp(2rem, 1.4rem + 2vw, 3.25rem);
   }
   @media (min-width: 1024px) {
-    .hero-grid {
+    .type-grid {
       grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
       gap: 3.5rem;
     }
   }
-  /* the type's name: one solid colour, the same size on every page; at most about the h2 size plus a third, and it
-     shrinks only when a long name (Everything else) would overflow a phone (about 0.62 em a letter in Lexend Bold) */
-  .type-head {
-    container-type: inline-size;
-    margin-bottom: clamp(1.75rem, 1rem + 2vw, 2.75rem);
-  }
-  .type-display {
-    margin-top: 0.8rem;
-    font-size: min(clamp(2.6rem, 1.8rem + 3vw, 4.5rem), calc(100cqi / (var(--len) * 0.62)));
-    line-height: 1.05;
-    font-weight: 700;
-    letter-spacing: -0.04em;
-    white-space: nowrap;
-    color: var(--fg);
-  }
-  .type-sub {
-    font-family: var(--font-display, inherit);
-    font-size: clamp(1.2rem, 1rem + 0.6vw, 1.5rem);
-    line-height: 1.3;
-    font-weight: 600;
-    letter-spacing: -0.015em;
-    color: var(--fg);
-  }
-  .type-tag {
-    display: inline-block;
-    padding: 0.25rem 0.65rem;
-    border-radius: 0.5rem;
-    border: 1px solid var(--line);
-    background: var(--line);
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--fg-muted);
-  }
-  .hero-caption {
+  .caption {
     margin-top: 1rem;
-    font-size: 0.95rem;
+    font-size: 0.9375rem;
     color: var(--fg-muted);
   }
 </style>

@@ -1,137 +1,75 @@
 ---
+// Row 04: the local server's home page in a browser frame that tilts back and settles flat as it scrolls in.
 import { Picture } from 'astro:assets';
 import Lock from '@lucide/astro/icons/lock';
+import Row from './Row.astro';
+import SectionHead from './SectionHead.astro';
 import { productShot } from '../content/site';
 ---
 
-<section class="product container-x" aria-labelledby="product-title">
-  <div class="mx-auto max-w-3xl text-center" data-reveal>
-    <p class="kicker justify-center">{productShot.kicker}</p>
-    <h2 id="product-title" class="h2 mt-4">{productShot.title}</h2>
-    <p class="lead mt-5">{productShot.body}</p>
+<Row n="04" labelledby="shot-title">
+  <SectionHead kicker={productShot.kicker} title={productShot.title} titleId="shot-title" lead={productShot.body} />
+  <div class="rail-pad row-y pt-0!">
+    <div class="stage">
+      <figure class="frame corners" data-tilt>
+        <div class="chrome" aria-hidden="true">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="url"><Lock class="size-3" />{productShot.url}</span>
+          <span class="w-10"></span>
+        </div>
+        <Picture
+          formats={['avif']}
+          fallbackFormat="webp"
+          src={productShot.image}
+          alt={productShot.alt}
+          widths={[640, 960, 1280, 1600, 2000]}
+          sizes="(min-width: 1200px) 66rem, 92vw"
+          quality={70}
+          loading="lazy"
+          class="block h-auto w-full"
+        />
+      </figure>
+    </div>
   </div>
-
-  <div class="product-stage mt-12 sm:mt-16">
-    <figure class="product-frame">
-      <div class="chrome" aria-hidden="true">
-        <span class="dots"><i></i><i></i><i></i></span>
-        <span class="url"><Lock class="size-3" />{productShot.url}</span>
-        <span class="w-12"></span>
-      </div>
-      <Picture
-        formats={['avif']}
-        fallbackFormat="webp"
-        src={productShot.image}
-        alt={productShot.alt}
-        widths={[480, 720, 960, 1280, 1600]}
-        sizes="(min-width: 76rem) 72rem, 94vw"
-        quality={72}
-        loading="lazy"
-        class="block h-auto w-full"
-      />
-    </figure>
-  </div>
-</section>
+</Row>
 
 <style>
-  .product {
-    position: relative;
-    padding-top: clamp(1rem, 3vw, 3rem);
-    padding-bottom: clamp(4.5rem, 3rem + 6vw, 8.5rem);
-  }
-  .product-stage {
+  .stage {
     perspective: 1600px;
-    position: relative;
   }
-  .product-stage::before {
-    content: '';
-    position: absolute;
-    inset: 10% 6% -4%;
-    z-index: -1;
-    border-radius: 50%;
-    background: radial-gradient(closest-side, var(--glow), transparent);
-    filter: blur(40px);
-  }
-  .product-frame {
-    position: relative;
-    margin: 0 auto;
-    max-width: 72rem;
-    border-radius: 1rem;
-    overflow: hidden;
-    border: 1px solid var(--line-strong);
-    background: var(--surface);
-    box-shadow:
-      0 0 0 1px rgb(255 255 255 / 0.03),
-      0 40px 120px -40px var(--glow),
-      0 30px 80px -30px rgb(0 0 0 / 0.55);
-    transform-origin: 50% 0%;
+  .frame {
+    margin: 0;
+    padding: 0.5rem;
+    border: 1px solid var(--line);
+    background-color: var(--surface);
+    transform-origin: 50% 100%;
+    box-shadow: 0 60px 120px -60px var(--glow);
   }
   .chrome {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    height: 2.5rem;
-    padding-inline: 1rem;
-    border-bottom: 1px solid var(--line);
-    background: var(--surface-2);
+    justify-content: space-between;
+    height: 2.25rem;
+    padding-inline: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--fg-subtle);
   }
   .dots {
     display: flex;
-    gap: 0.45rem;
-    width: 3rem;
+    gap: 0.35rem;
+    width: 2.5rem;
   }
   .dots i {
-    width: 0.7rem;
-    height: 0.7rem;
-    border-radius: 50%;
+    width: 0.55rem;
+    height: 0.55rem;
     background: var(--line-strong);
-  }
-  .dots i:first-child {
-    background: #ff6b6b;
-  }
-  .dots i:nth-child(2) {
-    background: var(--amber);
-  }
-  .dots i:nth-child(3) {
-    background: #4ade80;
   }
   .url {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    margin-inline: auto;
-    min-width: 0;
-    max-width: 22rem;
-    width: 100%;
-    justify-content: center;
-    height: 1.6rem;
-    border-radius: 0.5rem;
-    background: var(--line);
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--fg-subtle);
-    white-space: nowrap;
-    overflow: hidden;
-  }
-
-  /* Tilts back in 3D and settles flat as it scrolls into view; CSS only, where scroll-driven animations exist. */
-  @media (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: view()) {
-      .product-frame {
-        animation: product-tilt linear both;
-        animation-timeline: view();
-        animation-range: entry 0% cover 45%;
-      }
-    }
-  }
-  @keyframes product-tilt {
-    from {
-      transform: rotateX(22deg) scale(0.94);
-      opacity: 0.4;
-    }
-    to {
-      transform: rotateX(0deg) scale(1);
-      opacity: 1;
-    }
+    padding: 0.2rem 0.8rem;
+    border: 1px solid var(--line);
   }
 </style>

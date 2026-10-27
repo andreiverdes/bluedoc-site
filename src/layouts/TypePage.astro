@@ -1,19 +1,21 @@
 ---
-// One doc type's showcase page, from one entry of src/content/types.ts, in seven parts: the hero with its clip,
-// What it's for, the feature rows, the strip of shared clips (linking to /features/), How the agent uses it, the
-// install CTA and the other types. Only the hero clip loads early; every other clip waits for the reader to scroll to it.
-import ArrowRight from '@lucide/astro/icons/arrow-right';
+// One doc type's showcase page, from one entry of src/content/types.ts, as ruled rows: the hero with its clip
+// (01–02), What it's for (03), the feature rows (04), the shared clips in a band (05), How the agent uses it
+// (06), the install row (07) and the other types (08). Only the hero clip loads early; every other clip waits for
+// the reader to scroll to it.
+import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
 import Base from './Base.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import Row from '../components/Row.astro';
+import SectionHead from '../components/SectionHead.astro';
 import TypeHero from '../components/TypeHero.astro';
 import ClipCard from '../components/ClipCard.astro';
 import FeatureRow from '../components/FeatureRow.astro';
 import AgentSnippet from '../components/AgentSnippet.astro';
 import Install from '../components/Install.astro';
 import TypeLinks from '../components/TypeLinks.astro';
-import GithubMark from '../components/GithubMark.astro';
-import { docTypes, nav, repoUrl } from '../content/site';
+import { docTypes, nav } from '../content/site';
 import { typePageLabels as labels, type TypePageCopy } from '../content/types';
 import { inlineCode } from '../lib/inline-code';
 
@@ -23,6 +25,7 @@ interface Props {
 
 const { page } = Astro.props;
 const docType = docTypes.items.find((t) => t.id === page.type);
+const cols = page.kinds.length <= 4 ? page.kinds.length : Math.ceil(page.kinds.length / 2);
 ---
 
 <Base title={page.metaTitle} description={page.metaDescription}>
@@ -30,78 +33,46 @@ const docType = docTypes.items.find((t) => t.id === page.type);
   <main id="main">
     <TypeHero kicker="Doc type" display={page.display} title={page.title} pitch={page.pitch} hero={page.hero} tag={docType?.tag} />
 
-    <section class="section-y for" aria-labelledby="for-title">
-      <div class="container-x">
-        <div class="max-w-2xl" data-reveal>
-          <p class="kicker">{labels.forKicker}</p>
-          <h2 id="for-title" class="h2 mt-4">{page.forTitle}</h2>
-          <p class="lead mt-5">{page.forLead}</p>
-        </div>
-        <ul class="kinds mt-10 sm:mt-12" style={`--cols:${page.kinds.length <= 5 ? page.kinds.length : Math.ceil(page.kinds.length / 2)}`}>
-          {
-            page.kinds.map((k, i) => (
-              <li class="kind card" data-reveal style={`--reveal-i:${i % 3}`}>
-                <span class="kind-chip">{k.label}</span>
-                <p class="mt-3 text-[0.95rem] text-fg-muted">{k.body}</p>
-              </li>
-            ))
-          }
-        </ul>
-      </div>
-    </section>
+    <Row n="03" labelledby="for-title">
+      <SectionHead kicker={labels.forKicker} title={page.forTitle} titleId="for-title" lead={page.forLead} />
+      <ul class="kinds" style={`--cols:${cols}`}>
+        {
+          page.kinds.map((k, i) => (
+            <li class="kind" data-reveal={String(i % 4)}>
+              <span class="pill">{k.label}</span>
+              <p class="mt-4 text-[0.9375rem] text-fg-muted">{k.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </Row>
 
-    <section class="section-y pt-0" aria-labelledby="features-title">
-      <div class="container-x">
-        <div class="max-w-2xl" data-reveal>
-          <p class="kicker">{labels.featuresKicker}</p>
-          <h2 id="features-title" class="h2 mt-4">{labels.featuresTitle}</h2>
-        </div>
-        <div class="mt-14 grid gap-16 sm:mt-16 lg:gap-24">
-          {page.features.map((item, i) => <FeatureRow item={item} index={i} />)}
-        </div>
-      </div>
-    </section>
+    <Row n="04" labelledby="features-title">
+      <SectionHead kicker={labels.featuresKicker} title={labels.featuresTitle} titleId="features-title" />
+      {page.features.map((item, i) => <FeatureRow item={item} index={i} />)}
+    </Row>
 
-    <section class="section-y shared" aria-labelledby="shared-title">
-      <div class="container-x">
-        <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-5" data-reveal>
-          <div class="max-w-2xl">
-            <p class="kicker">{labels.sharedKicker}</p>
-            <h2 id="shared-title" class="h2 mt-4">{labels.sharedTitle}</h2>
-          </div>
-          <a class="btn btn-ghost" href={nav.typesMenu.features.href}>
-            {labels.sharedLink}
-            <ArrowRight class="size-4" aria-hidden="true" />
-          </a>
-        </div>
-        <ul class:list={['mt-10 grid gap-8 sm:mt-12 md:grid-cols-2', { 'lg:grid-cols-3': page.shared.length % 3 === 0 }]}>
-          {page.shared.map((item, i) => <ClipCard item={item} index={i % 3} />)}
-        </ul>
-      </div>
-    </section>
-
-    <section class="section-y" aria-labelledby="agent-title">
-      <div class="container-x">
-        <div class="max-w-2xl" data-reveal>
-          <p class="kicker">{labels.agentKicker}</p>
-          <h2 id="agent-title" class="h2 mt-4">{labels.agentTitle}</h2>
-          <p class="lead mt-5" set:html={inlineCode(page.agent.lead)} />
-        </div>
-        <div class="mt-10 max-w-4xl sm:mt-12" data-reveal>
-          <AgentSnippet agent={page.agent} />
-        </div>
-      </div>
-    </section>
-
-    <Install>
-      <div class="mt-8 flex justify-center">
-        <a class="btn btn-ghost" href={repoUrl} rel="noopener">
-          <GithubMark class="size-[18px]" />
-          View on GitHub
+    <Row n="05" band labelledby="shared-title">
+      <SectionHead kicker={labels.sharedKicker} title={labels.sharedTitle} titleId="shared-title">
+        <a class="link-arrow" href={nav.typesMenu.features.href}>
+          {labels.sharedLink}
+          <ArrowUpRight class="size-4" aria-hidden="true" />
         </a>
+      </SectionHead>
+      <ul class:list={['clip-grid', { 'clip-grid-3': page.shared.length % 3 === 0 }]}>
+        {page.shared.map((item, i) => <ClipCard item={item} index={i % 3} />)}
+      </ul>
+    </Row>
+
+    <Row n="06" labelledby="agent-title">
+      <SectionHead kicker={labels.agentKicker} title={labels.agentTitle} titleId="agent-title" leadHtml={inlineCode(page.agent.lead)} />
+      <div class="rail-pad row-y pt-0!" data-reveal>
+        <AgentSnippet agent={page.agent} />
       </div>
-    </Install>
-    <TypeLinks current={page.type} />
+    </Row>
+
+    <Install n="07" />
+    <TypeLinks n="08" current={page.type} />
   </main>
   <Footer />
 </Base>
@@ -109,7 +80,7 @@ const docType = docTypes.items.find((t) => t.id === page.type);
 <style>
   .kinds {
     display: grid;
-    gap: 1rem;
+    border-top: 1px solid var(--rail);
   }
   @media (min-width: 640px) {
     .kinds {
@@ -122,35 +93,9 @@ const docType = docTypes.items.find((t) => t.id === page.type);
     }
   }
   .kind {
-    padding: 1.25rem 1.35rem;
-  }
-  .kind-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.3rem 0.75rem;
-    border-radius: 999px;
-    border: 1px solid color-mix(in oklab, var(--cyan) 35%, transparent);
-    background: color-mix(in oklab, var(--cyan) 10%, transparent);
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: var(--fg);
-  }
-  .kind-chip::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    background: var(--cyan);
-  }
-
-
-  .shared {
-    background: linear-gradient(to bottom, var(--bg), var(--bg-2) 50%, var(--bg));
-  }
-
-  .lead :global(code) {
-    font-family: var(--font-mono);
-    font-size: 0.88em;
-    color: var(--fg);
+    padding: clamp(1.25rem, 2.5vw, 1.75rem);
+    border-right: 1px solid var(--rail);
+    border-bottom: 1px solid var(--rail);
+    margin-bottom: -1px;
   }
 </style>

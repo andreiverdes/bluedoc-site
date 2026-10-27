@@ -39,7 +39,7 @@ export type TypePageCopy = {
 
 // ---- shared clips: features every doc type has; all of them are on /features/, a few on each type page ----
 
-const every = {
+export const every = {
   pin: {
     clip: 'every-pin',
     title: 'Pin a comment on any element',
