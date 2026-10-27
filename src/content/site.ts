@@ -420,7 +420,7 @@ export const legal = {
       title: 'Privacy',
       body: [
         '**bluedoc** keeps everything on your machine. Your comments, picks and approvals live in a SQLite file under `~/.bluedoc`, and the server only listens on 127.0.0.1. Nothing is sent anywhere unless your agent sends it.',
-        '**This site** sets no cookies, loads no analytics or trackers, and has no forms. Your light or dark choice is kept in your browser’s local storage and never leaves it. The site is hosted on GitHub Pages, which keeps server logs under [GitHub’s privacy statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement).',
+        '**This site** sets no cookies, loads no analytics or trackers, and has no forms. It opens in the dark theme; if you switch to light, that choice is kept in your browser’s session storage until you close the tab and never leaves it. The site is hosted on GitHub Pages, which keeps server logs under [GitHub’s privacy statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement).',
       ],
     },
     {

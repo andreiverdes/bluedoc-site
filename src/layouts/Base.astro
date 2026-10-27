@@ -29,12 +29,13 @@ const ogImage = new URL(`${base}og.png`, Astro.site);
     <meta name="color-scheme" content="dark light" />
 
     <script is:inline>
-      // Before first paint: the theme (a saved pick wins, otherwise dark), .js, and .motion when the reader allows
-      // motion, which is what lets src/scripts/motion.ts start elements hidden and animate them in.
+      // Before first paint: the theme (dark, unless the reader switched to light earlier in this tab session), .js,
+      // and .motion when the reader allows motion, which is what lets src/scripts/motion.ts start elements hidden
+      // and animate them in.
       (function () {
         var t = 'dark';
         try {
-          t = localStorage.getItem('bd-site-theme') || 'dark';
+          t = sessionStorage.getItem('bd-site-theme') || 'dark';
         } catch (e) {}
         var d = document.documentElement;
         d.dataset.theme = t === 'light' ? 'light' : 'dark';

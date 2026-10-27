@@ -4,7 +4,7 @@
 const THEME_KEY = 'bd-site-theme';
 const root = document.documentElement;
 
-// ---- theme ----
+// ---- theme: dark by default; a switch lasts for this tab session (sessionStorage), so every new visit opens dark ----
 function syncThemeButton(): void {
   const next = root.dataset.theme === 'light' ? 'dark' : 'light';
   document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((b) => {
@@ -16,7 +16,7 @@ document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((b) 
   b.addEventListener('click', () => {
     root.dataset.theme = root.dataset.theme === 'light' ? 'dark' : 'light';
     try {
-      localStorage.setItem(THEME_KEY, root.dataset.theme);
+      sessionStorage.setItem(THEME_KEY, root.dataset.theme);
     } catch {
       /* private mode: the pick lasts for this page view */
     }
