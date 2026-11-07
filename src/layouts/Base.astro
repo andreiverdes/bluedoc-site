@@ -5,13 +5,16 @@ import geistMonoLatin from '@fontsource-variable/geist-mono/files/geist-mono-lat
 import geistPixelLatin from '@fontsource/geist-pixel/files/geist-pixel-latin-400-normal.woff2?url';
 import { meta } from '../content/site';
 import { base } from '../lib/paths';
+import ClipLightbox from '../components/ClipLightbox.astro';
 
 interface Props {
   title?: string;
   description?: string;
+  /** keep the page out of search results (design variants under /variants/) */
+  noindex?: boolean;
 }
 
-const { title = meta.title, description = meta.description } = Astro.props;
+const { title = meta.title, description = meta.description, noindex = false } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL(`${base}og.png`, Astro.site);
@@ -27,6 +30,7 @@ const ogImage = new URL(`${base}og.png`, Astro.site);
     <link rel="canonical" href={canonical} />
     <meta name="theme-color" content="#05070f" />
     <meta name="color-scheme" content="dark light" />
+    {noindex && <meta name="robots" content="noindex" />}
 
     <script is:inline>
       // Before first paint: the theme (dark, unless the reader switched to light earlier in this tab session), .js,
@@ -71,6 +75,7 @@ const ogImage = new URL(`${base}og.png`, Astro.site);
   <body>
     <a href="#main" class="sr-only-focusable btn btn-primary fixed top-3 left-3 z-[100]">Skip to content</a>
     <slot />
+    <ClipLightbox />
     <script>
       import '../scripts/site';
       import '../scripts/motion';

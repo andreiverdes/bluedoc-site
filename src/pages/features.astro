@@ -1,5 +1,5 @@
 ---
-// The Features page: what every doc type has, in 22 clips grouped by what the reader does (comment, decide, send
+// The Features page: what every doc type has, in clips grouped by what the reader does (comment, decide, send
 // and approve, revise, the home page, theme and width), then how the agent reads the notes, the install row and a
 // cell per type. Laid out like a type page (TypePage.astro) from featuresPage in src/content/types.ts; the groups
 // alternate between the page and a band.
@@ -15,9 +15,14 @@ import Install from '../components/Install.astro';
 import TypeLinks from '../components/TypeLinks.astro';
 import { featuresPage as page } from '../content/types';
 import { inlineCode } from '../lib/inline-code';
+import { ruledGrid } from '../lib/ruled-grid';
 
 // rows 01–02 are the hero and 03 the groups' index, so the groups start at 04; the rows after them follow on
 const after = page.groups.length + 4;
+// each group's clips: three to a row on a desktop when there's an odd number of them, else two
+const groupStyles = page.groups.map((g) => ruledGrid(g.clips.length, [1, 2, g.clips.length % 2 === 1 ? 3 : 2]));
+// the groups' index: two to a row on a phone, three from 720 px, all in one row from 1280 px
+const indexStyles = ruledGrid(page.groups.length, [2, 3, 3]);
 ---
 
 <Base title={page.metaTitle} description={page.metaDescription}>
@@ -27,10 +32,10 @@ const after = page.groups.length + 4;
 
     <Row n="03" plain>
       <nav aria-label={page.groupsLabel}>
-        <ul class="index">
+        <ul class="index fill-grid ruled" style={`--groups:${page.groups.length}`}>
           {
-            page.groups.map((g) => (
-              <li>
+            page.groups.map((g, i) => (
+              <li style={indexStyles[i]}>
                 <a class="index-link" href={`#${g.id}`}>
                   <span>{g.kicker}</span>
                   <span class="label whitespace-nowrap">{g.clips.length} clips</span>
@@ -46,9 +51,9 @@ const after = page.groups.length + 4;
       page.groups.map((g, gi) => (
         <Row n={String(gi + 4).padStart(2, '0')} id={g.id} band={gi % 2 === 1} labelledby={`${g.id}-title`} class="scroll-mt-16">
           <SectionHead kicker={g.kicker} title={g.title} titleId={`${g.id}-title`} lead={g.lead} />
-          <ul class:list={['clip-grid', { 'clip-grid-3': g.clips.length % 2 === 1 }]}>
+          <ul class="clip-grid fill-grid ruled">
             {g.clips.map((item, i) => (
-              <ClipCard item={item} index={i % 3} />
+              <ClipCard item={item} index={i % 3} style={groupStyles[gi][i]} />
             ))}
           </ul>
         </Row>
@@ -69,22 +74,30 @@ const after = page.groups.length + 4;
 </Base>
 
 <style>
+  /* the row above draws the index's top rule */
   .index {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    border-top: 0;
   }
-  .index > li {
-    border-right: 1px solid var(--rail);
-    border-bottom: 1px solid var(--rail);
-    margin-bottom: -1px;
+  @media (min-width: 1280px) {
+    .index {
+      grid-template-columns: repeat(var(--groups), minmax(0, 1fr));
+    }
+    .index > li {
+      grid-column: auto;
+      border-right-width: 1px;
+    }
+    .index > li:last-child {
+      border-right-width: 0;
+    }
   }
   .index-link {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
-    height: 3.5rem;
-    padding-inline: 1.1rem;
+    height: 100%;
+    min-height: 3.5rem;
+    padding: 0.25rem 1.1rem;
     font-size: 0.9375rem;
     color: var(--fg-muted);
     transition:

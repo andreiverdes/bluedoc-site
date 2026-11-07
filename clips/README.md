@@ -105,6 +105,37 @@ The page's own API, `window.BP`, gives the state to wait on (`BP.state(canvasId)
 - Wait on page state (`waitFor`), not fixed sleeps, between an action and its result.
 - End where the clip can loop: the subject back at rest, or the finished result held for about 0.8 s.
 
+## Films: the terminal beside the page
+
+A film (`film-<story>`, 20–30 s) shows the whole loop: the agent's terminal on the left, the bluedoc page on the
+right, both driven live in one take. It is a scenario with `stage: true` and
+`export const view = { width: 1600, height: 1000, dpr: 2 }`; `clips/scenarios/film-plan-hook.mjs` is the reference.
+
+- **The stage** (`clips/stage/tandem.html`, `stage.css`, `stage.js`, served by `lib/stage.mjs`) lays out a caption
+  band, a terminal window and a browser window. The browser's iframe is the real page, rendered 1240 px wide and
+  scaled into the window. bluedoc forbids framing (`X-Frame-Options: DENY`, `frame-ancestors 'none'`); the take's tab
+  serves this server's documents again without those two headers (CDP `Fetch`), for the recording only.
+- **In a film**, `c.ev`, `waitFor`, `waitForSelector`, `scrollTo`, `addStyle`, `goto` and `reload` act in the page;
+  clicks, typing and the wheel go to the stage at the iframe's offset and scale, and the stage's cursor takes the
+  page's cursor shape (`__clipCursor.hint`).
+- **`c.stage`**: `caption(text)` (`[words]` in the pixel face, `{words}` soft; `null` fades it), `layout('solo' |
+  'tandem')`, `term.*` (`type`, `submit`, `tool` → id, `done(id, lines)`, `say`, `block`, `spin`, `ghost`, `footer`,
+  `title`, `clear`, `gap`), `wait(doc)` (a real background `serve.py wait`, resolving with its stdout), `py(script,
+  …)` (a bluedoc script, async), `gate(doc, url)` and `approvedNote(doc)` (hook.py's words), `tidy(text)`.
+- **What the terminal says**: everything bluedoc prints (replies, build and patch output, the gate's words) is
+  the take's real output through `tidy`, which shows the temp project as `~/acme-shop` and the port as 8740. Only the
+  typed prompt, the agent's own short lines, its Read lines and the spinners are scripted; long output folds as
+  Claude Code folds it (`… +N lines`).
+- **Never block a take**: use `c.stage.py`, not `c.bd.py`, inside `run()`; a synchronous call stalls the screencast.
+  Work out slow things in `setup()`.
+- **Captions**: three per film, seven words or fewer: the pain, the turn, the payoff.
+- **Outputs**: `public/clips/<name>.{mp4,webm,poster.webp}` for the site (`<Clip … width={1600} height={1000} />`),
+  and `clips/social/<name>.16x9.mp4` and `.1x1.mp4` for posts: the same take padded with the stage's edge colour.
+- **Ask films** (`ask-<type>`, 14–18 s, one per doc type) are short films for the Atlas home's doc-type tabs: the
+  request typed in Claude Code, the agent writes, builds and opens the doc (real output), and the page slides in
+  beside the terminal for a short tour. No captions; the site prints the request under the frame. Each tab stays up
+  for its film's length, read from the MP4 at build time (`src/lib/clip-length.ts`).
+
 ## Checking a take
 
 The run prints the clip's length, the frames Chrome painted, and any gap of over 100 ms between paints. A still

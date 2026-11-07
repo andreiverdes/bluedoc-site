@@ -125,6 +125,7 @@ document.querySelectorAll<HTMLElement>('[data-steps]').forEach((box) => {
 });
 
 // ---- tab autoplay: only with motion, only while in view, and it stops for good once the reader picks a tab ----
+// A tab's own data-seconds (its film's length) overrides the list's; the next tab's video starts from its start.
 document.querySelectorAll<HTMLElement>('[data-autoplay]').forEach((box) => {
   if (!root.classList.contains('motion')) return;
   const tabs = [...box.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
@@ -138,10 +139,15 @@ document.querySelectorAll<HTMLElement>('[data-autoplay]').forEach((box) => {
     tabs.forEach((t) => bar(t)?.style.setProperty('transform', 'scaleX(0)'));
     const progress = bar(tabs[at]);
     if (!progress) return;
-    run = animate(progress, { transform: ['scaleX(0)', 'scaleX(1)'] }, { duration: seconds, ease: 'linear' });
+    run = animate(progress, { transform: ['scaleX(0)', 'scaleX(1)'] }, { duration: Number(tabs[at].dataset.seconds) || seconds, ease: 'linear' });
     run.finished.then(() => {
       if (stopped) return;
-      tabs[(at + 1) % tabs.length].click();
+      const next = tabs[(at + 1) % tabs.length];
+      document
+        .getElementById(next.getAttribute('aria-controls') ?? '')
+        ?.querySelectorAll('video')
+        .forEach((v) => (v.currentTime = 0));
+      next.click();
       play();
     });
   };

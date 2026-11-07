@@ -33,9 +33,9 @@
               "sub": "Recommend Habit first: trial members who set a weekly goal stay twice as long.",
               "recommend": "b",
               "choices": [
-                { "id": "a", "label": "Track everything" },
-                { "id": "b", "label": "Habit first" },
-                { "id": "c", "label": "Coach first" }
+                { "id": "a", "label": "Track everything", "md": "The current headline: nothing to change. It names no feature from this release." },
+                { "id": "b", "label": "Habit first", "md": "Leads with weekly goals, the feature this release adds. Trial members who set one stay twice as long." },
+                { "id": "c", "label": "Coach first", "md": "Leads with coach notes. Only members on a watch see them, so it speaks to fewer visitors." }
               ],
               "detail": "**Track everything** is the current headline. **Habit first** leads with weekly goals, the feature this release adds. **Coach first** leads with coach notes, which only members on a watch see."
             }

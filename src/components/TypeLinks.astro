@@ -8,6 +8,7 @@ import Row from './Row.astro';
 import SectionHead from './SectionHead.astro';
 import { docTypes } from '../content/site';
 import { typePageLabels as labels } from '../content/types';
+import { ruledGrid } from '../lib/ruled-grid';
 
 interface Props {
   /** the current page's type id, left out of the list */
@@ -19,14 +20,16 @@ const { current, n } = Astro.props;
 const types = docTypes.items.filter((t) => t.id !== current);
 const kicker = current ? labels.otherKicker : docTypes.kicker;
 const title = current ? labels.otherTitle : docTypes.title;
+// seven on a type page, all eight on /features/: one column, then two, then four to a row
+const styles = ruledGrid(types.length, [1, 2, 4]);
 ---
 
 <Row n={n} labelledby="other-types-title">
   <SectionHead kicker={kicker} title={title} titleId="other-types-title" />
-  <ul class="types">
+  <ul class="fill-grid ruled">
     {
       types.map((t, i) => (
-        <li data-reveal={String(i % 4)}>
+        <li style={styles[i]} data-reveal={String(i % 4)}>
           <a href={t.href} class="type">
             <div class="shot">
               <Picture
@@ -35,7 +38,7 @@ const title = current ? labels.otherTitle : docTypes.title;
                 src={t.image}
                 alt=""
                 widths={[320, 480, 640, 800]}
-                sizes="(min-width: 1024px) 18rem, (min-width: 640px) 50vw, 94vw"
+                sizes="(min-width: 1080px) 24rem, (min-width: 720px) 50vw, 94vw"
                 quality={65}
                 loading="lazy"
                 class="shot-img"
@@ -57,25 +60,6 @@ const title = current ? labels.otherTitle : docTypes.title;
 </Row>
 
 <style>
-  .types {
-    display: grid;
-    border-top: 1px solid var(--rail);
-  }
-  @media (min-width: 640px) {
-    .types {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  @media (min-width: 1024px) {
-    .types {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
-  .types > li {
-    border-right: 1px solid var(--rail);
-    border-bottom: 1px solid var(--rail);
-    margin-bottom: -1px;
-  }
   .type {
     display: block;
     height: 100%;

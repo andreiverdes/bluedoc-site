@@ -1,0 +1,185 @@
+/* The film stage at 1600 × 1000 CSS px: the caption band on top, the terminal (about two fifths) on the left and the
+   browser (three fifths) on the right. Its edges are the flat page colour, so the social cuts can pad it seamlessly. */
+@font-face { font-family: 'Geist'; src: url('/fonts/geist.woff2') format('woff2'); font-weight: 100 900; }
+@font-face { font-family: 'Geist Mono'; src: url('/fonts/geist-mono.woff2') format('woff2'); font-weight: 100 900; }
+@font-face { font-family: 'Geist Pixel'; src: url('/fonts/geist-pixel.woff2') format('woff2'); }
+
+:root {
+  --bg: #05070f;
+  --fg: #eaf4ff;
+  --muted: #a9b8d6;
+  --line: rgb(140 170 255 / 0.18);
+  --brand: #4f9bff;
+  --t-bg: #0b1020;
+  --t-ink: #e6ebf7;
+  --t-dim: #8a94ad;
+  --t-faint: #5d6680;
+  --t-ok: #4eba65;
+  --t-run: #a7afc4;
+  --t-accent: #d97757;
+  --t-plan: #5fb3a8;
+  --t-code: #b1b9f9;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 1600px; height: 1000px; overflow: hidden; background: var(--bg); color: var(--fg); }
+body { position: relative; font-family: 'Geist', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+
+/* bluedoc's glow and blueprint grid behind the windows, faded out before the edges */
+.glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(50% 55% at 50% 40%, rgb(10 109 255 / 0.22), transparent 70%),
+    linear-gradient(rgb(140 170 255 / 0.07) 1px, transparent 1px) 50% 0 / 64px 64px,
+    linear-gradient(90deg, rgb(140 170 255 / 0.07) 1px, transparent 1px) 50% 0 / 64px 64px;
+  -webkit-mask-image: radial-gradient(60% 65% at 50% 45%, #000 35%, transparent 85%);
+  mask-image: radial-gradient(60% 65% at 50% 45%, #000 35%, transparent 85%);
+}
+
+.caption {
+  position: absolute;
+  top: 26px;
+  left: 0;
+  right: 0;
+  margin: 0;
+  text-align: center;
+  font-size: 36px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--fg);
+  opacity: 0;
+  transform: translateY(10px);
+  filter: blur(6px);
+  transition: opacity 0.45s var(--ease), transform 0.45s var(--ease), filter 0.45s var(--ease);
+}
+.caption.on { opacity: 1; transform: none; filter: none; }
+.caption .px { font-family: 'Geist Pixel', monospace; color: var(--brand); letter-spacing: -0.02em; }
+.caption .soft { color: var(--muted); }
+
+.win {
+  position: absolute;
+  top: 104px;
+  height: 856px;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  box-shadow: 0 40px 90px -30px rgb(0 0 0 / 0.7), 0 0 0 1px rgb(0 0 0 / 0.4);
+  transition: left 0.75s var(--ease), width 0.75s var(--ease), opacity 0.6s var(--ease), transform 0.75s var(--ease);
+}
+.bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 38px;
+  padding: 0 14px;
+  gap: 14px;
+}
+.lights { display: flex; gap: 8px; }
+.lights i { width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; }
+.lights i:nth-child(2) { background: #febc2e; }
+.lights i:nth-child(3) { background: #28c840; }
+
+/* ---------- the terminal ---------- */
+.term { left: 40px; width: 620px; background: var(--t-bg); }
+.term .bar { background: #141a2e; border-bottom: 1px solid rgb(255 255 255 / 0.05); }
+.term .title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font: 13px 'Geist Mono', monospace;
+  color: var(--t-dim);
+  pointer-events: none;
+}
+.term .body {
+  position: absolute;
+  inset: 38px 0 0;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px 14px;
+  font: 16.5px/1.52 'Geist Mono', ui-monospace, monospace;
+  color: var(--t-ink);
+}
+/* lines stack from the bottom; what overflows leaves at the top, as a terminal scrolls */
+.out { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; }
+.out > div { white-space: pre-wrap; overflow-wrap: anywhere; }
+.gap { height: 0.7em; }
+.u { background: rgb(255 255 255 / 0.07); color: var(--t-ink); padding: 2px 8px; margin: 0 -8px; }
+.u::before { content: '> '; color: var(--t-dim); }
+.dim { color: var(--t-dim); }
+.faint { color: var(--t-faint); }
+.b { font-weight: 650; color: #fff; }
+.code { color: var(--t-code); }
+.hd { font-weight: 650; color: #fff; }
+.tool, .say { padding-left: 1.3em; text-indent: -1.3em; }
+.tool .dot, .say .dot { display: inline-block; width: 1.3em; text-indent: 0; }
+.tool .dot::before, .say .dot::before { content: '●'; }
+.tool .dot { color: var(--t-run); animation: blink 0.5s steps(1) infinite; }
+.tool.ok .dot { color: var(--t-ok); animation: none; }
+.tool .name { font-weight: 650; }
+/* a result's lines hang under its first one, after the ⎿ */
+.res { padding-left: 2.9em; text-indent: -1.6em; color: var(--t-dim); }
+.res .k { display: inline-block; width: 1.6em; text-indent: 0; color: var(--t-faint); }
+.res.ink { color: var(--t-ink); }
+.res.hd { color: #fff; }
+.pick { padding-left: 1.3em; color: var(--t-dim); }
+.pick.on { color: #9fb7ff; }
+.box { border: 1px solid #3a4466; border-radius: 8px; padding: 10px 14px; margin: 4px 0; }
+@keyframes blink { 50% { opacity: 0.25; } }
+
+.spin { margin-top: 10px; color: var(--t-accent); }
+.spin .t { color: var(--t-dim); }
+.input {
+  margin-top: 10px;
+  min-height: 46px;
+  padding: 9px 12px;
+  border: 1px solid #343d5c;
+  border-radius: 8px;
+}
+#input {
+  white-space: pre-wrap;
+}
+.chev { color: var(--t-dim); margin-right: 0.6em; }
+.ghost { color: var(--t-faint); }
+.caret { display: inline-block; width: 0.6em; height: 1.1em; margin-left: 1px; vertical-align: -0.18em; background: var(--t-ink); animation: blink 1s steps(1) infinite; }
+.footer { margin-top: 8px; font-size: 14px; color: var(--t-plan); min-height: 1.4em; }
+
+/* ---------- the browser ---------- */
+.browser { left: 680px; width: 880px; background: #0d1225; }
+.browser .bar { background: #151b30; border-bottom: 1px solid rgb(255 255 255 / 0.06); }
+.url {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto;
+  height: 26px;
+  min-width: 380px;
+  max-width: 560px;
+  padding: 0 14px;
+  justify-content: center;
+  border-radius: 7px;
+  background: rgb(255 255 255 / 0.06);
+  font: 13px 'Geist Mono', monospace;
+  color: var(--t-dim);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.lock { font-size: 8px; color: var(--t-faint); }
+/* the page renders at a desktop width (1240 px) and is scaled into the window */
+.view { position: absolute; inset: 38px 0 0; overflow: hidden; background: #05070f; }
+.view iframe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1240px;
+  height: 1150px;
+  border: 0;
+  transform: scale(0.70968);
+  transform-origin: 0 0;
+  background: #05070f;
+}
+
+/* solo: the terminal alone, centred and wider; the browser waits off to the right */
+body.solo .term { left: 300px; width: 1000px; }
+body.solo .browser { opacity: 0; transform: translateX(80px); }

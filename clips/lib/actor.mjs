@@ -38,9 +38,11 @@ const RESOLVE = `(t => {
 export class Actor {
   /**
    * bd: the run's bluedoc server (lib/bluedoc.mjs: docs, docPath(), py(), req()); openTab(trigger): runs trigger,
-   * then attaches to, records and returns the tab it opened (run.mjs gives both).
+   * then attaches to, records and returns the tab it opened (run.mjs gives both). On a film, stage is the
+   * lib/stage.mjs Stage and frame its iframe (ev, waitFor, box, go, reload): the page's selectors, expressions and
+   * scrolls go to the iframe, while input and the cursor stay on the stage, at the iframe's offset and scale.
    */
-  constructor(tab, { width, height }, { openTab, bd } = {}) {
+  constructor(tab, { width, height }, { openTab, bd, stage, frame } = {}) {
     this.tab = tab;
     this.size = { width, height };
     this.x = width * 0.62;
@@ -48,6 +50,9 @@ export class Actor {
     this.buttons = 0;
     this.openTab = openTab;
     this.bd = bd;
+    this.stage = stage;
+    this.frame = frame;
+    this.dom = frame ?? tab;
   }
 
   /**
@@ -55,21 +60,22 @@ export class Actor {
    * drawn again where it was as soon as the new page can show it.
    */
   async goto(stem, query = '') {
-    await this.tab.go(await this.bd.urlFor(stem, query));
+    const url = await this.bd.urlFor(stem, query);
+    await (this.frame ? this.frame.go(url, stem !== 'home') : this.tab.go(url));
     await this.#loaded(stem !== 'home');
   }
 
   /** Reloads the page as F5 does (it keeps its scroll), after a build.py patch say, and waits as goto does. */
   async reload() {
-    const doc = await this.tab.ev('!!window.BP');
-    await this.tab.reload();
+    const doc = await this.dom.ev('!!window.BP');
+    await (this.frame ? this.frame.reload() : this.tab.reload());
     await this.#loaded(doc);
   }
 
   async #loaded(doc) {
     // the cursor overlay belonged to the old document: put it back before waiting on the page script
     await this.#mouse('mouseMoved', this.x, this.y);
-    if (doc) await this.tab.waitFor('!!window.BP');
+    if (doc) await this.dom.waitFor('!!window.BP');
   }
 
   /**
@@ -83,16 +89,16 @@ export class Actor {
   }
 
   ev(expr) {
-    return this.tab.ev(expr);
+    return this.dom.ev(expr);
   }
 
   /** Wait for a JS expression to be truthy, e.g. "BP.state('orders').tokens > 0". */
   waitFor(expr, timeout) {
-    return this.tab.waitFor(expr, timeout);
+    return this.dom.waitFor(expr, timeout);
   }
 
   waitForSelector(sel, timeout) {
-    return this.tab.waitFor(`!!document.querySelector(${JSON.stringify(sel)})`, timeout);
+    return this.dom.waitFor(`!!document.querySelector(${JSON.stringify(sel)})`, timeout);
   }
 
   pause(ms) {
@@ -101,20 +107,32 @@ export class Actor {
 
   /** Add a stylesheet to the page (to hold back a panel that would crowd the frame, say). */
   addStyle(css) {
-    return this.tab.ev(`document.head.append(Object.assign(document.createElement('style'), {textContent: ${JSON.stringify(css)}}))`);
+    return this.dom.ev(`document.head.append(Object.assign(document.createElement('style'), {textContent: ${JSON.stringify(css)}}))`);
   }
 
-  /** Viewport point [x, y] of a target. */
-  point(target) {
+  /** Viewport point [x, y] of a target (on a film: of the stage, for a target in the page). */
+  async point(target) {
     if (Array.isArray(target)) return target;
-    return this.tab.ev(`${RESOLVE}(${JSON.stringify(target)})`);
+    const [x, y] = await this.dom.ev(`${RESOLVE}(${JSON.stringify(target)})`);
+    if (!this.frame) return [x, y];
+    const b = (this.fbox = await this.frame.box());
+    return [b.x + x * b.scale, b.y + y * b.scale];
   }
 
   async #mouse(type, x, y, extra = {}) {
     await Promise.all([
       this.tab.call('Input.dispatchMouseEvent', { type, x, y, buttons: this.buttons, button: this.buttons ? 'left' : 'none', ...extra }),
       type === 'mouseMoved' ? this.tab.ev(`window.__clipCursor && __clipCursor.move(${x}, ${y})`) : null,
+      type === 'mouseMoved' && this.frame ? this.#hint(x, y) : null,
     ]);
+  }
+
+  /** The stage's cursor can't see into the iframe: tell it the page's CSS cursor under the point. */
+  async #hint(x, y) {
+    const b = this.fbox ?? (this.fbox = await this.frame.box());
+    const fx = (x - b.x) / b.scale, fy = (y - b.y) / b.scale;
+    const c = await this.frame.ev(`(() => { const e = document.elementFromPoint(${fx}, ${fy}); return e ? getComputedStyle(e).cursor : '' })()`).catch(() => '');
+    await this.tab.ev(`window.__clipCursor && __clipCursor.hint(${JSON.stringify(c === 'pointer' ? 'hand' : c === 'text' ? 'ibeam' : 'arrow')})`);
   }
 
   /** Put the cursor at a point at once (before the recording starts, say). */
@@ -243,7 +261,7 @@ export class Actor {
   /** Scroll the page so target sits at block ('start' | 'center' | 'end'), smoothly; waits ms for it to land. */
   async scrollTo(target, { block = 'center', ms = 700 } = {}) {
     const sel = typeof target === 'string' ? target : target.sel;
-    await this.tab.ev(`document.querySelector(${JSON.stringify(sel)}).scrollIntoView({behavior: 'smooth', block: ${JSON.stringify(block)}})`);
+    await this.dom.ev(`document.querySelector(${JSON.stringify(sel)}).scrollIntoView({behavior: 'smooth', block: ${JSON.stringify(block)}})`);
     await sleep(ms);
   }
 

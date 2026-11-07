@@ -1,0 +1,102 @@
+---
+// The one lightbox every page shares: a thumbnail clip (Clip.astro with `zoom`) opens here, over the page, at up to
+// its recorded size with the browser's controls. Filled and opened by the clips script in src/scripts/site.ts.
+import X from '@lucide/astro/icons/x';
+---
+
+<dialog class="clip-lightbox" data-clip-lightbox aria-labelledby="clip-lightbox-title">
+  <div class="clip-lightbox-frame corners">
+    <div class="clip-lightbox-bar">
+      <p id="clip-lightbox-title" class="label clip-lightbox-title" data-clip-lightbox-title></p>
+      <button type="button" class="clip-lightbox-close" data-clip-lightbox-close aria-label="Close">
+        <X class="size-4" aria-hidden="true" />
+      </button>
+    </div>
+    <video controls muted loop playsinline data-clip-lightbox-video></video>
+  </div>
+</dialog>
+
+<style>
+  :global(html:has(.clip-lightbox[open])) {
+    overflow: hidden;
+  }
+  .clip-lightbox {
+    /* as large as fits: 94% of the width, and the bar plus the video within 90% of the height */
+    --ar: 1.6;
+    width: min(94vw, calc((90dvh - 2.5rem) * var(--ar)));
+    max-width: none;
+    max-height: none;
+    margin: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--fg);
+    overflow: visible;
+  }
+  .clip-lightbox::backdrop {
+    background: color-mix(in oklab, #02040a 78%, transparent);
+    backdrop-filter: blur(6px);
+  }
+  .clip-lightbox-frame {
+    border: 1px solid var(--line-strong);
+    background-color: var(--surface);
+    box-shadow: 0 40px 120px -40px var(--glow);
+  }
+  .clip-lightbox-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: 2.5rem;
+    padding-inline: 0.875rem 0.25rem;
+    border-bottom: 1px solid var(--line);
+    background: var(--surface-2);
+  }
+  .clip-lightbox-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .clip-lightbox-close {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2rem;
+    height: 2rem;
+    margin-left: auto;
+    color: var(--fg-muted);
+    cursor: pointer;
+    transition:
+      color 0.15s,
+      background-color 0.15s;
+  }
+  .clip-lightbox-close:hover {
+    color: var(--fg);
+    background: var(--line);
+  }
+  .clip-lightbox video {
+    display: block;
+    width: 100%;
+    aspect-ratio: var(--ar);
+    background: var(--surface);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .clip-lightbox[open] {
+      animation: clip-lightbox-in 0.28s var(--ease-out-soft);
+    }
+    .clip-lightbox[open]::backdrop {
+      animation: clip-lightbox-fade 0.28s ease-out;
+    }
+  }
+  @keyframes clip-lightbox-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+  @keyframes clip-lightbox-fade {
+    from {
+      opacity: 0;
+    }
+  }
+</style>

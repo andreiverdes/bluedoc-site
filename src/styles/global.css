@@ -292,6 +292,49 @@
     translate: 2px -2px;
   }
 
+  /* A complete grid: 12 tracks, each item spanning what fillGrid (src/lib/fill-grid.ts) gave it at each width
+     (--f1 below 720 px, --f2 from 720 px, --f3 from 1080 px), so no row is left half empty. */
+  .fill-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+  .fill-grid > * {
+    grid-column: span var(--f1, 12);
+  }
+  @media (min-width: 720px) {
+    .fill-grid > * {
+      grid-column: span var(--f2, 6);
+    }
+  }
+  @media (min-width: 1080px) {
+    .fill-grid > * {
+      grid-column: span var(--f3, 4);
+    }
+  }
+
+  /* .ruled: a .fill-grid drawn with hairlines (--rule, the rail colour by default) between its cells. ruledGrid
+     (src/lib/ruled-grid.ts) sets --e1/--e2/--e3 to 1 on the items that end a row at each width; they leave their right
+     edge to the rail. A cell's bottom rule hangs 1px into the row below, so the last row's lies on the next section's
+     top rule. */
+  .ruled {
+    border-top: 1px solid var(--rule, var(--rail));
+  }
+  .ruled > * {
+    border-right: calc(1px - var(--e1, 0) * 1px) solid var(--rule, var(--rail));
+    border-bottom: 1px solid var(--rule, var(--rail));
+    margin-bottom: -1px;
+  }
+  @media (min-width: 720px) {
+    .ruled > * {
+      border-right-width: calc(1px - var(--e2, 0) * 1px);
+    }
+  }
+  @media (min-width: 1080px) {
+    .ruled > * {
+      border-right-width: calc(1px - var(--e3, 0) * 1px);
+    }
+  }
+
   /* the four L marks at a panel's corners */
   .corners {
     position: relative;
@@ -362,34 +405,9 @@
     white-space: nowrap;
   }
 
-  /* a ruled grid of ClipCards: two columns from 768 px, three from 1024 px with .clip-grid-3 */
-  .clip-grid {
-    display: grid;
-    border-top: 1px solid var(--rail);
-  }
+  /* the cells of a ruled grid of ClipCards (with .fill-grid.ruled) */
   .clip-grid > li {
     padding: clamp(1.25rem, 2.5vw, 2rem);
-    border-bottom: 1px solid var(--rail);
-    margin-bottom: -1px;
-  }
-  @media (min-width: 768px) {
-    .clip-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .clip-grid > li:nth-child(odd) {
-      border-right: 1px solid var(--rail);
-    }
-  }
-  @media (min-width: 1024px) {
-    .clip-grid-3 {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-    .clip-grid-3 > li {
-      border-right: 1px solid var(--rail);
-    }
-    .clip-grid-3 > li:nth-child(3n) {
-      border-right: 0;
-    }
   }
 }
 

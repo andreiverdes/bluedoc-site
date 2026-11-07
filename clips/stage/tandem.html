@@ -1,0 +1,40 @@
+<!doctype html>
+<!-- The film stage (clips/lib/stage.mjs serves it): an agent's terminal and a browser window on the real bluedoc page,
+     side by side, with a caption above them. Scenarios drive it through window.stage (stage.js). -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>bluedoc film stage</title>
+    <link rel="stylesheet" href="stage.css" />
+  </head>
+  <body>
+    <div class="glow" aria-hidden="true"></div>
+    <p id="caption" class="caption"></p>
+
+    <section id="term" class="win term">
+      <header class="bar">
+        <span class="lights"><i></i><i></i><i></i></span>
+        <span class="title" id="term-title">acme-shop — claude</span>
+      </header>
+      <div class="body">
+        <div id="out" class="out"></div>
+        <div id="spin" class="spin" hidden></div>
+        <div class="input">
+          <span class="chev">❯</span>
+          <span id="input"></span><span id="ghost" class="ghost"></span><span class="caret"></span>
+        </div>
+        <div id="footer" class="footer"></div>
+      </div>
+    </section>
+
+    <section id="browser" class="win browser">
+      <header class="bar">
+        <span class="lights"><i></i><i></i><i></i></span>
+        <span class="url"><span class="lock">●</span><span id="url"></span></span>
+      </header>
+      <div class="view"><iframe id="frame" title="bluedoc"></iframe></div>
+    </section>
+
+    <script src="stage.js"></script>
+  </body>
+</html>

@@ -7,15 +7,18 @@ import SectionHead from './SectionHead.astro';
 import PixelSky from './PixelSky.astro';
 import { why } from '../content/site';
 import { rich } from '../lib/rich';
+import { ruledGrid } from '../lib/ruled-grid';
+
+const statStyles = ruledGrid(why.stats.length, [1, 2, 4]);
 ---
 
 <Row n="03" id={why.id} band labelledby="why-title">
   <SectionHead kicker={why.kicker} title={why.title} titleId="why-title" lead={why.lead} />
 
-  <ul class="stats">
+  <ul class="stats fill-grid ruled">
     {
       why.stats.map((s, i) => (
-        <li class="stat" data-reveal={String(i)}>
+        <li class="stat" style={statStyles[i]} data-reveal={String(i)}>
           <span class="stat-n px" data-count>
             {s.count}
           </span>
@@ -43,19 +46,8 @@ import { rich } from '../lib/rich';
 </Row>
 
 <style>
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-    border-top: 1px solid var(--rail);
-  }
   .stat {
     padding: 1.75rem clamp(1.25rem, 2.5vw, 2rem) 2rem;
-    border-right: 1px solid var(--rail);
-    border-bottom: 1px solid var(--rail);
-    margin-bottom: -1px;
-  }
-  .stat:last-child {
-    border-right: 0;
   }
   .stat-n {
     display: inline-grid;

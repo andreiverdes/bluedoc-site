@@ -185,6 +185,24 @@ export async function encode(seqDir, total, outDir, name, { posterAt = 0, crf = 
   return Object.values(files).map((f) => [f, statSync(f).size]);
 }
 
+/**
+ * The same take as social MP4s: <name>.16x9.mp4 (1920 × 1080) and <name>.1x1.mp4 (1080 × 1080), the frame scaled to
+ * fit and padded with pad, the stage's flat edge colour, so the bands read as more stage. Returns [file, bytes][].
+ */
+export function socialCuts(seqDir, outDir, name, { crf = 23, pad = '0x05070f' } = {}) {
+  mkdirSync(outDir, { recursive: true });
+  const input = ['-framerate', String(FPS), '-i', join(seqDir, '%05d.jpg')];
+  const out = [];
+  for (const [suffix, w, h] of [['16x9', 1920, 1080], ['1x1', 1080, 1080]]) {
+    const file = join(outDir, `${name}.${suffix}.mp4`);
+    const vf = `scale=${w}:${h}:force_original_aspect_ratio=decrease:flags=lanczos,pad=${w}:${h}:(ow-iw)/2:(oh-ih)/2:color=${pad},format=yuv420p`;
+    ff([...input, '-vf', vf, '-c:v', 'libx264', '-preset', 'slow', '-crf', String(crf), '-profile:v', 'high', '-pix_fmt', 'yuv420p',
+      '-movflags', '+faststart', '-an', file]);
+    out.push([file, statSync(file).size]);
+  }
+  return out;
+}
+
 /** n frames spread evenly over seq/, copied to dir, for looking at a take. */
 export function reviewFrames(seqDir, dir, total, n = 6) {
   rmSync(dir, { recursive: true, force: true });

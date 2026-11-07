@@ -106,17 +106,51 @@ document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((box) => {
 });
 
 // ---- clips (Clip.astro): play while in view; with reduced motion, only after the play button ----
-// The button's pick wins over both: a clip the reader paused stays paused, one they started plays while in view.
+// The reader's pick wins over both: a clip they paused stays paused, one they started plays while in view. A mouse
+// over a big clip shows the browser's own controls (seek, fullscreen) in place of the play button; play or pause
+// from there is a pick too. A thumbnail (`zoom`) opens larger in the lightbox (ClipLightbox.astro) on a click.
 // Clips that share one spot (the loop's sticky stage, motion.ts) get `bd:stage` to say whether theirs is the one on
 // show; a clip that isn't stays paused.
+const lightbox = document.querySelector<HTMLDialogElement>('[data-clip-lightbox]');
+const lightboxVideo = lightbox?.querySelector<HTMLVideoElement>('[data-clip-lightbox-video]');
+const openLightbox = (clip: HTMLElement, video: HTMLVideoElement) => {
+  if (!lightbox || !lightboxVideo) return;
+  lightbox.style.setProperty('--ar', getComputedStyle(clip).getPropertyValue('--ar'));
+  lightbox.querySelector('[data-clip-lightbox-title]')!.textContent = clip.dataset.title ?? '';
+  const poster = clip.querySelector<HTMLImageElement>('.clip-poster');
+  if (poster) lightboxVideo.poster = poster.currentSrc || poster.src;
+  lightboxVideo.replaceChildren(...[...video.querySelectorAll('source')].map((s) => s.cloneNode()));
+  lightboxVideo.load();
+  // pick up where the thumbnail is
+  const at = video.currentTime;
+  lightboxVideo.addEventListener('loadedmetadata', () => (lightboxVideo.currentTime = at), { once: true });
+  lightbox.showModal();
+  lightboxVideo.play().catch(() => {});
+};
+if (lightbox && lightboxVideo) {
+  lightbox.querySelector('[data-clip-lightbox-close]')?.addEventListener('click', () => lightbox.close());
+  // a click outside the frame lands on the dialog itself
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) lightbox.close();
+  });
+  lightbox.addEventListener('close', () => {
+    lightboxVideo.pause();
+    lightboxVideo.removeAttribute('poster');
+    lightboxVideo.replaceChildren();
+    lightboxVideo.load();
+  });
+}
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
 document.querySelectorAll<HTMLElement>('[data-clip]').forEach((clip) => {
   const video = clip.querySelector('video');
   const toggle = clip.querySelector<HTMLButtonElement>('[data-clip-toggle]');
   if (!video || !toggle) return;
+  const zoom = clip.querySelector<HTMLButtonElement>('[data-clip-zoom]');
   let inView = false;
   let onStage = true;
   let picked: 'play' | 'pause' | null = null;
+  // the state this script last asked for: a play or pause event it didn't ask for came from the controls
+  let asked: 'play' | 'pause' | null = null;
   const paint = () => {
     const playing = !video.paused;
     clip.dataset.state = playing ? 'playing' : 'paused';
@@ -124,15 +158,40 @@ document.querySelectorAll<HTMLElement>('[data-clip]').forEach((clip) => {
   };
   const update = () => {
     const want = inView && onStage && (picked ? picked === 'play' : !reduceMotion.matches);
-    if (want && video.paused) video.play().catch(() => {});
-    else if (!want && !video.paused) video.pause();
+    if (want && video.paused) {
+      asked = 'play';
+      video.play().catch(() => {});
+    } else if (!want && !video.paused) {
+      asked = 'pause';
+      video.pause();
+    }
   };
   const syncMotion = () => {
     clip.toggleAttribute('data-reduce', reduceMotion.matches);
     update();
   };
-  video.addEventListener('play', paint);
-  video.addEventListener('pause', paint);
+  const onPlayState = (e: Event) => {
+    if (asked === e.type) asked = null;
+    else if (video.controls) picked = e.type as 'play' | 'pause';
+    paint();
+  };
+  video.addEventListener('play', onPlayState);
+  video.addEventListener('pause', onPlayState);
+  if (zoom) {
+    // a thumbnail opens larger rather than taking the controls
+    zoom.addEventListener('click', () => openLightbox(clip, video));
+    zoom.hidden = false;
+  } else {
+    clip.addEventListener('pointerenter', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      video.controls = true;
+      clip.toggleAttribute('data-controls', true);
+    });
+    clip.addEventListener('pointerleave', () => {
+      video.controls = false;
+      clip.toggleAttribute('data-controls', false);
+    });
+  }
   toggle.addEventListener('click', () => {
     picked = video.paused ? 'play' : 'pause';
     update();

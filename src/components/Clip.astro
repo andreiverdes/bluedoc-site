@@ -1,7 +1,8 @@
 ---
 // A short looping product clip from public/clips/ (recorded by `npm run clips`, see clips/README.md), in the
 // product-shot frame. It plays only while in view; with reduced motion it shows its poster and a play button.
-// The playback script is in src/scripts/site.ts (clips).
+// A `zoom` clip is a thumbnail: a click opens it larger over the page (ClipLightbox.astro); a big clip shows the
+// browser's controls on hover instead. The playback script is in src/scripts/site.ts (clips).
 //
 // The files are looked up at build time, so a page builds before its clips are recorded: with no MP4 the clip is
 // its poster alone, and with no poster either it is a card with its title. The poster is an <img> under the
@@ -9,6 +10,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import Clapperboard from '@lucide/astro/icons/clapperboard';
+import Maximize from '@lucide/astro/icons/maximize-2';
 import Lock from '@lucide/astro/icons/lock';
 import Pause from '@lucide/astro/icons/pause';
 import Play from '@lucide/astro/icons/play';
@@ -25,10 +27,15 @@ interface Props {
   url?: string;
   /** above the fold: load the poster at once, at high priority */
   priority?: boolean;
+  /** the clip's frame size in px: 1280 × 800 for a clip, 1600 × 1000 for a film (terminal and page side by side) */
+  width?: number;
+  height?: number;
+  /** a thumbnail: click to open it larger over the page */
+  zoom?: boolean;
   class?: string;
 }
 
-const { name, label, title = label, url, priority = false, class: className } = Astro.props;
+const { name, label, title = label, url, priority = false, width = 1280, height = 800, zoom = false, class: className } = Astro.props;
 const base = `${siteBase}clips/${name}`;
 const dir = join(process.cwd(), 'public', 'clips');
 const hasMp4 = existsSync(join(dir, `${name}.mp4`));
@@ -36,7 +43,13 @@ const hasWebm = existsSync(join(dir, `${name}.webm`));
 const hasPoster = existsSync(join(dir, `${name}.poster.webp`));
 ---
 
-<figure class:list={['clip-frame', className]} data-clip={hasMp4 ? '' : undefined}>
+<figure
+  class:list={['clip-frame', className]}
+  data-clip={hasMp4 ? '' : undefined}
+  data-zoom={hasMp4 && zoom ? '' : undefined}
+  data-title={title}
+  style={`--ar:${width} / ${height}`}
+>
   {
     url && (
       <div class="clip-chrome" aria-hidden="true">
@@ -60,8 +73,8 @@ const hasPoster = existsSync(join(dir, `${name}.poster.webp`));
           class="clip-poster"
           src={`${base}.poster.webp`}
           alt={hasMp4 ? '' : label}
-          width="1280"
-          height="800"
+          width={width}
+          height={height}
           loading={priority ? 'eager' : 'lazy'}
           fetchpriority={priority ? 'high' : undefined}
           decoding="async"
@@ -71,7 +84,7 @@ const hasPoster = existsSync(join(dir, `${name}.poster.webp`));
     {
       hasMp4 && (
         <>
-          <video autoplay muted loop playsinline preload="none" width="1280" height="800" aria-label={label}>
+          <video autoplay muted loop playsinline preload="none" width={width} height={height} aria-label={label}>
             {hasWebm && <source src={`${base}.webm`} type="video/webm" />}
             <source src={`${base}.mp4`} type="video/mp4" />
           </video>
@@ -79,6 +92,15 @@ const hasPoster = existsSync(join(dir, `${name}.poster.webp`));
             // With JS, the clips script decides when to play (in view, motion allowed): drop autoplay before it loads.
             document.currentScript.previousElementSibling.removeAttribute('autoplay');
           </script>
+          {
+            zoom && (
+              <button type="button" class="clip-zoom" data-clip-zoom aria-label={`Open “${title}” larger`} hidden>
+                <span class="clip-zoom-icon" aria-hidden="true">
+                  <Maximize class="size-4" />
+                </span>
+              </button>
+            )
+          }
           <button type="button" class="clip-toggle" data-clip-toggle aria-label="Play clip" hidden>
             <Play class="clip-icon-play size-5" />
             <Pause class="clip-icon-pause size-5" />
@@ -151,7 +173,7 @@ const hasPoster = existsSync(join(dir, `${name}.poster.webp`));
   /* the poster sits under the video: until the first frame decodes, the (transparent) video shows it through */
   .clip-stage {
     position: relative;
-    aspect-ratio: 1280 / 800;
+    aspect-ratio: var(--ar, 1280 / 800);
     background: var(--surface);
   }
   .clip-poster,
@@ -196,6 +218,35 @@ const hasPoster = existsSync(join(dir, `${name}.poster.webp`));
     color: var(--fg);
     text-wrap: balance;
   }
+  /* a thumbnail: the whole clip is the button that opens it larger, with an expand mark on hover or focus */
+  .clip-zoom {
+    position: absolute;
+    inset: 0;
+    cursor: zoom-in;
+  }
+  .clip-zoom-icon {
+    position: absolute;
+    top: 0.875rem;
+    right: 0.875rem;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--line-strong);
+    background: color-mix(in oklab, var(--surface) 82%, transparent);
+    color: var(--fg);
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .clip-zoom:hover .clip-zoom-icon,
+  .clip-zoom:focus-visible .clip-zoom-icon {
+    opacity: 1;
+  }
+  .clip-zoom:focus-visible {
+    outline: 2px solid var(--brand-fg);
+    outline-offset: -2px;
+  }
   .clip-toggle {
     position: absolute;
     right: 0.875rem;
@@ -218,6 +269,10 @@ const hasPoster = existsSync(join(dir, `${name}.poster.webp`));
   }
   [data-clip][data-state='playing']:hover .clip-toggle {
     opacity: 1;
+  }
+  /* a mouse over the clip: the browser's own controls (site.ts) take the button's place */
+  [data-clip][data-controls] .clip-toggle:not(:focus-visible) {
+    display: none;
   }
   .clip-icon-pause,
   [data-clip][data-state='playing'] .clip-icon-play {

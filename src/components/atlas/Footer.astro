@@ -1,0 +1,68 @@
+---
+// A centred footer: the logo, the tagline, one row of links, the licence line and a way back to the current design.
+import Logo from '../Logo.astro';
+import { atlasFooter as f } from '../../content/atlas';
+import { rich } from '../../lib/rich';
+import { footer } from '../../content/site';
+---
+
+<footer class="av-footer">
+  <div class="av-wrap av-footer-in">
+    <Logo size={26} />
+    <p class="av-footer-tag" set:html={rich(f.tagline)} />
+    <ul class="av-footer-links">
+      {
+        f.links.map((l) => (
+          <li>
+            <a href={l.href}>{l.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="av-footer-legal">
+      © 2026 bluedoc · <a href={footer.licence.href} rel="noopener">{footer.licence.label}</a> · <a href={f.current.href}>{f.current.label}</a>
+    </p>
+  </div>
+</footer>
+
+<style>
+  .av-footer {
+    border-top: 1px solid var(--line);
+    padding-block: clamp(3rem, 2rem + 3vw, 4.5rem);
+  }
+  .av-footer-in {
+    display: grid;
+    justify-items: center;
+    gap: 1rem;
+    text-align: center;
+  }
+  .av-footer-tag {
+    font-size: 0.875rem;
+    color: var(--fg-subtle);
+  }
+  .av-footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 1.5rem;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+  }
+  .av-footer-links a,
+  .av-footer-legal a {
+    color: var(--fg-muted);
+    transition: color 0.15s;
+  }
+  .av-footer-links a:hover,
+  .av-footer-legal a:hover {
+    color: var(--brand-fg);
+  }
+  .av-footer-legal {
+    margin-top: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+</style>

@@ -1,0 +1,284 @@
+---
+// "Questions, answered": the questions as a vertical tab list beside one panel, each panel a small blueprint
+// illustration over its answer (the tabs script in src/scripts/site.ts; Up and Down move through the list).
+import ChevronRight from '@lucide/astro/icons/chevron-right';
+import { atlasFaq as f } from '../../content/atlas';
+import { rich } from '../../lib/rich';
+---
+
+<section id={f.id} class="av-section" aria-labelledby="faq-title">
+  <div class="av-wrap">
+    <div class="av-head" data-reveal>
+      <h2 id="faq-title" class="h2" set:html={rich(f.title)} />
+    </div>
+
+    <div class="av-faq" data-tabs data-reveal="1">
+      <div class="av-faq-list" role="tablist" aria-label="Questions" aria-orientation="vertical">
+        {
+          f.items.map((it, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`faq-tab-${i}`}
+              aria-controls={`faq-panel-${i}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+              class="av-faq-q"
+            >
+              {it.q}
+              <ChevronRight class="size-4 flex-none" aria-hidden="true" />
+            </button>
+          ))
+        }
+      </div>
+
+      {
+        f.items.map((it, i) => (
+          <div role="tabpanel" id={`faq-panel-${i}`} aria-labelledby={`faq-tab-${i}`} tabindex="0" class="av-card av-faq-panel" hidden={i !== 0}>
+            <div class="av-art av-faq-art" aria-hidden="true">
+              {it.art === 'free' && (
+                <div class="art-row">
+                  <span class="art-tile">
+                    <b>MIT</b>licence
+                  </span>
+                  <span class="art-tile">
+                    <b>0</b>accounts
+                  </span>
+                  <span class="art-tile">
+                    <b>0</b>hosted services
+                  </span>
+                </div>
+              )}
+              {it.art === 'agents' && (
+                <ul class="art-list">
+                  {f.agents.map((a) => (
+                    <li>
+                      {a.label}
+                      <span class="av-chip" data-tone={a.how === 'plugin' ? 'ok' : 'off'}>
+                        {a.how}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {it.art === 'data' && (
+                <ul class="art-list art-mono">
+                  <li>
+                    ~/.bluedoc/state.db
+                    <span class="av-chip" data-tone="ok">
+                      ticks · picks · comments
+                    </span>
+                  </li>
+                  <li>
+                    your repo
+                    <span class="av-chip" data-tone="off">
+                      never written
+                    </span>
+                  </li>
+                  <li>
+                    other browsers
+                    <span class="av-chip" data-tone="off">
+                      can’t save
+                    </span>
+                  </li>
+                </ul>
+              )}
+              {it.art === 'offline' && (
+                <div class="art-row">
+                  <span class="art-tile">
+                    <b>127.0.0.1</b>server
+                  </span>
+                  <span class="art-tile">
+                    <b>local</b>fonts and kits
+                  </span>
+                  <span class="art-tile">
+                    <b>none</b>network in screens
+                  </span>
+                </div>
+              )}
+              {it.art === 'export' && (
+                <div class="art-row is-files">
+                  <span class="art-file">name.html</span>
+                  <span class="art-file">deck.pdf</span>
+                  <span class="art-file">fastlane.zip</span>
+                </div>
+              )}
+              {it.art === 'licence' && (
+                <ul class="art-list">
+                  <li>
+                    bluedoc
+                    <span class="av-chip" data-tone="ok">
+                      MIT
+                    </span>
+                  </li>
+                  <li>
+                    HorizonUI build
+                    <span class="av-chip">Apache-2.0</span>
+                  </li>
+                  <li>
+                    Fonts
+                    <span class="av-chip">OFL 1.1</span>
+                  </li>
+                </ul>
+              )}
+            </div>
+            <p class="av-faq-a">{it.a}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .av-faq {
+    display: grid;
+    gap: 1.25rem;
+  }
+  @media (min-width: 900px) {
+    .av-faq {
+      grid-template-columns: minmax(16rem, 21rem) minmax(0, 1fr);
+      align-items: start;
+      gap: 2.5rem;
+    }
+  }
+  .av-faq-list {
+    display: grid;
+    gap: 0.15rem;
+  }
+  .av-faq-q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid transparent;
+    font-size: 0.9375rem;
+    text-align: left;
+    color: var(--fg-muted);
+    cursor: pointer;
+    transition:
+      color 0.15s,
+      background-color 0.15s;
+  }
+  .av-faq-q :global(svg) {
+    opacity: 0;
+    color: var(--brand-fg);
+    transition: opacity 0.15s;
+  }
+  .av-faq-q:hover {
+    color: var(--fg);
+  }
+  .av-faq-q[aria-selected='true'] {
+    border-color: var(--line-strong);
+    background: var(--surface);
+    color: var(--fg);
+  }
+  .av-faq-q[aria-selected='true'] :global(svg) {
+    opacity: 1;
+  }
+  .av-faq-art {
+    /* one column the panel's width, so an art list can't grow past it */
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 15rem;
+    padding: 1.5rem;
+    container-type: inline-size;
+  }
+  .av-faq-a {
+    padding: clamp(1.25rem, 2vw, 1.75rem);
+    max-width: 44rem;
+    color: var(--fg-muted);
+  }
+
+  /* a row of tiles or files, never wrapping onto a half-empty second row: where three tiles can't sit side by side
+     they stack, and the files shrink to fit (their rule outranks .art-file's below) */
+  .art-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+  @container (max-width: 32rem) {
+    .art-row:not(.is-files) {
+      flex-direction: column;
+      width: min(100%, 15rem);
+    }
+  }
+  @container (max-width: 23rem) {
+    .art-row.is-files {
+      width: 100%;
+      gap: 0.5rem;
+    }
+    .is-files .art-file {
+      flex: 0 1 7rem;
+      min-width: 0;
+      height: auto;
+      aspect-ratio: 7 / 8.5;
+      padding: 0.5rem;
+      font-size: 0.625rem;
+    }
+  }
+  .art-tile {
+    display: grid;
+    gap: 0.2rem;
+    min-width: 8.5rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-subtle);
+  }
+  .art-tile b {
+    font-family: var(--font-pixel);
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--brand-fg);
+  }
+  /* as wide as its longest row (a path beside its chip), at least 22rem, never wider than the panel; a row that
+     can't fit puts its chip under the name */
+  .art-list {
+    display: grid;
+    width: max-content;
+    min-width: min(100%, 22rem);
+    max-width: 100%;
+    overflow: hidden;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+  }
+  .art-list li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem 1rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--fg);
+  }
+  .art-list li + li {
+    border-top: 1px solid var(--line);
+  }
+  .art-mono li {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+  .art-file {
+    display: grid;
+    place-items: end start;
+    width: 7rem;
+    height: 8.5rem;
+    padding: 0.7rem;
+    border: 1px solid var(--line-strong);
+    background:
+      linear-gradient(225deg, var(--bg-2) 0 0.9rem, var(--line-strong) 0.9rem calc(0.9rem + 1px), transparent 0) no-repeat,
+      repeating-linear-gradient(to bottom, transparent 0 2.2rem, var(--line) 2.2rem 2.35rem, transparent 2.35rem 2.8rem) 0.7rem 0 / calc(100% - 1.4rem) 70% no-repeat,
+      var(--surface);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--fg);
+  }
+</style>

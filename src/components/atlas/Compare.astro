@@ -1,0 +1,200 @@
+---
+// "A chat asks you to reply in prose": the same five acts in a chat and on a page, as two cards side by side, then
+// the four counts from site.ts (why.stats) in one wide card.
+import Logo from '../Logo.astro';
+import PixelIcon from '../PixelIcon.astro';
+import { atlasCompare as c } from '../../content/atlas';
+import { rich } from '../../lib/rich';
+
+const sides = [
+  { key: 'chat', ...c.chat, label: c.columns.chat },
+  { key: 'page', ...c.page, label: c.columns.page },
+] as const;
+---
+
+<section class="av-section" aria-labelledby="compare-title">
+  <div class="av-wrap">
+    <div class="av-head" data-reveal>
+      <h2 id="compare-title" class="h2" set:html={rich(c.title)} />
+      <p class="lead">{c.lead}</p>
+    </div>
+
+    <ul class="av-cmp">
+      {
+        sides.map((s, i) => (
+          <li class:list={['av-card av-cmp-card', { 'is-page': s.key === 'page' }]} data-reveal={String(i)}>
+            <header class="av-cmp-head">
+              <span class="av-cmp-icon" aria-hidden="true">
+                {s.key === 'page' ? <Logo size={22} wordmark={false} /> : <PixelIcon name="comment" size={20} />}
+              </span>
+              <span class="grid">
+                <h3 class="av-card-title">{s.name}</h3>
+                <span class="text-[0.8125rem] text-fg-subtle">{s.tag}</span>
+              </span>
+            </header>
+            <table class="av-cmp-table">
+              <thead>
+                <tr>
+                  <th scope="col">{c.columns.act}</th>
+                  <th scope="col">{s.label}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {c.rows.map((r) => (
+                  <tr>
+                    <th scope="row">{r.act}</th>
+                    <td>{s.key === 'page' ? r.page : r.chat}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </li>
+        ))
+      }
+    </ul>
+
+    <dl class="av-card av-stats" data-reveal>
+      {
+        c.stats.map((s) => (
+          <div class="av-stat">
+            <dt class="label">{s.label}</dt>
+            <dd class="av-stat-n">
+              <span data-count>{s.count}</span>
+            </dd>
+            <dd class="av-stat-body">{s.body}</dd>
+          </div>
+        ))
+      }
+    </dl>
+
+    <p class="av-foot">{c.footnote}</p>
+  </div>
+</section>
+
+<style>
+  .av-cmp {
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 900px) {
+    .av-cmp {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .av-cmp-card {
+    padding: clamp(1.25rem, 2vw, 1.75rem);
+  }
+  .av-cmp-card.is-page {
+    border-color: color-mix(in oklab, var(--brand-fg) 45%, var(--line-strong));
+    background:
+      radial-gradient(80% 60% at 100% 0%, var(--brand-tint), transparent 70%),
+      var(--surface);
+  }
+  .av-cmp-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .av-cmp-icon {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--line-strong);
+    background: var(--bg-2);
+    color: var(--fg-muted);
+  }
+  .av-cmp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+  }
+  .av-cmp-table thead th {
+    padding-bottom: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 450;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: left;
+    color: var(--fg-subtle);
+  }
+  .av-cmp-table thead th:last-child,
+  .av-cmp-table td {
+    text-align: right;
+  }
+  .av-cmp-table tbody tr {
+    border-top: 1px solid var(--line);
+  }
+  .av-cmp-table tbody th,
+  .av-cmp-table td {
+    padding-block: 0.7rem;
+    vertical-align: top;
+  }
+  .av-cmp-table tbody th {
+    padding-right: 1rem;
+    font-weight: 400;
+    text-align: left;
+    color: var(--fg-muted);
+  }
+  .av-cmp-table td {
+    color: var(--fg-subtle);
+  }
+  .is-page .av-cmp-table td {
+    color: var(--fg);
+  }
+
+  .av-stats {
+    display: grid;
+    margin-top: 1rem;
+  }
+  @media (min-width: 640px) {
+    .av-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .av-stats {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .av-stat {
+    display: grid;
+    align-content: start;
+    gap: 0.4rem;
+    padding: clamp(1.25rem, 2vw, 1.6rem);
+    border-top: 1px solid var(--line);
+    margin-top: -1px;
+  }
+  @media (min-width: 640px) {
+    .av-stat:nth-child(odd) {
+      border-right: 1px solid var(--line);
+    }
+  }
+  @media (min-width: 1024px) {
+    .av-stat {
+      border-right: 1px solid var(--line);
+    }
+    .av-stat:last-child {
+      border-right: 0;
+    }
+  }
+  .av-stat-n {
+    font-family: var(--font-pixel);
+    font-size: clamp(2.4rem, 2rem + 1.5vw, 3.2rem);
+    line-height: 1;
+    color: var(--brand-fg);
+  }
+  .av-stat-body {
+    font-size: 0.875rem;
+    color: var(--fg-muted);
+  }
+  .av-foot {
+    max-width: 46rem;
+    margin: 1.5rem auto 0;
+    text-align: center;
+    font-size: 0.8125rem;
+    color: var(--fg-subtle);
+  }
+</style>

@@ -1,0 +1,106 @@
+---
+// The top: the night bay from the home page (HeroBay.astro) behind a centred headline and the install picker (a
+// tab per agent, the same one as the close), then the Plans hook film (the agent's terminal beside the page) with
+// the request that starts it. All of it shares the first screen: the film takes the height left under the copy, at
+// its own 16:10, so it shows whole without a scroll on a laptop. The subline follows under it.
+import HeroBay from '../HeroBay.astro';
+import Clip from '../Clip.astro';
+import InstallTabs from './InstallTabs.astro';
+import { atlasHero } from '../../content/atlas';
+import { rich } from '../../lib/rich';
+
+const ratio = atlasHero.clip.width / atlasHero.clip.height;
+---
+
+<section id="top" class="av-hero is-bay" aria-labelledby="hero-title">
+  <HeroBay />
+  <div class="av-fold">
+    <div class="av-wrap av-hero-copy">
+      <h1 id="hero-title" class="av-h1 enter" set:html={rich(atlasHero.headline)} />
+      <div class="enter w-full" style="--d:0.08s">
+        <InstallTabs id="hero" note={false} />
+      </div>
+    </div>
+    <div class="av-wrap av-fold-stage enter" style={`--d:0.2s;--ratio:${ratio}`}>
+      <figure class="av-film">
+        <Clip name={atlasHero.clip.name} label={atlasHero.clip.label} width={atlasHero.clip.width} height={atlasHero.clip.height} priority />
+        <figcaption class="av-ask">{atlasHero.ask}</figcaption>
+      </figure>
+    </div>
+  </div>
+  <div class="av-wrap av-hero-sub enter" style="--d:0.3s">
+    <p class="lead av-sub">{atlasHero.subline}</p>
+  </div>
+</section>
+
+<style>
+  /* The first screen: the floating nav, the copy, then the film. On a laptop the fold is at most one screen tall
+     (at least 34rem): the film's box asks for the height the film needs at full width and gives up what the screen
+     can't spare, and the film inside is as wide as fits both. On an ultrawide the width limits it first, the box
+     keeps its asked-for height and the fold ends right under the request, with no empty band. */
+  .av-hero.is-bay {
+    --bay-top: 3.25rem;
+    padding-top: 0;
+  }
+  .av-fold {
+    display: flex;
+    flex-direction: column;
+    /* the nav floats in the top ~4rem; the headline starts a clear gap under it */
+    padding-top: clamp(7rem, 5.5rem + 3vh, 8.5rem);
+    padding-bottom: clamp(1rem, 0.5rem + 1.5vh, 2rem);
+  }
+  .av-fold-stage {
+    margin-top: clamp(1.25rem, 0.5rem + 2vh, 2.25rem);
+  }
+  .av-film {
+    margin: 0 auto;
+  }
+  .av-film .av-ask {
+    margin-top: 0.9rem;
+  }
+  /* on a landscape screen (a laptop) the film fits the height too; on a phone or a portrait tablet the width
+     limits it first */
+  @media (min-width: 720px) and (min-aspect-ratio: 5/4) {
+    .av-fold {
+      max-height: max(34rem, 100svh);
+    }
+    .av-fold > .av-hero-copy {
+      flex: none;
+    }
+    .av-fold-stage {
+      /* the av-wrap width, at the film's ratio, plus the request under it */
+      height: calc(min(100vw - 2 * clamp(1rem, 4vw, 3rem), 72rem) / var(--ratio) + 3.25rem);
+      flex: 0 1 auto;
+      min-height: 0;
+      container-type: size;
+    }
+    .av-film {
+      width: min(100cqw, (100cqh - 3.25rem) * var(--ratio));
+    }
+  }
+  /* the subline, centred under the film */
+  .av-hero-sub {
+    display: grid;
+    justify-items: center;
+    padding-top: 0.5rem;
+    text-align: center;
+  }
+  .is-bay .av-hero-copy {
+    gap: clamp(1.25rem, 0.75rem + 1vh, 1.75rem);
+  }
+
+  /* a little smaller than other heads: every px it saves goes to the film */
+  .is-bay :global(.av-h1) {
+    font-size: clamp(2.1rem, 1rem + 2.8vw, 3.2rem);
+  }
+
+  .is-bay :global(.av-h1) {
+    text-shadow:
+      0 2px 30px color-mix(in oklab, var(--bg) 85%, transparent),
+      0 1px 2px color-mix(in oklab, var(--bg) 70%, transparent);
+  }
+  .is-bay :global(.av-sub) {
+    max-width: 44rem;
+    text-shadow: 0 1px 16px color-mix(in oklab, var(--bg) 90%, transparent);
+  }
+</style>

@@ -34,6 +34,8 @@ export type TypePageCopy = {
   /** shared clips from the Every doc list */
   shared: ClipCopy[];
   agent: { lead: string; commands: string[]; files: CodeFile[]; note: string };
+  /** films (clips/scenarios/film-*.mjs): the agent's terminal beside the page, shown full width under How the agent uses it */
+  films?: ClipCopy[];
 };
 
 
@@ -81,6 +83,12 @@ export const every = {
     title: 'Talk it through with the agent',
     body: 'Each item, pin and general comment is a conversation. A sent comment becomes a message tagged with its rev; the agent’s replies sit between yours, marked New until you see them.',
     shows: 'On acme-saved-carts-plan, the retention question shows your question at rev 1 and the agent’s reply at rev 2, marked New; a follow-up is sent with Request changes, lists as your message at rev 2, and the box empties.',
+  },
+  attach: {
+    clip: 'every-attach',
+    title: 'Attach a file to a comment',
+    body: 'Every comment box has Attach: pick a file, drop one on the box or paste a screenshot. The server keeps a copy, and your comment gives the agent its full path, so it reads the file itself.',
+    shows: 'On acme-saved-carts-plan, a reply is typed on the price question and a CSV is attached; its chip shows the name and size. Saved, Request changes previews the Markdown, with the copy’s full path under the comment.',
   },
   accept: {
     clip: 'every-accept',
@@ -183,6 +191,46 @@ export const every = {
     title: 'Drag the content width',
     body: 'Drag the column’s edge to make the text wider or narrower. It stays centred; a double-click resets it.',
     shows: 'On acme-orders, the column’s right edge is dragged in; both edges move so the column stays centred, a chip shows the width, and a double-click resets it.',
+  },
+} satisfies Record<string, ClipCopy>;
+
+// ---- films: the agent's terminal beside the page, the whole loop in one take (clips/scenarios/film-*.mjs) ----
+
+export const films = {
+  planHook: {
+    clip: 'film-plan-hook',
+    title: 'Approve a plan from plan mode',
+    body: 'Claude Code in plan mode writes the plan; bluedoc’s gate opens it as a page and the agent waits in the background. Your picks and notes reach it the moment you approve.',
+    shows:
+      'Without bluedoc, a plan scrolls by as a wall of text above Claude Code’s proceed picker. Then a fresh session in plan mode writes the saved carts plan, ExitPlanMode opens it in bluedoc and the agent waits. The reader accepts the recommendations, adds guests, pins a note on the sweeper step and approves; the terminal prints the approval and the agent starts on rev 1.',
+  },
+  sendBack: {
+    clip: 'film-send-back',
+    title: 'Send a plan back instead of saying no',
+    body: 'Request changes with a note. The agent patches rev 2 and resolves your note, the page marks the change word by word, and you approve that.',
+    shows:
+      'The saved carts plan is open beside Claude Code, which waits. The reader pins “Run it on the existing jobs queue” on the sweeper step and sends Request changes; the terminal prints the change request, the agent patches rev 2 resolving the note, the page shows the change word by word, and the reader approves rev 2.',
+  },
+  review: {
+    clip: 'film-review',
+    title: 'Decide each finding on its line',
+    body: 'The agent writes its review as findings under their diff lines. Fix in PR, Ticket, or Decline with a reason, then Send: the agent gets every decision and starts fixing.',
+    shows:
+      'Without bluedoc, eleven findings scroll by and the reader answers them by number in prose. Then Claude Code runs /bluedoc-review and opens the findings; the reader declines one with a reason, keeps one as Fix in PR, makes one a ticket, accepts the rest and sends; the terminal prints every decision and the agent starts editing tiers.ts.',
+  },
+  questions: {
+    clip: 'film-questions',
+    title: 'Answer the agent’s questions on one page',
+    body: 'The questions the agent can’t settle alone become option rows, its recommendation starred, with room for a long note. Send answers, and they reach it in one reply.',
+    shows:
+      'Without bluedoc, a long answer overflows Claude Code’s one-line question box. Then the agent puts its four rollout questions on one page; the reader picks the starred options, writes a note about business accounts and sends; the terminal prints the four answers and the note in one reply.',
+  },
+  design: {
+    clip: 'film-design',
+    title: 'Pin a change on a screen, see it revised',
+    body: 'Point at an element on a mockup and say what should change. The agent revises that screen, and the board onion-skins the new revision over the old one.',
+    shows:
+      'Claude Code builds the Acme Fit board and opens it, then waits. The reader points at Profile in the Today screen’s tab bar, asks to drop it, and sends; the terminal prints the request naming that element, the agent patches the screen to rev D, and the board onion-skins rev D over rev C.',
   },
 } satisfies Record<string, ClipCopy>;
 
@@ -380,8 +428,21 @@ const plans: TypePageCopy = {
       body: 'When the agent’s next revision lands, Show what changed marks it against the one you saw: its notes on the changes, the question it reworked, the step it rewrote.',
       shows: 'On acme-saved-carts-plan, rev 2 opens and Show what changed compares it with rev 1: the author’s notes up top, the sweeper step’s text marked word by word and the retention question’s recommendation moved to 90 days.',
     },
+    {
+      clip: 'plan-details',
+      title: 'Approve once your questions are answered',
+      body: 'While a question asks for more details, Approve plan waits, and says why. Send the question; when the agent’s next revision answers it, approve.',
+      shows: 'On acme-saved-carts-plan, the price question asks for more details and Approve plan is greyed, its tooltip saying why; Request changes sends the question, rev 2 answers it in the question’s conversation, and Approve plan turns it Approved · rev 2.',
+    },
+    {
+      clip: 'plan-evidence',
+      title: 'Spot a check the code has moved past',
+      body: 'Proof the agent records for a step or a check is pinned to the commit it ran on. When a later commit touches the code it covers, the check reads Needs recheck and stops counting as done.',
+      shows: 'On acme-saved-carts-plan, Run the orders-api tests is ticked, its test result pinned to a commit with a green chip; after a commit to savedCartRepo.ts the check reads Needs recheck, the count drops to 0 of 6 · 1 to recheck, and Stale lists the file that changed.',
+    },
   ],
   shared: [every.optionRows, every.accept, every.more, every.request, every.approve, every.carry],
+  films: [films.planHook, films.sendBack],
   agent: {
     lead: 'The agent fills in the steps and the files, then turns each choice it can’t make alone into an open question with a `recommend`. It waits for your answer before it writes code.',
     commands: [
@@ -505,6 +566,7 @@ const reviews: TypePageCopy = {
     },
   ],
   shared: [every.accept, every.more, every.compare],
+  films: [films.review],
   agent: {
     lead: 'The agent writes each finding as a decision item, then `gitdiff.py` adds a `diff` block of the files they are about, one comment per finding. The doc stores only the repo and the commits; the server reads the diff from git.',
     commands: [
@@ -587,6 +649,12 @@ const designs: TypePageCopy = {
       title: 'Pan across a board of device frames',
       body: 'Each screen sits in its device frame, side by side on a board you pan and zoom.',
       shows: 'On acme-fit-design, the board pans and zooms from the round watch to the phones, the icon sheet and the browser dashboard.',
+    },
+    {
+      clip: 'design-media',
+      title: 'Play video in a screen',
+      body: 'A screen can hold a video or audio file kept beside the doc. It plays in its frame on the board, and full-window in Present.',
+      shows: 'On acme-fit-design, the browser Dashboard has a card playing a recording of the Q3 launch review; it plays on the board, then Present opens the screen full-window and the video keeps playing.',
     },
     {
       clip: 'design-links',
@@ -674,6 +742,7 @@ const designs: TypePageCopy = {
     },
   ],
   shared: [every.request, every.panel, every.approve],
+  films: [films.design],
   agent: {
     lead: 'The agent lists the artboards in the doc and writes each screen as an HTML fragment. `data-nav` on an element links it to another screen.',
     commands: [
@@ -1121,6 +1190,7 @@ const other: TypePageCopy = {
     },
   ],
   shared: [every.sendAnswers, every.draw, every.general],
+  films: [films.questions],
   agent: {
     lead: 'The agent fills the skeleton, including the `hero` stat: one number, an icon and a label. The `tldr` states the answer and agrees with it.',
     commands: [
@@ -1192,7 +1262,7 @@ export const featuresPage = {
       kicker: 'Commenting',
       title: 'Comment on any part of the page.',
       lead: 'Point, select or draw. Each note is filed under the part it is about, so the agent knows what to edit. Pinning is the clip at the top of the page.',
-      clips: [every.select, every.draw, every.general, every.itemComment, every.conversation, every.marks],
+      clips: [every.select, every.draw, every.general, every.itemComment, every.conversation, every.attach, every.marks],
     },
     {
       id: 'deciding',

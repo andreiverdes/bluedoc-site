@@ -1,0 +1,72 @@
+<div id="root" data-bd="dashboard"></div>
+<script>
+const e = React.createElement, { HorizonProvider, Card, Stat, ProgressRing, Tag, Button } = HorizonUI;
+const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const week = [6200, 8100, 7400, 9900, 5300, 11200, 7214];
+const workouts = [["Morning run", "5.2 km", "28 min"], ["Strength", "6 sets", "41 min"], ["Evening walk", "3.1 km", "35 min"],
+  ["Cycling", "18.4 km", "52 min"]];
+const named = (bd, ...kids) => e('div', { 'data-bd': bd }, ...kids);
+// the week as an area chart: 760 × 220, steps 0–12,000
+const W = 760, H = 220, X = (i) => 20 + i * ((W - 40) / 6), Y = (v) => H - 24 - (v / 12000) * (H - 48);
+const line = week.map((v, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+const chart = e('svg', { className: 'acme-area', viewBox: `0 0 ${W} ${H}`, preserveAspectRatio: 'none' },
+  e('defs', null, e('linearGradient', { id: 'acme-fill', x1: 0, y1: 0, x2: 0, y2: 1 },
+    e('stop', { offset: '0%', stopColor: '#10b981', stopOpacity: 0.55 }), e('stop', { offset: '100%', stopColor: '#10b981', stopOpacity: 0 }))),
+  [3000, 6000, 9000].map((v) => e('line', { key: v, x1: 0, x2: W, y1: Y(v), y2: Y(v), className: 'acme-grid' })),
+  e('path', { d: `${line} L${X(6)},${H - 24} L${X(0)},${H - 24} Z`, fill: 'url(#acme-fill)' }),
+  e('path', { d: line, fill: 'none', stroke: '#34d399', strokeWidth: 4, strokeLinejoin: 'round', strokeLinecap: 'round' }),
+  week.map((v, i) => e('circle', { key: i, cx: X(i), cy: Y(v), r: i === 6 ? 8 : 5, className: i === 6 ? 'acme-dot now' : 'acme-dot' })),
+  days.map((d, i) => e('text', { key: d, x: X(i), y: H - 4, textAnchor: 'middle', className: 'acme-day' }, d)));
+ReactDOM.createRoot(document.getElementById('root')).render(
+  e(HorizonProvider, { theme: 'dark', className: 'acme-dash' },
+    e('nav', { className: 'acme-side', 'data-bd': 'top' },
+      e('strong', null, 'Acme Fit'),
+      ['Overview', 'Activity', 'Workouts', 'Goals', 'Settings'].map((t, i) => e('a', { key: t, className: i ? '' : 'on' }, t)),
+      e('span', { className: 'acme-grow' }),
+      named('export', e(Button, { variant: 'secondary' }, 'Export CSV'))),
+    e('main', { className: 'acme-main' },
+      e('header', { className: 'acme-head' }, e('div', null, e('small', null, 'Week 41 · Sunday'), e('h1', null, 'Good evening, Sam')),
+        e(Tag, null, 'Streak · 12 days')),
+      named('week', e('section', { className: 'acme-hero' },
+        e('div', { className: 'acme-hero-t' }, e('div', null, e('small', null, 'Steps today'), e('b', null, '7,214')),
+          e('span', { className: 'acme-up' }, '▲ 4.2% vs last Sunday')),
+        chart)),
+      e('section', { className: 'acme-tiles', 'data-bd': 'workouts' },
+        workouts.map(([name, dist, time]) => e('div', { key: name, className: 'acme-tile' }, e('b', null, name), e('span', null, `${dist} · ${time}`))))),
+    e('aside', { className: 'acme-rail', 'data-bd': 'kpis' },
+      named('goal', e('div', { className: 'acme-goal' }, e(ProgressRing, { value: 72, size: 132, stroke: 12 }),
+        e('strong', null, 'Weekly goal'), e('p', null, '50,500 of 70,000 steps'))),
+      named('active', e(Card, null, e(Stat, { label: 'Active minutes', value: '104', unit: 'min', delta: 12.5 }))),
+      named('heart', e(Card, null, e(Stat, { label: 'Resting heart rate', value: '58', unit: 'bpm', delta: -1.7, tone: 'success' }))),
+      named('steps', e(Card, null, e(Stat, { label: 'Steps this week', value: '55,314', delta: 6.8, spark: week }))))));
+</script>
+<style>
+  .acme-dash { --accent: #10b981; min-height: 100vh; display: grid; grid-template-columns: 200px 1fr 300px; background: #0b1020; color: #e5e7eb; }
+  .acme-side { display: flex; flex-direction: column; gap: 4px; padding: calc(var(--safe-top, 0px) + 28px) 16px 28px; background: #111831; border-right: 1px solid #1f2a4a; }
+  .acme-side strong { font-size: 20px; margin: 0 8px 24px; color: #34d399; }
+  .acme-side a { padding: 10px 12px; border-radius: 10px; color: #94a3b8; font-size: 15px; }
+  .acme-side a.on { background: #10b98122; color: #6ee7b7; font-weight: 600; }
+  .acme-grow { flex: 1; }
+  .acme-main { display: grid; gap: 24px; align-content: start; padding: calc(var(--safe-top, 0px) + 28px) 32px 32px; }
+  .acme-head { display: flex; align-items: flex-end; justify-content: space-between; }
+  .acme-head small { color: #94a3b8; font-size: 14px; }
+  .acme-head h1 { margin: 4px 0 0; font-size: 34px; color: #fff; }
+  .acme-hero { padding: 24px 24px 12px; border-radius: 20px; background: linear-gradient(160deg, #1c1f3d, #141a33); border: 1px solid #2a3360; }
+  .acme-hero-t { display: flex; align-items: flex-start; justify-content: space-between; }
+  .acme-hero-t small { color: #94a3b8; font-size: 14px; }
+  .acme-hero-t b { display: block; font-size: 64px; line-height: 1.05; color: #fff; letter-spacing: -1px; }
+  .acme-up { padding: 6px 12px; border-radius: 999px; background: #22c55e22; color: #4ade80; font-size: 14px; font-weight: 600; }
+  .acme-area { display: block; width: 100%; height: 260px; margin-top: 8px; }
+  .acme-grid { stroke: #ffffff14; stroke-width: 1; }
+  .acme-dot { fill: #0b1020; stroke: #34d399; stroke-width: 3; }
+  .acme-dot.now { fill: #34d399; stroke: #fff; }
+  .acme-day { fill: #94a3b8; font-size: 13px; }
+  .acme-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .acme-tile { display: grid; gap: 6px; padding: 18px; border-radius: 16px; background: #141a33; border: 1px solid #2a3360; }
+  .acme-tile b { color: #fff; font-size: 16px; }
+  .acme-tile span { color: #94a3b8; font-size: 13px; }
+  .acme-rail { display: grid; gap: 16px; align-content: start; padding: calc(var(--safe-top, 0px) + 28px) 24px 32px; background: #0e1430; border-left: 1px solid #1f2a4a; }
+  .acme-goal { display: grid; justify-items: center; gap: 8px; padding: 20px; border-radius: 20px; background: linear-gradient(180deg, #10b98133, #10b98108); text-align: center; }
+  .acme-goal strong { font-size: 18px; color: #fff; }
+  .acme-goal p { margin: 0; color: #6ee7b7; font-size: 14px; }
+</style>

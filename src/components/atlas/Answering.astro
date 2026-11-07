@@ -1,0 +1,289 @@
+---
+// "Built for answering": three cards over blueprint art (a pinned comment thread, option rows with the
+// recommendation starred, a word-level revision diff), then two wide cards of facts: it runs locally, and approval
+// gates the agent. Copy from site.ts (features).
+import ArrowRight from '@lucide/astro/icons/arrow-right';
+import Star from '@lucide/astro/icons/star';
+import Check from '@lucide/astro/icons/check';
+import { atlasAnswering as a, atlasRevisionsHref } from '../../content/atlas';
+import { rich } from '../../lib/rich';
+
+const [comments, options, revisions] = a.cards;
+const wide = [
+  { ...a.local, tone: 'off', state: 'Local' },
+  { ...a.approve, tone: 'ok', state: 'Approved · rev 1' },
+];
+---
+
+<section id={a.id} class="av-section" aria-labelledby="answering-title">
+  <div class="av-wrap">
+    <div class="av-head" data-reveal>
+      <h2 id="answering-title" class="h2" set:html={rich(a.title)} />
+      <p class="lead">{a.lead}</p>
+    </div>
+
+    <ul class="av-three">
+      <li class="av-card" data-reveal="0">
+        <div class="av-art av-art-h" aria-hidden="true">
+          <div class="mock-thread">
+            <div class="mock-node corners">
+              orders-api
+              <span class="mock-pin">1</span>
+            </div>
+            <div class="mock-msg">
+              <span class="label">You · rev 1</span>
+              Split refunds into their own call.
+            </div>
+            <div class="mock-msg is-agent">
+              <span class="label">Agent · rev 2</span>
+              Done: refunds.ts, step 4.
+            </div>
+          </div>
+        </div>
+        <div class="av-card-body">
+          <h3 class="av-card-title">{comments.title}</h3>
+          <p class="av-card-text">{comments.body}</p>
+        </div>
+      </li>
+
+      <li class="av-card" data-reveal="1">
+        <div class="av-art av-art-h" aria-hidden="true">
+          <div class="mock-options">
+            <p class="mock-q">How long does a saved cart stay?</p>
+            <div class="mock-opt">90 days</div>
+            <div class="mock-opt is-on">
+              <Check class="size-3.5" />
+              180 days
+              <span class="mock-star"><Star class="size-3" /> Recommended</span>
+            </div>
+            <div class="mock-opt">Until deleted</div>
+          </div>
+        </div>
+        <div class="av-card-body">
+          <h3 class="av-card-title">{options.title}</h3>
+          <p class="av-card-text">{options.body}</p>
+        </div>
+      </li>
+
+      <li class="av-card" data-reveal="2">
+        <div class="av-art av-art-h" aria-hidden="true">
+          <div class="mock-diff">
+            <span class="av-chip">rev 1 → rev 2</span>
+            <p>
+              Saved carts stay for <del>90</del> <ins>180</ins> days, then a <ins>nightly</ins> sweeper clears them.
+            </p>
+            <p class="mock-resolved"><Check class="size-3.5" /> 2 comments resolved</p>
+          </div>
+        </div>
+        <div class="av-card-body">
+          <h3 class="av-card-title">{revisions.title}</h3>
+          <p class="av-card-text">{revisions.body}</p>
+          <a class="link-arrow mt-2 justify-self-start" href={atlasRevisionsHref}>
+            All about revisions
+            <ArrowRight class="size-4" aria-hidden="true" />
+          </a>
+        </div>
+      </li>
+    </ul>
+
+    <ul class="av-two">
+      {
+        wide.map((w, i) => (
+          <li class="av-card av-wide" data-reveal={String(i)}>
+            <p class="av-chip" data-tone={w.tone}>
+              {w.state}
+            </p>
+            <h3 class="av-card-title">{w.title}</h3>
+            <p class="av-card-text">{w.body}</p>
+            <dl class="av-facts">
+              {w.facts.map((f) => (
+                <div>
+                  <dt class="label">{f.label}</dt>
+                  <dd>{f.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="mt-8 flex justify-center">
+      <a class="link-arrow" href={a.more.href}>
+        {a.more.label}
+        <ArrowRight class="size-4" aria-hidden="true" />
+      </a>
+    </p>
+  </div>
+</section>
+
+<style>
+  .av-three,
+  .av-two {
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 900px) {
+    .av-three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .av-two {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .av-two {
+    margin-top: 1rem;
+  }
+  .av-art-h {
+    height: 15rem;
+    padding: 1.25rem;
+  }
+
+  /* the comment thread */
+  .mock-thread {
+    display: grid;
+    gap: 0.55rem;
+    width: min(100%, 15rem);
+  }
+  .mock-node {
+    position: relative;
+    justify-self: start;
+    padding: 0.5rem 0.8rem;
+    border: 1px solid var(--line-strong);
+    background-color: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--fg);
+  }
+  .mock-pin {
+    position: absolute;
+    top: -0.6rem;
+    right: -0.6rem;
+    display: grid;
+    place-items: center;
+    width: 1.2rem;
+    height: 1.2rem;
+    background: var(--brand);
+    font-family: var(--font-pixel);
+    font-size: 0.75rem;
+    color: #fff;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand) 30%, transparent);
+  }
+  .mock-msg {
+    display: grid;
+    gap: 0.15rem;
+    padding: 0.5rem 0.7rem;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    font-size: 0.8125rem;
+    color: var(--fg);
+  }
+  .mock-msg .label {
+    font-size: 0.625rem;
+  }
+  .mock-msg.is-agent {
+    margin-left: 1.5rem;
+    border-color: color-mix(in oklab, var(--brand-fg) 40%, var(--line));
+    background: color-mix(in oklab, var(--brand) 10%, var(--surface));
+  }
+
+  /* the option rows */
+  .mock-options {
+    display: grid;
+    gap: 0.4rem;
+    width: min(100%, 16rem);
+  }
+  .mock-q {
+    margin-bottom: 0.2rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--fg);
+  }
+  .mock-opt {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    height: 2.1rem;
+    padding-inline: 0.7rem;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    font-size: 0.8125rem;
+    color: var(--fg-muted);
+  }
+  .mock-opt.is-on {
+    border-color: var(--brand-fg);
+    background: color-mix(in oklab, var(--brand) 14%, var(--surface));
+    color: var(--fg);
+  }
+  .mock-opt.is-on :global(svg) {
+    color: var(--brand-fg);
+  }
+  .mock-star {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--code-str);
+  }
+
+  /* the revision diff */
+  .mock-diff {
+    display: grid;
+    justify-items: start;
+    gap: 0.75rem;
+    width: min(100%, 16rem);
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--fg);
+  }
+  .mock-diff del {
+    color: var(--fg-subtle);
+    text-decoration-color: var(--av-del);
+    background: color-mix(in oklab, var(--av-del) 12%, transparent);
+  }
+  .mock-diff ins {
+    text-decoration: none;
+    background: color-mix(in oklab, var(--brand) 26%, transparent);
+    box-shadow: inset 0 -1px 0 var(--brand-fg);
+  }
+  .mock-resolved {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    color: var(--av-ok);
+  }
+
+  /* the wide cards: state, title, text, then three facts in a row */
+  .av-wide {
+    display: grid;
+    justify-items: start;
+    gap: 0.6rem;
+    padding: clamp(1.25rem, 2vw, 1.75rem);
+  }
+  .av-facts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    width: 100%;
+    margin-top: 0.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+  }
+  .av-facts dd {
+    margin-top: 0.3rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.1rem, 1rem + 0.6vw, 1.5rem);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+    overflow-wrap: anywhere;
+  }
+</style>

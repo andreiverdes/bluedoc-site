@@ -1,0 +1,76 @@
+---
+// "Install once": three numbered step cards, each over a clip, then two short notes.
+import Clip from '../Clip.astro';
+import { atlasSetup } from '../../content/atlas';
+import { rich } from '../../lib/rich';
+---
+
+<section id={atlasSetup.id} class="av-section" aria-labelledby="setup-title">
+  <div class="av-wrap">
+    <div class="av-head" data-reveal>
+      <h2 id="setup-title" class="h2" set:html={rich(atlasSetup.title)} />
+    </div>
+
+    <ol class="av-steps">
+      {
+        atlasSetup.steps.map((s, i) => (
+          <li class="av-card av-step" data-reveal={String(i)}>
+            <Clip name={s.clip.name} label={s.clip.label} class="av-step-clip" zoom />
+            <div class="av-card-body">
+              <span class="av-num" aria-hidden="true">
+                {i + 1}
+              </span>
+              <h3 class="av-card-title mt-2">{s.title}</h3>
+              <p class="av-card-text">{s.body}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="av-support" data-reveal>
+      {
+        atlasSetup.support.map((s) => (
+          <p>
+            <strong>{s.lead}</strong> {s.body}
+          </p>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .av-steps {
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 900px) {
+    .av-steps {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  /* the clip fills the card's top edge to edge: no frame of its own */
+  .av-step :global(.av-step-clip) {
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    box-shadow: none;
+  }
+  .av-support {
+    display: grid;
+    gap: 1.25rem 2rem;
+    max-width: 50rem;
+    margin: clamp(2rem, 1.5rem + 1.5vw, 2.75rem) auto 0;
+    font-size: 0.9375rem;
+    color: var(--fg-muted);
+  }
+  @media (min-width: 760px) {
+    .av-support {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .av-support strong {
+    font-weight: 500;
+    color: var(--fg);
+  }
+</style>

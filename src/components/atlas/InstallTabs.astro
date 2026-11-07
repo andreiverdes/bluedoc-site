@@ -1,0 +1,150 @@
+---
+// The install picker: a tab per agent sitting on that agent's install commands, with its note under them (tabs
+// from src/scripts/site.ts [data-tabs]). Used by the hero and the close, so each passes its own id prefix.
+// Every panel sits in the same grid cell, so the picker is always as tall as its tallest panel and the terminal
+// always holds two lines: switching agents never resizes it or moves the page.
+import Term from './Term.astro';
+import { atlasCta } from '../../content/atlas';
+
+interface Props {
+  /** keeps the tab and panel ids unique when the picker appears twice on a page */
+  id: string;
+  /** each agent's note under its commands (the hero leaves them to the close) */
+  note?: boolean;
+  class?: string;
+}
+
+const { id, note = true, class: cls } = Astro.props;
+---
+
+<div class:list={['av-install-tabs', cls]} data-tabs>
+  <div class="av-install-bar" role="tablist" aria-label="Install for">
+    {
+      atlasCta.tabs.map((t, i) => (
+        <button
+          type="button"
+          role="tab"
+          id={`${id}-tab-${t.id}`}
+          aria-controls={`${id}-panel-${t.id}`}
+          aria-selected={i === 0 ? 'true' : 'false'}
+          tabindex={i === 0 ? 0 : -1}
+          class="av-install-tab"
+        >
+          {t.label}
+        </button>
+      ))
+    }
+  </div>
+  <div class="av-install-stack">
+    {
+      atlasCta.tabs.map((t, i) => (
+        <div role="tabpanel" id={`${id}-panel-${t.id}`} aria-labelledby={`${id}-tab-${t.id}`} tabindex="0" class="av-install-panel" hidden={i !== 0}>
+          <Term commands={t.commands} label={t.label} />
+          {note && <p class="av-install-note">{t.note}</p>}
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .av-install-tabs {
+    --term-line: rgb(140 170 255 / 0.22);
+    width: min(100%, 46rem);
+    margin-inline: auto;
+    text-align: left;
+  }
+
+  /* the tabs: a row of cells on the terminal's top edge; the picked one is the terminal's own colour, open at the
+     bottom, so it reads as the tab the commands hang from */
+  .av-install-bar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    margin-bottom: -1px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border: 1px solid var(--line-strong);
+    border-bottom: 0;
+    border-radius: var(--av-r) var(--av-r) 0 0;
+    background: color-mix(in oklab, var(--surface) 80%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .av-install-bar::-webkit-scrollbar {
+    display: none;
+  }
+  .av-install-tab {
+    flex: 1 0 auto;
+    height: 2.6rem;
+    padding-inline: 0.85rem;
+    box-shadow:
+      inset -1px 0 0 var(--line),
+      inset 0 -1px 0 var(--term-line);
+    font-size: 0.875rem;
+    white-space: nowrap;
+    color: var(--fg-muted);
+    cursor: pointer;
+    transition:
+      color 0.15s,
+      background-color 0.15s;
+  }
+  .av-install-tab:last-child {
+    box-shadow: inset 0 -1px 0 var(--term-line);
+  }
+  .av-install-tab:hover {
+    color: var(--fg);
+  }
+  .av-install-tab:focus-visible {
+    outline-offset: -2px;
+  }
+  .av-install-tab[aria-selected='true'] {
+    color: #eaf4ff;
+    background: #060a16;
+    box-shadow:
+      inset -1px 0 0 var(--term-line),
+      inset 1px 0 0 var(--term-line),
+      inset 0 2px 0 var(--brand-fg);
+  }
+
+  /* the panels share one cell: the hidden ones keep their space but can't be seen, read or focused */
+  .av-install-stack {
+    display: grid;
+  }
+  .av-install-panel {
+    grid-area: 1 / 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 0.85rem;
+  }
+  /* in the base layer: an !important in a layer beats an unlayered one, so this has to meet Tailwind's
+     [hidden] { display: none !important } there, and wins on specificity */
+  @layer base {
+    .av-install-stack > .av-install-panel[hidden] {
+      display: grid !important;
+      visibility: hidden;
+    }
+  }
+  .av-install-panel:focus-visible {
+    outline-offset: 2px;
+  }
+  .av-install-panel :global(.av-term) {
+    max-width: none;
+    /* square where the tabs sit on it */
+    border-radius: 0 0 var(--av-r) var(--av-r);
+    box-shadow: 0 24px 60px -34px var(--glow);
+  }
+  /* always room for two commands, so a one-line agent keeps the same terminal */
+  .av-install-panel :global(.av-term-cmds) {
+    min-height: calc(2 * 0.84375rem * 1.6 + 0.7rem);
+    align-content: center;
+  }
+  .av-install-note {
+    max-width: 40rem;
+    margin-inline: auto;
+    font-size: 0.8125rem;
+    text-align: center;
+    color: var(--fg-subtle);
+  }
+</style>

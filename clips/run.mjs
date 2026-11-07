@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 // npm run clips [-- <name> ...]: records clips/scenarios/<name>.mjs (all of them without a name) into public/clips/.
 // Each scenario gets a fresh bluedoc server (its own BLUEDOC_HOME, a free port, a fresh copy of the Acme examples),
-// recorded in headless Chrome at 1280 × 800, DPR 2. Runs in parallel don't collide: their paths are keyed by
-// CLIPS_TAG (default: the scenario's name for one, else the pid). See clips/README.md.
+// recorded in headless Chrome at 1280 × 800, DPR 2, or at the scenario's own `view`. A film (`stage: true`) is
+// recorded on the stage page (clips/stage/, lib/stage.mjs): the agent's terminal beside the page. Runs in parallel
+// don't collide: their paths are keyed by CLIPS_TAG (default: the scenario's name for one, else the pid).
+// See clips/README.md.
 import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { basename, dirname, join, relative, resolve } from 'node:path';
@@ -10,7 +12,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { Actor } from './lib/actor.mjs';
 import { Bluedoc } from './lib/bluedoc.mjs';
 import { Chrome, Tab } from './lib/chrome.mjs';
-import { encode, haveFfmpeg, Recorder, reviewFrames } from './lib/recorder.mjs';
+import { encode, haveFfmpeg, Recorder, reviewFrames, socialCuts } from './lib/recorder.mjs';
+import { Stage } from './lib/stage.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const site = resolve(here, '..');
@@ -33,18 +36,22 @@ function ensureFfmpeg() {
 
 const kb = (n) => (n >= 1 << 20 ? `${(n / (1 << 20)).toFixed(2)} MB` : `${Math.round(n / 1024)} KB`);
 
-async function openTab(chrome, sc, targetId) {
-  const opts = { ...VIEW, colorScheme: sc.colorScheme ?? 'dark' };
+async function load(name) {
+  const file = join(here, 'scenarios', `${name}.mjs`);
+  if (!existsSync(file)) throw new Error(`no scenario ${relative(site, file)}`);
+  const mod = await import(pathToFileURL(file).href);
+  const sc = mod.default;
+  return { mod, sc, view: { ...VIEW, ...(mod.view ?? sc.view) } };
+}
+
+async function openTab(chrome, sc, view, targetId) {
+  const opts = { ...view, colorScheme: sc.colorScheme ?? 'dark' };
   const tab = targetId ? await Tab.attach(chrome, targetId, opts) : await Tab.open(chrome, opts);
   await tab.call('Page.addScriptToEvaluateOnNewDocument', { source: CURSOR });
   return tab;
 }
 
-async function record(name, tag, chrome) {
-  const file = join(here, 'scenarios', `${name}.mjs`);
-  if (!existsSync(file)) throw new Error(`no scenario ${relative(site, file)}`);
-  const mod = await import(pathToFileURL(file).href);
-  const sc = mod.default;
+async function record(name, tag, chrome, { mod, sc, view }) {
   const dir = join(WORK, name);
 
   // the docs sit in acme-shop/docs, so the home page names the project acme-shop
@@ -52,6 +59,7 @@ async function record(name, tag, chrome) {
   console.log(`  bluedoc at ${bd.origin} (BLUEDOC_HOME=${bd.home}, docs in ${bd.docs})`);
   const tabs = [];
   let cleanup = null;
+  let stage = null;
   try {
     if (sc.prepare) {
       cleanup = await sc.prepare({
@@ -59,14 +67,20 @@ async function record(name, tag, chrome) {
         py: (...args) => bd.py(...args), site, clips: here,
       });
     }
-    const tab = await openTab(chrome, sc);
+    const tab = await openTab(chrome, sc, view);
     tabs.push(tab);
+    if (sc.stage) {
+      stage = await Stage.start({ bd, clips: here, site });
+      await stage.attach(tab);
+    }
     let rec = null;
-    const actor = new Actor(tab, VIEW, {
+    const actor = new Actor(tab, view, {
       bd,
+      stage,
+      frame: stage?.frame,
       openTab: async (trigger) => {
         const id = await Tab.nextNewTarget(chrome, trigger);
-        const t = await openTab(chrome, sc, id);
+        const t = await openTab(chrome, sc, view, id);
         tabs.push(t);
         // the cursor script runs on documents created from now on: reload if the page already loaded without it
         await t.waitFor("document.readyState === 'complete'", 30_000).catch(() => {});
@@ -76,12 +90,17 @@ async function record(name, tag, chrome) {
       },
     });
     chrome.errors.length = 0;
-    await (sc.url ? tab.go(await sc.url({ bd })) : actor.goto(sc.doc, sc.query));
+    if (stage) {
+      await tab.go(stage.url());
+      if (sc.doc) await actor.goto(sc.doc, sc.query);
+    } else {
+      await (sc.url ? tab.go(await sc.url({ bd })) : actor.goto(sc.doc, sc.query));
+    }
     if (sc.setup) await sc.setup(actor);
-    await actor.place(sc.cursor ?? [VIEW.width * 0.62, VIEW.height * 0.58]);
+    await actor.place(sc.cursor ?? [view.width * 0.62, view.height * 0.58]);
     await actor.pause(400); // fonts, the first flow tokens and the cursor painted
 
-    rec = new Recorder(tab, dir, VIEW);
+    rec = new Recorder(tab, dir, view);
     await rec.start();
     await sc.run(actor);
     await rec.stop();
@@ -99,13 +118,19 @@ async function record(name, tag, chrome) {
     if (stats.stalls.length) console.log(`  paint gaps over 100 ms (clip s, ms): ${stats.stalls.map(([t, ms]) => `${t}s ${ms}ms`).join(', ')}`);
     // a busy clip (a blueprint's grid and glow, a board glide) can trade a little quality for size
     const crf = mod.crf ?? sc.crf ?? 23;
-    const files = await encode(rec.seq, stats.frames, OUT, name, { posterAt: sc.posterAt ?? 0, crf, webmCrf: mod.webmCrf ?? sc.webmCrf ?? crf + 13 });
+    const files = await encode(rec.seq, stats.frames, OUT, name, {
+      posterAt: sc.posterAt ?? 0, crf, webmCrf: mod.webmCrf ?? sc.webmCrf ?? crf + 13, width: mod.encodeWidth ?? sc.encodeWidth ?? view.width,
+    });
+    // a film also goes out as 16:9 and 1:1 MP4s for social posts (clips/social/, not deployed), padded with the stage's
+    // own background
+    if (sc.stage && (mod.social ?? sc.social ?? true)) files.push(...socialCuts(rec.seq, join(here, 'social'), name, { crf }));
     for (const [f, n] of files) console.log(`  ${relative(site, f).padEnd(40)} ${kb(n).padStart(9)}`);
     const review = reviewFrames(rec.seq, join(dir, 'review'), stats.frames);
     console.log(`  review frames: ${relative(site, join(dir, 'review'))}/ (${review.map((f) => basename(f)).join(', ')})`);
     return files.reduce((s, [, n]) => s + n, 0);
   } finally {
     for (const t of tabs) await t.close();
+    if (stage) await stage.stop();
     if (typeof cleanup === 'function') await cleanup();
     await bd.stop();
   }
@@ -116,20 +141,28 @@ async function main() {
   const names = process.argv.slice(2).length ? process.argv.slice(2) : all;
   const tag = (process.env.CLIPS_TAG || (names.length === 1 ? names[0] : `pid${process.pid}`)).replace(/[^\w.-]/g, '_');
   ensureFfmpeg();
-  const chrome = await Chrome.launch(VIEW);
+  // Chrome's window and screen take the viewport's size at launch: one Chrome per size in a run
+  let chrome = null, size = '';
   let total = 0, failed = 0;
   try {
     for (const name of names) {
       console.log(`● ${name} (CLIPS_TAG=${tag})`);
       try {
-        total += await record(name, tag, chrome);
+        const s = await load(name);
+        const key = `${s.view.width}x${s.view.height}@${s.view.dpr}`;
+        if (key !== size) {
+          await chrome?.close();
+          chrome = await Chrome.launch(s.view);
+          size = key;
+        }
+        total += await record(name, tag, chrome, s);
       } catch (e) {
         failed++;
         console.error(`  failed: ${e.stack || e}`);
       }
     }
   } finally {
-    await chrome.close();
+    await chrome?.close();
   }
   console.log(`${names.length - failed}/${names.length} clips, ${kb(total)} written`);
   process.exitCode = failed ? 1 : 0;

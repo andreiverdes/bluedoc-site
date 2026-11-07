@@ -1,0 +1,194 @@
+---
+// The night bay (as on bluedoc's own home page): a large background art behind a page's top, softly blurred and
+// dissolving into the page on every side in Bayer-dithered steps, with its three ships drifting a few px. Dark and
+// light versions follow the theme. The parent must be `position: relative` with `isolation: isolate` and clip
+// sideways (`overflow-x: clip`); the bay sits `--bay-top` (default 4rem) below its top.
+import { Picture } from 'astro:assets';
+import heroDark from '../assets/hero/hero-dark.webp';
+import heroLight from '../assets/hero/hero-light.webp';
+import shipDarkA from '../assets/hero/ships/dark-a.webp';
+import shipDarkB from '../assets/hero/ships/dark-b.webp';
+import shipDarkC from '../assets/hero/ships/dark-c.webp';
+import shipLightA from '../assets/hero/ships/light-a.webp';
+import shipLightB from '../assets/hero/ships/light-b.webp';
+import shipLightC from '../assets/hero/ships/light-c.webp';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+
+// Banner source size; ship sprites are cut from it at these boxes (source px), so they sit exactly over the
+// ships painted in the banner and only drift a few px from there.
+const W = 1672;
+const H = 523;
+const ships = [
+  { theme: 'dark', img: shipDarkA, x: 340, y: 42, dir: 'r', dur: 7 },
+  { theme: 'dark', img: shipDarkB, x: 562, y: 152, dir: 'r', dur: 5.5 },
+  { theme: 'dark', img: shipDarkC, x: 1414, y: 198, dir: 'l', dur: 6.5 },
+  { theme: 'light', img: shipLightA, x: 348, y: 32, dir: 'r', dur: 7 },
+  { theme: 'light', img: shipLightB, x: 582, y: 126, dir: 'r', dur: 5.5 },
+  { theme: 'light', img: shipLightC, x: 1434, y: 150, dir: 'l', dur: 6.5 },
+].map((s) => ({
+  ...s,
+  style: `left:${((s.x / W) * 100).toFixed(3)}%;top:${((s.y / H) * 100).toFixed(3)}%;width:${((s.img.width / W) * 100).toFixed(3)}%;--dur:${s.dur}s`,
+}));
+
+// The dissolve: 15 dither levels on one 4 × 4 Bayer grid, 2 CSS px per cell. Each level paints the page colour
+// through its tile in one elliptical ring (from 52 % to 100 % of the way to the edge), then the corners beyond go
+// solid, so the art breaks up into pixels towards every edge.
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const START = 52;
+const END = 100;
+const step = (END - START) / 15;
+const rings = Array.from({ length: 15 }, (_, i) => {
+  const level = i + 1;
+  const rects = BAYER.map((v, idx) =>
+    v < level ? `<rect x='${idx % 4}' y='${Math.floor(idx / 4)}' width='1' height='1'/>` : '',
+  ).join('');
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 4' shape-rendering='crispEdges'>${rects}</svg>`;
+  const a = (START + i * step).toFixed(3);
+  const b = (START + (i + 1) * step).toFixed(3);
+  return `--tile:url("data:image/svg+xml,${encodeURIComponent(svg)}");--a:${a}%;--b:${b}%`;
+});
+---
+
+<div class:list={['bay', className]} aria-hidden="true">
+  <div class="bay-art" data-parallax>
+    <Picture
+      formats={['avif']}
+      fallbackFormat="webp"
+      src={heroDark}
+      alt=""
+      widths={[1300, 1672]}
+      sizes="max(115vw, 1500px)"
+      quality={55}
+      loading="eager"
+      fetchpriority="high"
+      class="bay-img theme-dark"
+    />
+    <Picture
+      formats={['avif']}
+      fallbackFormat="webp"
+      src={heroLight}
+      alt=""
+      widths={[1300, 1672]}
+      sizes="max(115vw, 1500px)"
+      quality={55}
+      loading="lazy"
+      class="bay-img theme-light"
+    />
+    {
+      ships.map((s) => (
+        <img
+          src={s.img.src}
+          width={s.img.width}
+          height={s.img.height}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          class:list={['ship', `theme-${s.theme}`, `drift-${s.dir}`]}
+          style={s.style}
+        />
+      ))
+    }
+  </div>
+  {rings.map((style) => <div class="dz" style={style} />)}
+  <div class="dz dz-solid"></div>
+</div>
+
+<style>
+  /* Wider than the page (115 vw, at least 1500 px) and centred, so its edges fall well outside the rails; below
+     900 px it shifts to keep the billboard, the ships and the city in view. It sits behind everything, a touch
+     blurred and dimmed so a headline reads over it. */
+  .bay {
+    --w: max(115vw, 1500px);
+    position: absolute;
+    top: var(--bay-top, 4rem);
+    left: calc(50% - var(--w) / 2);
+    z-index: -1;
+    width: var(--w);
+    aspect-ratio: 1672 / 523;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  @media (max-width: 899px) {
+    .bay {
+      --w: 1150px;
+      left: -3rem;
+    }
+  }
+  .bay-art {
+    position: absolute;
+    inset: -4% 0;
+    filter: blur(1.6px) saturate(1.1);
+    opacity: 0.78;
+  }
+  :global([data-theme='light']) .bay-art {
+    opacity: 0.7;
+  }
+  .bay-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .ship {
+    position: absolute;
+    height: auto;
+    max-width: none;
+  }
+  :global([data-theme='dark']) .theme-light,
+  :global([data-theme='light']) .theme-dark {
+    display: none;
+  }
+  .dz {
+    position: absolute;
+    inset: 0;
+    background: var(--bg);
+    -webkit-mask-image: var(--tile), radial-gradient(ellipse 50% 50% at 50% 46%, transparent var(--a), #000 var(--a) var(--b), transparent var(--b));
+    mask-image: var(--tile), radial-gradient(ellipse 50% 50% at 50% 46%, transparent var(--a), #000 var(--a) var(--b), transparent var(--b));
+    -webkit-mask-size:
+      8px 8px,
+      100% 100%;
+    mask-size:
+      8px 8px,
+      100% 100%;
+    -webkit-mask-repeat: repeat, no-repeat;
+    mask-repeat: repeat, no-repeat;
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+  }
+  .dz-solid {
+    -webkit-mask: radial-gradient(ellipse 50% 50% at 50% 46%, transparent 99.5%, #000 100%);
+    mask: radial-gradient(ellipse 50% 50% at 50% 46%, transparent 99.5%, #000 100%);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .drift-r {
+      animation: drift-r var(--dur) ease-in-out infinite;
+    }
+    .drift-l {
+      animation: drift-l var(--dur) ease-in-out infinite;
+    }
+  }
+  @keyframes drift-r {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    50% {
+      translate: 3px 1px;
+    }
+  }
+  @keyframes drift-l {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    50% {
+      translate: -3px 1.5px;
+    }
+  }
+</style>

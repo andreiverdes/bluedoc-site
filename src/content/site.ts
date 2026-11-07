@@ -210,7 +210,7 @@ export const features = {
     {
       icon: 'comment',
       title: 'Comments that become conversations',
-      body: 'Point at an element, select a passage or draw a box. Each note, item and general comment is a thread the agent replies in.',
+      body: 'Point at an element, select a passage or draw a box, and attach a file when words aren’t enough. Each note, item and general comment is a thread the agent replies in.',
     },
     {
       icon: 'star',

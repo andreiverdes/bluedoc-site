@@ -1,0 +1,129 @@
+---
+// "Inside your agent": a segmented picker of the doc types (moving on by itself while in view, until the reader
+// picks one; [data-autoplay] in src/scripts/motion.ts, each tab staying for its film's length), each tab playing
+// its type's ask film (the request typed in Claude Code beside the page it opens) over that request.
+import ArrowRight from '@lucide/astro/icons/arrow-right';
+import Clip from '../Clip.astro';
+import PixelIcon from '../PixelIcon.astro';
+import { atlasTypes } from '../../content/atlas';
+import { rich } from '../../lib/rich';
+---
+
+<section id={atlasTypes.id} class="av-section" aria-labelledby="types-title">
+  <div class="av-wrap">
+    <div class="av-head" data-reveal>
+      <h2 id="types-title" class="h2" set:html={rich(atlasTypes.title)} />
+      <p class="lead">{atlasTypes.lead}</p>
+    </div>
+
+    <div data-tabs data-autoplay="7">
+      <div class="av-seg" role="tablist" aria-label="Doc type" data-reveal="1">
+        {
+          atlasTypes.tabs.map((t, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`type-tab-${t.id}`}
+              aria-controls={`type-panel-${t.id}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+              class="av-seg-tab"
+              data-seconds={t.seconds}
+            >
+              <PixelIcon name={t.id} size={16} />
+              {t.name}
+              <span data-progress aria-hidden="true" />
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="av-types-stage" data-reveal="2">
+        {
+          atlasTypes.tabs.map((t, i) => (
+            <div role="tabpanel" id={`type-panel-${t.id}`} aria-labelledby={`type-tab-${t.id}`} tabindex="0" hidden={i !== 0}>
+              <Clip name={t.clip} label={t.label} width={1600} height={1000} />
+              <p class="av-ask">{t.ask}</p>
+              <p class="av-type-link">
+                <a class="link-arrow" href={t.href}>
+                  The {t.name} page
+                  <ArrowRight class="size-4" aria-hidden="true" />
+                </a>
+              </p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <nav class="av-pages" aria-labelledby="pages-title" data-reveal>
+      <p id="pages-title" class="label">{atlasTypes.pagesLabel}</p>
+      <ul>
+        {
+          atlasTypes.tabs.map((t) => (
+            <li>
+              <a class="av-page" href={t.href}>
+                <PixelIcon name={t.id} size={16} />
+                {t.name}
+                <ArrowRight class="av-page-arrow size-3.5" aria-hidden="true" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <p class="av-note">{atlasTypes.note}</p>
+  </div>
+</section>
+
+<style>
+  .av-types-stage {
+    margin-top: clamp(1.75rem, 1.25rem + 1.5vw, 2.5rem);
+  }
+  .av-type-link {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.9rem;
+  }
+  .av-note {
+    margin-top: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--fg-subtle);
+  }
+  /* every type's own page, one row of links under the frame */
+  .av-pages {
+    display: grid;
+    justify-items: center;
+    gap: 0.9rem;
+    margin-top: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+  }
+  .av-pages ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .av-page {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.4rem;
+    padding-inline: 0.8rem 0.7rem;
+    border: 1px solid var(--line-strong);
+    background: color-mix(in oklab, var(--surface) 70%, transparent);
+    font-size: 0.875rem;
+    color: var(--fg-muted);
+    transition:
+      color 0.15s,
+      border-color 0.15s;
+  }
+  .av-page:hover {
+    color: var(--fg);
+    border-color: var(--brand-fg);
+  }
+  .av-page :global(.av-page-arrow) {
+    color: var(--fg-subtle);
+  }
+</style>

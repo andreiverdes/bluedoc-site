@@ -41,6 +41,11 @@ export class Chrome {
         '--disable-background-timer-throttling',
         '--disable-renderer-backgrounding',
         '--disable-backgrounding-occluded-windows',
+        // keep sandboxed frames (a design's screens) in the page's process, so a film's Fetch interception
+        // (lib/stage.mjs) also lets them into the stage; a document it serves again loses its loopback address space,
+        // so the local network checks would then block a screen's own kit scripts. The recorder only loads its own
+        // fixtures from 127.0.0.1. (One --disable-features list: a second flag would replace the first.)
+        '--disable-features=IsolateSandboxedIframes,LocalNetworkAccessChecks,BlockInsecurePrivateNetworkRequests,PrivateNetworkAccessSendPreflights',
         'about:blank',
       ],
       { stdio: 'ignore' },

@@ -1,0 +1,101 @@
+---
+// The close: the headline over the blueprint grid, a segmented agent picker over that agent's install commands and
+// note, the two buttons, and what the skill needs.
+import ArrowRight from '@lucide/astro/icons/arrow-right';
+import GithubMark from '../GithubMark.astro';
+import PixelSky from '../PixelSky.astro';
+import InstallTabs from './InstallTabs.astro';
+import { atlasCta as c } from '../../content/atlas';
+import { rich } from '../../lib/rich';
+---
+
+<section id={c.id} class="av-section av-cta" aria-labelledby="cta-title">
+  <div class="av-grid-bg av-cta-bg"></div>
+  <PixelSky class="av-cta-sky" seed={23} count={90} />
+  <div class="av-wrap av-cta-in">
+    <h2 id="cta-title" class="av-cta-title" set:html={rich(c.title)} data-reveal />
+    <p class="lead" data-reveal="1">{c.body}</p>
+
+    <div class="av-cta-tabs" data-reveal="2">
+      <InstallTabs id="cta" />
+    </div>
+
+    <div class="flex flex-wrap justify-center gap-3" data-reveal="3">
+      <a class="btn btn-primary" href={c.primary.href} rel="noopener">
+        {c.primary.label}
+        <ArrowRight class="size-4" aria-hidden="true" />
+      </a>
+      <a class="btn btn-box" href={c.secondary.href} rel="noopener">
+        <GithubMark class="size-4" />
+        {c.secondary.label}
+      </a>
+    </div>
+
+    <ul class="av-req">
+      {c.requirements.map((r) => <li>{r}</li>)}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .av-cta {
+    isolation: isolate;
+    overflow: hidden;
+    padding-block: clamp(6rem, 4rem + 8vw, 10rem);
+  }
+  /* glow from the middle rather than the top */
+  .av-cta-bg {
+    background:
+      radial-gradient(40% 50% at 50% 45%, var(--glow), transparent 70%),
+      linear-gradient(var(--line) 1px, transparent 1px) 50% 0 / 64px 64px,
+      linear-gradient(90deg, var(--line) 1px, transparent 1px) 50% 0 / 64px 64px;
+    -webkit-mask-image: radial-gradient(50% 60% at 50% 45%, #000 20%, transparent 75%);
+    mask-image: radial-gradient(50% 60% at 50% 45%, #000 20%, transparent 75%);
+  }
+  .av-cta :global(.av-cta-sky) {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    opacity: 0.32;
+    -webkit-mask-image: radial-gradient(45% 55% at 50% 45%, #000 20%, transparent 75%);
+    mask-image: radial-gradient(45% 55% at 50% 45%, #000 20%, transparent 75%);
+  }
+  .av-cta-in {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 1.25rem;
+    text-align: center;
+  }
+  .av-cta-title {
+    font-size: clamp(2.3rem, 1.2rem + 4vw, 4rem);
+    line-height: 1.04;
+    letter-spacing: -0.045em;
+  }
+  .av-cta-tabs {
+    width: 100%;
+    margin-block: 0.75rem 0.5rem;
+  }
+  .av-req {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem 1.1rem;
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--fg-subtle);
+  }
+  .av-req li {
+    display: flex;
+    align-items: center;
+  }
+  .av-req li + li::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    margin-right: 1.1rem;
+    background: var(--line-strong);
+  }
+</style>

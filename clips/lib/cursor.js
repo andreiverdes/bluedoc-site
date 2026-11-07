@@ -3,7 +3,8 @@
 // It lives in the top layer (a manual popover), so it stays above the page's own modal dialogs, and takes no
 // pointer events, so hit-testing and hover go to the page under it.
 (() => {
-  if (window.__clipCursor) return;
+  // the stage of a film draws one cursor over its windows; frames (the stage's page, a design's screens) draw none
+  if (window.__clipCursor || window.top !== window) return;
   const SHAPES = {
     // macOS arrow: black fill, white outline; tip at (3, 2)
     arrow: {
@@ -31,7 +32,7 @@
       border: 2.5px solid rgb(60 140 255 / .95); background: rgb(60 140 255 / .22); pointer-events: none;
       animation: __clip-ripple .55s cubic-bezier(.2, .7, .3, 1) forwards; }
     @keyframes __clip-ripple { from { transform: scale(.2); opacity: 1; } to { transform: scale(1); opacity: 0; } }`;
-  let el = null, svg = null, shape = 'arrow', forced = null, x = -100, y = -100;
+  let el = null, svg = null, shape = 'arrow', forced = null, hinted = 'arrow', x = -100, y = -100;
 
   function mount() {
     if (el && el.isConnected) return;
@@ -66,6 +67,8 @@
     if (forced) return forced;
     const under = document.elementFromPoint(x, y);
     if (!under) return 'arrow';
+    // a frame's page can't be seen from here: the recorder says what its CSS cursor is (hint)
+    if (under.tagName === 'IFRAME') return hinted;
     const c = getComputedStyle(under).cursor;
     return c === 'pointer' ? 'hand' : c === 'text' ? 'ibeam' : 'arrow';
   }
@@ -106,6 +109,11 @@
     /** 'arrow' | 'hand' | 'ibeam' to pin a shape, null to follow the page's CSS cursor */
     shape(name) {
       forced = name && SHAPES[name] ? name : null;
+      if (el) { shape = pick(); draw(); }
+    },
+    /** the CSS cursor ('arrow' | 'hand' | 'ibeam') in the frame under the cursor, from the recorder */
+    hint(name) {
+      hinted = SHAPES[name] ? name : 'arrow';
       if (el) { shape = pick(); draw(); }
     },
     hide() { el && (el.style.visibility = 'hidden'); },

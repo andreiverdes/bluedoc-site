@@ -1,103 +1,22 @@
 ---
-// The top of the home page: the night bay as a large background behind it, softly blurred and dissolving into the
-// page on every side in Bayer-dithered steps (as on bluedoc's own home page); over it the version strip (01), then
-// the headline, the buttons and the install tabs for every agent (02).
-import { Picture } from 'astro:assets';
+// The top of the home page: the night bay (HeroBay.astro) as a large background behind it; over it the version
+// strip (01), then the headline, the buttons and the install tabs for every agent (02).
 import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
 import Copy from '@lucide/astro/icons/copy';
 import Check from '@lucide/astro/icons/check';
 import Row from './Row.astro';
 import PixelIcon from './PixelIcon.astro';
-import heroDark from '../assets/hero/hero-dark.webp';
-import heroLight from '../assets/hero/hero-light.webp';
-import shipDarkA from '../assets/hero/ships/dark-a.webp';
-import shipDarkB from '../assets/hero/ships/dark-b.webp';
-import shipDarkC from '../assets/hero/ships/dark-c.webp';
-import shipLightA from '../assets/hero/ships/light-a.webp';
-import shipLightB from '../assets/hero/ships/light-b.webp';
-import shipLightC from '../assets/hero/ships/light-c.webp';
+import HeroBay from './HeroBay.astro';
 import { hero, install } from '../content/site';
 import { rich } from '../lib/rich';
+import { ruledGrid } from '../lib/ruled-grid';
 
-// Banner source size; ship sprites are cut from it at these boxes (source px), so they sit exactly over the
-// ships painted in the banner and only drift a few px from there.
-const W = 1672;
-const H = 523;
-const ships = [
-  { theme: 'dark', img: shipDarkA, x: 340, y: 42, dir: 'r', dur: 7 },
-  { theme: 'dark', img: shipDarkB, x: 562, y: 152, dir: 'r', dur: 5.5 },
-  { theme: 'dark', img: shipDarkC, x: 1414, y: 198, dir: 'l', dur: 6.5 },
-  { theme: 'light', img: shipLightA, x: 348, y: 32, dir: 'r', dur: 7 },
-  { theme: 'light', img: shipLightB, x: 582, y: 126, dir: 'r', dur: 5.5 },
-  { theme: 'light', img: shipLightC, x: 1434, y: 150, dir: 'l', dur: 6.5 },
-].map((s) => ({
-  ...s,
-  style: `left:${((s.x / W) * 100).toFixed(3)}%;top:${((s.y / H) * 100).toFixed(3)}%;width:${((s.img.width / W) * 100).toFixed(3)}%;--dur:${s.dur}s`,
-}));
-
-// The dissolve: 15 dither levels on one 4 × 4 Bayer grid, 2 CSS px per cell. Each level paints the page colour
-// through its tile in one elliptical ring (from 52 % to 100 % of the way to the edge), then the corners beyond go
-// solid, so the art breaks up into pixels towards every edge.
-const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
-const START = 52;
-const END = 100;
-const step = (END - START) / 15;
-const rings = Array.from({ length: 15 }, (_, i) => {
-  const level = i + 1;
-  const rects = BAYER.map((v, idx) =>
-    v < level ? `<rect x='${idx % 4}' y='${Math.floor(idx / 4)}' width='1' height='1'/>` : '',
-  ).join('');
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 4' shape-rendering='crispEdges'>${rects}</svg>`;
-  const a = (START + i * step).toFixed(3);
-  const b = (START + (i + 1) * step).toFixed(3);
-  return `--tile:url("data:image/svg+xml,${encodeURIComponent(svg)}");--a:${a}%;--b:${b}%`;
-});
+// three columns on a phone, four on a tablet (complete rows: fillGrid), one row of every tab from 1024 px
+const tabStyles = ruledGrid(install.tabs.length, [3, 4, 4]);
 ---
 
 <div id="top" class="hero pt-16">
-  <div class="bay" aria-hidden="true">
-    <div class="bay-art" data-parallax>
-      <Picture
-        formats={['avif']}
-        fallbackFormat="webp"
-        src={heroDark}
-        alt=""
-        widths={[1300, 1672]}
-        sizes="max(115vw, 1500px)"
-        quality={55}
-        loading="eager"
-        fetchpriority="high"
-        class="bay-img theme-dark"
-      />
-      <Picture
-        formats={['avif']}
-        fallbackFormat="webp"
-        src={heroLight}
-        alt=""
-        widths={[1300, 1672]}
-        sizes="max(115vw, 1500px)"
-        quality={55}
-        loading="lazy"
-        class="bay-img theme-light"
-      />
-      {
-        ships.map((s) => (
-          <img
-            src={s.img.src}
-            width={s.img.width}
-            height={s.img.height}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            class:list={['ship', `theme-${s.theme}`, `drift-${s.dir}`]}
-            style={s.style}
-          />
-        ))
-      }
-    </div>
-    {rings.map((style) => <div class="dz" style={style} />)}
-    <div class="dz dz-solid"></div>
-  </div>
+  <HeroBay />
 
   <Row n="01" plain>
     <p class="strip label"><span class="live" aria-hidden="true"></span>{hero.kicker}</p>
@@ -124,7 +43,7 @@ const rings = Array.from({ length: 15 }, (_, i) => {
       </div>
 
       <div class="qi enter" style="--d:0.75s" data-tabs>
-        <div class="qi-tabs" role="tablist" aria-label="Install for" style={`--tabs:${install.tabs.length}`}>
+        <div class="qi-tabs fill-grid" role="tablist" aria-label="Install for" style={`--tabs:${install.tabs.length}`}>
           {
             install.tabs.map((t, i) => (
               <button
@@ -135,6 +54,7 @@ const rings = Array.from({ length: 15 }, (_, i) => {
                 aria-selected={i === 0 ? 'true' : 'false'}
                 tabindex={i === 0 ? 0 : -1}
                 class="qi-tab"
+                style={tabStyles[i]}
               >
                 {t.label}
               </button>
@@ -178,72 +98,6 @@ const rings = Array.from({ length: 15 }, (_, i) => {
     isolation: isolate;
     /* the bay is wider than the screen; clip it sideways only, so it still runs down behind the copy */
     overflow-x: clip;
-  }
-
-  /* The bay: wider than the page (115 vw, at least 1500 px) and centred, so its edges fall well outside the rails;
-     below 900 px it shifts to keep the billboard, the ships and the city in view. It sits behind everything in the
-     hero, a touch blurred and dimmed so the headline reads over it. */
-  .bay {
-    --w: max(115vw, 1500px);
-    position: absolute;
-    top: 4rem;
-    left: calc(50% - var(--w) / 2);
-    z-index: -1;
-    width: var(--w);
-    aspect-ratio: 1672 / 523;
-    overflow: hidden;
-    pointer-events: none;
-  }
-  @media (max-width: 899px) {
-    .bay {
-      --w: 1150px;
-      left: -3rem;
-    }
-  }
-  .bay-art {
-    position: absolute;
-    inset: -4% 0;
-    filter: blur(1.6px) saturate(1.1);
-    opacity: 0.78;
-  }
-  :global([data-theme='light']) .bay-art {
-    opacity: 0.7;
-  }
-  .bay-img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-  }
-  .ship {
-    position: absolute;
-    height: auto;
-    max-width: none;
-  }
-  :global([data-theme='dark']) .theme-light,
-  :global([data-theme='light']) .theme-dark {
-    display: none;
-  }
-  .dz {
-    position: absolute;
-    inset: 0;
-    background: var(--bg);
-    -webkit-mask-image: var(--tile), radial-gradient(ellipse 50% 50% at 50% 46%, transparent var(--a), #000 var(--a) var(--b), transparent var(--b));
-    mask-image: var(--tile), radial-gradient(ellipse 50% 50% at 50% 46%, transparent var(--a), #000 var(--a) var(--b), transparent var(--b));
-    -webkit-mask-size:
-      8px 8px,
-      100% 100%;
-    mask-size:
-      8px 8px,
-      100% 100%;
-    -webkit-mask-repeat: repeat, no-repeat;
-    mask-repeat: repeat, no-repeat;
-    -webkit-mask-composite: source-in;
-    mask-composite: intersect;
-  }
-  .dz-solid {
-    -webkit-mask: radial-gradient(ellipse 50% 50% at 50% 46%, transparent 99.5%, #000 100%);
-    mask: radial-gradient(ellipse 50% 50% at 50% 46%, transparent 99.5%, #000 100%);
   }
 
   .strip {
@@ -326,9 +180,9 @@ const rings = Array.from({ length: 15 }, (_, i) => {
     }
   }
 
-  /* The install tabs: every agent's tab always in view (one row of equal cells on a desktop, wrapping rows below),
-     over that agent's commands. Each panel keeps room for two command lines (three on a phone, where commands
-     wrap), so switching agents never moves the page. */
+  /* The install tabs: every agent's tab always in view (one row of equal cells on a desktop, complete rows of
+     three, then four, below), over that agent's commands. Each panel keeps room for two command lines (three on a
+     phone, where commands wrap), so switching agents never moves the page. */
   .qi {
     margin-top: clamp(2.25rem, 1.5rem + 2vw, 3.25rem);
     border: 1px solid var(--line-strong);
@@ -336,22 +190,23 @@ const rings = Array.from({ length: 15 }, (_, i) => {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }
-  .qi-tabs {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
-    border-bottom: 1px solid var(--line);
-  }
   @media (min-width: 1024px) {
     .qi-tabs {
       grid-template-columns: repeat(var(--tabs, 7), minmax(0, 1fr));
     }
+    .qi-tabs > .qi-tab {
+      grid-column: auto;
+    }
   }
+  /* Each tab rules its right and bottom edges; a tab that ends a row (--end, from ruledGrid's --e1/--e2) leaves its
+     right edge to the box's border. */
   .qi-tab {
+    --end: var(--e1, 0);
     position: relative;
     height: 2.5rem;
-    padding-inline: 0.5rem;
+    padding-inline: 0.375rem;
     box-shadow:
-      inset -1px 0 0 var(--line),
+      inset calc(var(--end) * 1px - 1px) 0 0 var(--line),
       inset 0 -1px 0 var(--line);
     font-family: var(--font-mono);
     font-size: 0.6875rem;
@@ -364,6 +219,19 @@ const rings = Array.from({ length: 15 }, (_, i) => {
       color 0.15s,
       background-color 0.15s;
   }
+  @media (min-width: 720px) {
+    .qi-tab {
+      --end: var(--e2, 0);
+    }
+  }
+  @media (min-width: 1024px) {
+    .qi-tab {
+      --end: 0;
+    }
+    .qi-tab:last-child {
+      --end: 1;
+    }
+  }
   .qi-tab:hover {
     color: var(--fg);
   }
@@ -374,7 +242,7 @@ const rings = Array.from({ length: 15 }, (_, i) => {
     color: var(--fg);
     background: var(--brand-tint);
     box-shadow:
-      inset -1px 0 0 var(--line),
+      inset calc(var(--end) * 1px - 1px) 0 0 var(--line),
       inset 0 -2px 0 var(--brand-fg);
   }
   .qi-panel {
@@ -418,32 +286,5 @@ const rings = Array.from({ length: 15 }, (_, i) => {
   }
   .qi-note:hover {
     color: var(--fg);
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .drift-r {
-      animation: drift-r var(--dur) ease-in-out infinite;
-    }
-    .drift-l {
-      animation: drift-l var(--dur) ease-in-out infinite;
-    }
-  }
-  @keyframes drift-r {
-    0%,
-    100% {
-      translate: 0 0;
-    }
-    50% {
-      translate: 3px 1px;
-    }
-  }
-  @keyframes drift-l {
-    0%,
-    100% {
-      translate: 0 0;
-    }
-    50% {
-      translate: -3px 1.5px;
-    }
   }
 </style>

@@ -19,8 +19,9 @@ export default {
     await c.click(`${CV} .bp-tb button[aria-label="Full screen"]`, { ms: 200 });
     await c.waitFor(`!!document.fullscreenElement && BP.state('arch').k > 0.5`);
     await c.pause(800);
-    // start the Save a cart flow over, as picking it in the Flow menu does, so the clip opens on step 1
-    await c.ev(`(() => { const s = document.querySelector('${CV} .bp-tb select'); s.value = '0'; s.dispatchEvent(new Event('change')); })()`);
+    // open on step 1: the Flow menu is no longer a <select> (1.0.x selectMenu), so wait for the loop to come round
+    await c.waitFor(`BP.state('arch').step !== 0`, 8000);
+    await c.waitFor(`BP.state('arch').step === 0`, 8000);
   },
 
   async run(c) {

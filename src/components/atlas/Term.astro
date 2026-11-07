@@ -1,0 +1,35 @@
+---
+// The install line: the commands in a dark terminal strip, with Copy (the copy script in src/scripts/site.ts).
+import Copy from '@lucide/astro/icons/copy';
+import Check from '@lucide/astro/icons/check';
+
+interface Props {
+  commands: string[];
+  /** who the commands install for, for the Copy button's label */
+  label: string;
+  class?: string;
+}
+
+const { commands, label, class: className } = Astro.props;
+---
+
+<div class:list={['av-term', className]}>
+  <div class="av-term-cmds">
+    {
+      commands.map((c) => (
+        <code>
+          <span class="p" aria-hidden="true">
+            ${' '}
+          </span>
+          {c}
+        </code>
+      ))
+    }
+  </div>
+  <button type="button" class="av-copy" data-copy={commands.join('\n')} aria-label={`Copy the ${label} install ${commands.length > 1 ? 'commands' : 'command'}`}>
+    <Copy class="i-copy size-3.5" aria-hidden="true" />
+    <Check class="i-done size-3.5" aria-hidden="true" />
+    <span class="t-copy" aria-hidden="true">Copy</span>
+    <span class="t-done" aria-hidden="true">Copied</span>
+  </button>
+</div>

@@ -1,0 +1,385 @@
+/* The Atlas variant (/variants/atlas/): atlas.insanearts.io's composition — a floating nav, centred heads over a
+   blueprint grid, a big product frame, segmented pickers and cards — drawn with bluedoc's tokens from global.css:
+   hairlines, Geist with Geist Pixel accents, mono labels and bluedoc blue, with rounded corners (see Shape, at the
+   end). */
+
+/* state colours for the small mock UIs, readable on both themes */
+:root,
+[data-theme='dark'] {
+  --av-ok: #3ccf8e;
+  --av-del: #ff6b81;
+  /* Shape: boxes get --av-r, the small boxes inside them --av-r-sm; narrow things (buttons, chips, tabs, links in
+     a row) are pills, with round ends */
+  --av-r: 14px;
+  --av-r-sm: 9px;
+  --av-pill: 999px;
+}
+[data-theme='light'] {
+  --av-ok: #13865a;
+  --av-del: #c8324f;
+}
+
+.av-wrap {
+  width: min(100% - 2 * clamp(1rem, 4vw, 3rem), 72rem);
+  margin-inline: auto;
+}
+.av-section {
+  position: relative;
+  padding-block: clamp(4.5rem, 2.5rem + 6vw, 8rem);
+}
+
+/* a centred section head: the title, then the lead */
+.av-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: 1rem;
+  max-width: 46rem;
+  margin: 0 auto clamp(2.5rem, 1.5rem + 3vw, 4rem);
+  text-align: center;
+}
+.av-head .lead {
+  max-width: 36rem;
+}
+
+/* the top of a page: the centred copy over the blueprint grid and a pixel sky, then the big frame (.av-stage) */
+.av-hero {
+  position: relative;
+  isolation: isolate;
+  padding-top: clamp(7.5rem, 6rem + 5vw, 9.5rem);
+  overflow-x: clip;
+}
+.av-hero .av-sky {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: -1;
+  width: 100%;
+  height: 34rem;
+  opacity: 0.55;
+  -webkit-mask-image: radial-gradient(55% 80% at 50% 0, #000 30%, transparent 75%);
+  mask-image: radial-gradient(55% 80% at 50% 0, #000 30%, transparent 75%);
+}
+.av-hero-copy {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: 1.15rem;
+  text-align: center;
+}
+.av-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.32rem 0.7rem;
+  border: 1px solid var(--line-strong);
+  background: color-mix(in oklab, var(--surface) 60%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+.av-h1 {
+  font-size: clamp(2.3rem, 1rem + 4.6vw, 4.4rem);
+  line-height: 1.04;
+  letter-spacing: -0.045em;
+}
+.av-sub {
+  max-width: 34rem;
+  margin-bottom: 0.4rem;
+}
+.av-stage {
+  margin-top: clamp(2.75rem, 2rem + 3vw, 4.5rem);
+}
+
+/* the blueprint: a 64 px grid in the rail ink under a bluedoc-blue glow, fading out from the top centre */
+.av-grid-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(46% 60% at 50% 0%, var(--glow), transparent 70%),
+    linear-gradient(var(--line) 1px, transparent 1px) 50% 0 / 64px 64px,
+    linear-gradient(90deg, var(--line) 1px, transparent 1px) 50% 0 / 64px 64px;
+  -webkit-mask-image: radial-gradient(64% 78% at 50% 0, #000 22%, rgb(0 0 0 / 0.5) 48%, transparent 76%);
+  mask-image: radial-gradient(64% 78% at 50% 0, #000 22%, rgb(0 0 0 / 0.5) 48%, transparent 76%);
+}
+/* the same grid inside a card's art panel, glowing from its top edge */
+.av-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+  background:
+    radial-gradient(70% 90% at 50% 0%, color-mix(in oklab, var(--brand) 22%, transparent), transparent 70%),
+    linear-gradient(var(--line) 1px, transparent 1px) 50% 0 / 24px 24px,
+    linear-gradient(90deg, var(--line) 1px, transparent 1px) 50% 0 / 24px 24px,
+    var(--bg-2);
+}
+
+.av-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  box-shadow: 0 30px 80px -50px var(--glow);
+}
+.av-card-body {
+  display: grid;
+  gap: 0.5rem;
+  padding: clamp(1.25rem, 2vw, 1.6rem);
+}
+.av-card-title {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+}
+.av-card-text {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--fg-muted);
+}
+
+/* the install line: a terminal strip that stays dark in both themes, with a Copy button at its end */
+.av-term {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 38rem;
+  min-width: 0;
+  padding: 0.375rem 0.375rem 0.375rem 1.1rem;
+  border: 1px solid rgb(140 170 255 / 0.22);
+  background: #060a16;
+  color: #eaf4ff;
+  box-shadow: 0 20px 50px -30px var(--glow);
+  text-align: left;
+}
+.av-term-cmds {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  padding-block: 0.35rem;
+}
+.av-term code {
+  display: block;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.84375rem;
+  line-height: 1.6;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+.av-term code::-webkit-scrollbar {
+  display: none;
+}
+.av-term .p {
+  color: #4f9bff;
+  user-select: none;
+}
+.av-copy {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 5.75rem;
+  height: 2.125rem;
+  border: 1px solid rgb(140 170 255 / 0.24);
+  background: rgb(140 170 255 / 0.08);
+  font-size: 0.8125rem;
+  color: #eaf4ff;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
+}
+.av-copy:hover {
+  background: rgb(140 170 255 / 0.16);
+}
+.av-copy .i-done,
+.av-copy .t-done,
+.av-copy[data-copied] .i-copy,
+.av-copy[data-copied] .t-copy {
+  display: none;
+}
+.av-copy[data-copied] {
+  border-color: var(--brand);
+  background: var(--brand);
+}
+.av-copy[data-copied] .i-done,
+.av-copy[data-copied] .t-done {
+  display: inline;
+}
+
+/* a segmented picker: one hairline box of tabs; the picked one is raised, with a blue bar that fills on autoplay */
+.av-seg {
+  display: flex;
+  width: max-content;
+  max-width: 100%;
+  margin-inline: auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border: 1px solid var(--line-strong);
+  background: color-mix(in oklab, var(--surface) 70%, transparent);
+}
+.av-seg::-webkit-scrollbar {
+  display: none;
+}
+.av-seg-tab {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.5rem;
+  height: 2.6rem;
+  padding-inline: 0.95rem 1.05rem;
+  font-size: 0.875rem;
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    background-color 0.15s;
+}
+.av-seg-tab + .av-seg-tab {
+  border-left: 1px solid var(--line);
+}
+.av-seg-tab:hover {
+  color: var(--fg);
+}
+.av-seg-tab[aria-selected='true'] {
+  color: var(--fg);
+  background: var(--surface-2);
+}
+.av-seg-tab [data-progress] {
+  position: absolute;
+  inset: auto 0 0;
+  height: 2px;
+  background: var(--brand-fg);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.av-seg-tab[aria-selected='true'] [data-progress] {
+  transform: scaleX(1);
+}
+.motion [data-autoplay] .av-seg-tab[aria-selected='true'] [data-progress] {
+  transform: scaleX(0);
+}
+
+/* the request under a product frame, as you'd type it to your agent */
+.av-ask {
+  margin: 1.5rem auto 0;
+  max-width: 40rem;
+  text-align: center;
+  font-size: clamp(0.9375rem, 0.9rem + 0.2vw, 1.0625rem);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--fg);
+}
+
+/* a step number: a blue square with the digit in the pixel face */
+.av-num {
+  display: inline-grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  background: var(--brand);
+  font-family: var(--font-pixel);
+  font-size: 0.9375rem;
+  color: #fff;
+}
+
+/* small status chip in mono caps, the dot in a state colour */
+.av-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  font-family: var(--font-mono);
+  font-size: 0.65625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+.av-chip::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  background: var(--dot, var(--brand-fg));
+}
+.av-chip[data-tone='ok'] {
+  --dot: var(--av-ok);
+}
+.av-chip[data-tone='off'] {
+  --dot: var(--fg-subtle);
+}
+
+/* ---- Shape: every corner on the Atlas pages, in one place. It covers the shared components they use (clips,
+   the lightbox, buttons) too; this file loads on the Atlas pages only, so the rest of the site stays square. ---- */
+
+/* boxes */
+.av-card,
+.av-term,
+.clip-frame,
+.clip-lightbox-frame,
+.mock-diff,
+.art-list {
+  border-radius: var(--av-r);
+}
+.clip-lightbox-frame {
+  overflow: hidden;
+  /* the L marks belong to square corners */
+  background-image: none;
+}
+
+/* the small boxes inside them */
+.mock-node,
+.mock-msg,
+.mock-opt,
+.art-tile,
+.art-file,
+.av-faq-q {
+  border-radius: var(--av-r-sm);
+}
+
+/* narrow things: round ends */
+.av-kicker,
+.av-chip,
+.av-copy,
+.av-seg,
+.av-seg-tab,
+.av-page,
+.btn,
+.clip-chrome .url {
+  border-radius: var(--av-pill);
+}
+/* small squares become circles */
+.av-num,
+.av-cmp-icon,
+.mock-pin,
+.av-chip::before,
+.clip-chrome .dots i,
+.clip-lightbox-close,
+.clip-frame .clip-stage .clip-toggle,
+.clip-frame .clip-stage .clip-zoom-icon {
+  border-radius: 50%;
+}
+/* the segmented picker: pill tabs on a pill track, the picked one raised inside it */
+.av-seg {
+  padding: 3px;
+  gap: 2px;
+}
+.av-seg-tab + .av-seg-tab {
+  border-left: 0;
+}
+.av-seg-tab {
+  height: calc(2.6rem - 6px);
+  overflow: hidden;
+}
