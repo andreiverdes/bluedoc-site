@@ -1,6 +1,6 @@
 # bluedoc-site
 
-The marketing site for [bluedoc](https://github.com/andreiverdes/bluedoc), built with Astro, Tailwind CSS v4 and [Motion](https://motion.dev): a ruled page in bluedoc's blues, with its pixel-art night bay, a landing page, and one showcase page per doc type (`/docs/`, `/designs/`, `/websites/`) that shows each feature in a short looping clip.
+The marketing site for [bluedoc](https://github.com/andreiverdes/bluedoc), built with Astro, Tailwind CSS v4 and [Motion](https://motion.dev): bluedoc's blues and pixel-art night bay, rounded cards and pills, a landing page, a page per doc type (`/docs/`, `/plans/`, `/designs/`…), a revisions page, a features page and credits. Every feature is shown in a short looping clip or a film of the agent's terminal beside the page.
 
 ## Run it
 
@@ -18,46 +18,34 @@ To review the page with an agent, keep `npm run dev` running and open the bluedo
 
 ## Change the copy
 
-All text, links and the screenshots each section of the landing page shows live in **`src/content/site.ts`**: the nav, hero, the why band, product shot, the loop steps, the doc types, the features, the JSON snippet, the install commands, the FAQ, the closing band and the footer. The components in `src/components/` only lay it out, so most edits never touch them.
+Page copy lives in three files; the components only lay it out.
+
+- **`src/content/atlas.ts`**: the home (`atlasHero`, `atlasTypes`, `atlasSetup`, `atlasCompare`, `atlasAnswering`, `atlasFaq`, `atlasCta`), the nav and footer (`atlasNav`, `atlasFooter`) and the revisions page (`atlasRevisions`). It takes its facts from the two files below, so no two pages disagree.
+- **`src/content/site.ts`**: the facts: page title and description (`meta`), the doc types, features, install commands per agent, the FAQ and the credits (`legal`).
+- **`src/content/types.ts`**: each doc type's page (`typePages`), the clips every type shares (`every`), the films (`films`) and the features page (`featuresPage`).
 
 Headings use a small markup that `src/lib/rich.ts` renders: `[words]` in the blue pixel face, `{words}` in the soft second ink, and `\n` for a line break.
 
-The page is a column between two hairline rails. Each section is a numbered row (`Row.astro`): a rule across the top, its number in the left gutter, and `band` to set it apart in a tinted band (deep night blue in the dark theme, pale blue in the light one). A row's kicker, title and lead come from `SectionHead.astro`.
+### Pages
 
-| Row | Section | Component | Copy in `site.ts` |
-|---|---|---|---|
-| | Nav, with the Doc types menu | `Nav.astro` | `nav`; the menu lists each type in `docTypes` that has an `href` |
-| 01–02 | Version strip, headline and install tabs for every agent, over the night bay (blurred, dithered out on every side) | `Hero.astro` | `hero`; the tabs are the agents and commands in `install` |
-| 03 | Why a page, with four counts | `Why.astro` | `why` |
-| 04 | Framed screenshot | `ProductShot.astro` | `productShot` |
-| 05 | The loop: a pinned row with a bar of the five steps that fills as you scroll, over each step's clip at full column width | `Loop.astro` (icons in `PixelIcon.astro`) | `loop` |
-| 06 | Doc types viewer, with autoplaying tabs | `DocTypes.astro` | `docTypes`; each type's `href` is its page |
-| 07 | Feature cells | `Features.astro` | `features` |
-| 08 | JSON and the rendered page | `CodePeek.astro` | `codePeek` |
-| 09 | Install tabs, notes and requirements | `Install.astro` | `install` |
-| 10 | FAQ | `Faq.astro` | `faq` |
-| 11 | Closing band | `FinalCta.astro` | `finalCta` |
-| | Footer, links and the pixel wordmark | `Footer.astro` | `footer`, after a link to each type page |
+| Page | File | Built from |
+|---|---|---|
+| `/` | `src/pages/index.astro` | the nav, the hero over the night bay (`HeroBay.astro`) with the install tabs and the plan hook film sized to fit a laptop screen, the doc types (each tab plays its ask film for its length), setup, chat versus page, what you do on a page, the FAQ, the install band and the footer; sections in `src/components/atlas/` |
+| `/<type>/` | `src/pages/[type].astro` | one entry of `typePages`: its films in the big frame, what it's for, its clips as cards, the shared clips, how the agent uses it (`AgentSnippet.astro`), the other types |
+| `/revisions/` | `src/pages/revisions.astro` | `atlasRevisions`: the onion skin, how a revision works, a compare per doc type, the films where a revision lands |
+| `/features/` | `src/pages/features.astro` | `featuresPage`: the clips grouped by what the reader does |
+| `/legal/` | `src/pages/legal.astro` | `legal`: licence, privacy, credits |
 
-Page title and description: `meta` in `site.ts`. Colours, fonts and shared styles (rails, rows, buttons, kickers, `.band`): `src/styles/global.css`, with CSS variables per theme (`[data-theme='dark']`, `[data-theme='light']`) and each theme's band palette under `.band`. Pixel icons are 12 × 12 maps in `src/lib/pixel-icons.ts`.
+Shared layout styles (hero, sections, cards, segmented pickers, the install terminal, and the Shape block that sets every corner radius) are in `src/styles/atlas.css`; colours per theme (`[data-theme='dark']`, `[data-theme='light']`), fonts and base styles in `src/styles/global.css`. Every card grid uses `.fill-grid` with `fillGrid` (`src/lib/fill-grid.ts`), so no grid ends on a half-empty row. Pixel icons are 12 × 12 maps in `src/lib/pixel-icons.ts`. `Clip.astro` looks for its files at build time: a clip with no MP4 yet shows its poster, and one with no poster either shows a card with its title, so a page builds before its clips are recorded; a `zoom` clip opens larger in the lightbox (`ClipLightbox.astro`).
 
-### Type pages
+### Design experiments
 
-`src/pages/docs.astro`, `designs.astro` and `websites.astro` each render `src/layouts/TypePage.astro` with one entry of **`src/content/types.ts`**, as numbered rows: the hero and its clip (`TypeHero.astro`), What it's for, a feature row per clip (`FeatureRow.astro`), the shared clips under Works on every doc, How the agent uses it (`AgentSnippet.astro`, highlighted at build time by `src/lib/highlight.ts`), the install tabs and the other types (`TypeLinks.astro`). A clip is named by its id in the showcase plan. `Clip.astro` looks for its files at build time: a clip with no MP4 yet shows its poster, and one with no poster either shows a card with its title, so a page builds before its clips are recorded. To add a type page, add its entry to `types.ts`, an `href` to its card in `docTypes`, and a page file like `docs.astro`.
-
-### Design variants
-
-Alternative home pages live under `src/pages/variants/` and render at `/variants/<name>/`. Each one carries `noindex` (the `noindex` prop on `Base.astro`) and is left out of the sitemap (the filter in `astro.config.mjs`), so it can be deployed for review without competing with `/`.
-
-- **`/variants/atlas/`** takes the layout of [atlas.insanearts.io](https://atlas.insanearts.io): a floating capsule nav, a centred head over the home page's night bay (`src/components/HeroBay.astro`, shared with the home hero), a big product frame (the Plans film) with its request under it, a segmented doc-type picker, step cards, a chat-versus-page comparison, illustrated feature cards, a FAQ list beside one illustrated panel, and a closing install band. It keeps bluedoc's tokens, Geist and Geist Pixel, but with rounded corners: boxes are rounded and narrow things (buttons, chips, tabs) are pills, all set in the Shape block at the end of `src/styles/atlas.css`. Sections are in `src/components/atlas/`, shared pieces in `src/styles/atlas.css`, and the copy in `src/content/atlas.ts`, which takes its facts from `site.ts`.
-- **`/variants/atlas/<type>/`** (`src/pages/variants/atlas/[type].astro`) is each doc type's page in the same layout, from the type's entry in `types.ts`. Its films open the page in the big frame (the first in the hero, the rest under it); a type without a film opens on its hero clip. Then What it's for, the type's clips as cards, the shared clips, How the agent uses it, and the other types. The home's doc-type tabs link to these pages.
-- **`/variants/atlas/revisions/`** (`src/pages/variants/atlas/revisions.astro`, copy in `atlasRevisions`) is the revisions feature in the same layout: the onion skin in the big frame (`rev-onion`), how a revision works, one compare per doc type in a picker, the onion skin up close, the design and send-back films, and the other revision clips. The nav, the footer and the home's revisions card link to it.
+Try a new design under `src/pages/variants/<name>/` (it renders at `/variants/<name>/` in `npm run dev`). The folder is gitignored: experiments are never committed or deployed. When one wins, move it into `src/pages/` and delete what it replaces.
 
 ## Change the images
 
-- **Screenshots** sit in `src/assets/shots/`. Replace a file, or add one and import it at the top of `site.ts`. Astro converts them to sized WebP at build time.
-- **Hero banners** are `src/assets/hero/hero-dark.webp` and `hero-light.webp` (1672 × 523). The ships that drift are small cut-outs of the banner in `src/assets/hero/ships/`, placed at the source-pixel boxes listed in `Hero.astro`; with a new banner, cut new ones (or remove the `ships` list).
-- **Clips and films** are in `public/clips/`, recorded by `npm run clips` from `clips/scenarios/` (see `clips/README.md`). Clips show one page at 1280 × 800; films (`film-*`, 1600 × 1000) put the agent's terminal beside the page for the whole loop, and also come out as 16:9 and 1:1 MP4s in `clips/social/` for posts. The Atlas variant's hero plays `film-plan-hook`.
+- **Hero banners** are `src/assets/hero/hero-dark.webp` and `hero-light.webp` (1672 × 523), drawn by `src/components/HeroBay.astro`. The ships that drift are small cut-outs of the banner in `src/assets/hero/ships/`, placed at the source-pixel boxes listed there; with a new banner, cut new ones (or remove the `ships` list).
+- **Clips and films** are in `public/clips/`, recorded by `npm run clips` from `clips/scenarios/` (see `clips/README.md`). Clips show one page at 1280 × 800; films (`film-*`, `ask-*`, 1600 × 1000) put the agent's terminal beside the page, and `film-*` also come out as 16:9 and 1:1 MP4s in `clips/social/` for posts (gitignored). The home's hero plays `film-plan-hook`.
 - **Logo**: `src/components/Logo.astro` (the mark and the outlined wordmark). The favicon is `public/favicon.svg`, with `favicon.ico` and `apple-touch-icon.png` rendered from it.
 - **Social card**: `public/og.png` (1200 × 630) is rendered from `scripts/og/og.html`. Edit the HTML, then run `npm run og` (needs Google Chrome or Chromium; set `CHROME_PATH` if it isn't found).
 - **Clips**: `public/clips/` holds short looping recordings of bluedoc (mp4, webm and a poster each), shown with `src/components/Clip.astro`. Run `npm run clips` to record them again from the scenarios in `clips/scenarios/` (needs Chrome, ffmpeg and the bluedoc repo next to this one); `clips/README.md` explains how to write one.
@@ -74,11 +62,11 @@ Any static host works too: upload `dist/` after `npm run build`.
 
 ## What runs in the browser
 
-The page is static HTML and CSS plus one bundle of two scripts. `src/scripts/site.ts` handles what works without motion: the theme toggle, the nav's glass background, the menus, copy buttons, tabs and the clips (each plays only while in view). `src/scripts/motion.ts` uses Motion for everything that moves as you scroll: reveals, counters, the typed command, the banner's parallax, the product shot's tilt, the pinned loop, the doc types autoplay and the footer's scan; the hero's own entrance is CSS (`.enter`), so it doesn't wait for the script. Under `prefers-reduced-motion` none of it runs: `<html>` gets no `.motion` class, everything shows in place, and a clip shows its poster and a play button.
+The page is static HTML and CSS plus one bundle of two scripts. `src/scripts/site.ts` handles what works without motion: the theme toggle, the nav's glass background and menus, copy buttons, tabs, and the clips (each plays only while in view; a big one shows the browser's controls on hover, a thumbnail opens in the lightbox). `src/scripts/motion.ts` uses Motion for what moves as you scroll: reveals, counters, the banner's parallax and the doc types autoplay; the hero's own entrance is CSS (`.enter`), so it doesn't wait for the script. Under `prefers-reduced-motion` none of it runs: `<html>` gets no `.motion` class, everything shows in place, and a clip shows its poster and a play button.
 
 ## Credits
 
-- bluedoc, its banners, logo and screenshots: MIT, from the [bluedoc repository](https://github.com/andreiverdes/bluedoc). The screenshots show bluedoc's HorizonUI build (Apache-2.0).
+- bluedoc, its banners, logo and recordings: MIT, from the [bluedoc repository](https://github.com/andreiverdes/bluedoc). The recordings show bluedoc's HorizonUI build (Apache-2.0).
 - Fonts, self-hosted via Fontsource: Geist, Geist Mono and Geist Pixel, all SIL Open Font License 1.1. The social card (`scripts/og/og.html`) still uses Lexend, Inter and Silkscreen.
 - Animation: [Motion](https://motion.dev) (MIT).
 - Icons: [Lucide](https://lucide.dev) (ISC).

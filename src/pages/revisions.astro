@@ -1,0 +1,284 @@
+---
+// The revisions page (/revisions/): the onion skin in the big frame, how a revision works, one compare per doc type
+// in a segmented picker, the onion skin up close, the films where a revision lands, and the rest of the revision
+// clips as cards. Copy in atlasRevisions (src/content/atlas.ts).
+import ArrowRight from '@lucide/astro/icons/arrow-right';
+import Check from '@lucide/astro/icons/check';
+import '../styles/atlas.css';
+import Base from '../layouts/Base.astro';
+import Nav from '../components/atlas/Nav.astro';
+import Cta from '../components/atlas/Cta.astro';
+import Footer from '../components/atlas/Footer.astro';
+import Clip from '../components/Clip.astro';
+import PixelIcon from '../components/PixelIcon.astro';
+import PixelSky from '../components/PixelSky.astro';
+import { atlasRevisions as r } from '../content/atlas';
+import { rich } from '../lib/rich';
+---
+
+<Base title={r.metaTitle} description={r.metaDescription}>
+  <Nav />
+  <main id="main">
+    <section id="top" class="av-hero" aria-labelledby="rev-title">
+      <div class="av-grid-bg"></div>
+      <PixelSky class="av-sky" seed={29} count={100} />
+      <div class="av-wrap av-hero-copy">
+        <p class="av-kicker enter"><PixelIcon name="compare" size={14} />{r.kicker}</p>
+        <h1 id="rev-title" class="av-h1 enter" style="--d:0.08s" set:html={rich(r.headline)} />
+        <p class="lead av-sub is-rev enter" style="--d:0.16s">{r.subline}</p>
+      </div>
+      <figure class="av-wrap av-stage enter" style="--d:0.3s">
+        <Clip name={r.hero.clip} label={r.hero.shows} title={r.hero.title} priority />
+        <figcaption class="av-ask"><span class="av-cap-t">{r.hero.title}.</span> <span class="av-cap-b">{r.hero.body}</span></figcaption>
+      </figure>
+    </section>
+
+    <section class="av-section" aria-labelledby="loop-title">
+      <div class="av-wrap">
+        <div class="av-head" data-reveal>
+          <p class="label">{r.loop.kicker}</p>
+          <h2 id="loop-title" class="h2" set:html={rich(r.loop.title)} />
+        </div>
+        <ol class="av-rev-steps">
+          {
+            r.loop.steps.map((s, i) => (
+              <li class="av-card av-card-body" data-reveal={String(i)}>
+                <span class="av-num" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <h3 class="av-card-title mt-2">{s.title}</h3>
+                <p class="av-card-text">{s.body}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <section class="av-section" aria-labelledby="types-title">
+      <div class="av-wrap">
+        <div class="av-head" data-reveal>
+          <p class="label">{r.byType.kicker}</p>
+          <h2 id="types-title" class="h2" set:html={rich(r.byType.title)} />
+          <p class="lead">{r.byType.lead}</p>
+        </div>
+        <div data-tabs>
+          <div class="av-seg" role="tablist" aria-label="Doc type" data-reveal="1">
+            {
+              r.byType.tabs.map((t, i) => (
+                <button
+                  type="button"
+                  role="tab"
+                  id={`rev-tab-${t.id}`}
+                  aria-controls={`rev-panel-${t.id}`}
+                  aria-selected={i === 0 ? 'true' : 'false'}
+                  tabindex={i === 0 ? 0 : -1}
+                  class="av-seg-tab"
+                >
+                  <PixelIcon name={t.id} size={16} />
+                  {t.name}
+                </button>
+              ))
+            }
+          </div>
+          <div class="av-rev-stage" data-reveal="2">
+            {
+              r.byType.tabs.map((t, i) => (
+                <div role="tabpanel" id={`rev-panel-${t.id}`} aria-labelledby={`rev-tab-${t.id}`} tabindex="0" hidden={i !== 0}>
+                  <Clip name={t.clip.clip} label={t.clip.shows} title={t.clip.title} />
+                  <p class="av-ask">
+                    <span class="av-cap-t">{t.clip.title}.</span> <span class="av-cap-b">{t.clip.body}</span>
+                  </p>
+                  <p class="av-rev-link">
+                    <a class="link-arrow" href={t.href}>
+                      The {t.name} page
+                      <ArrowRight class="size-4" aria-hidden="true" />
+                    </a>
+                  </p>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="av-section" aria-labelledby="onion-title">
+      <div class="av-wrap av-onion">
+        <div class="av-onion-copy" data-reveal>
+          <p class="label">{r.onion.kicker}</p>
+          <h2 id="onion-title" class="h2" set:html={rich(r.onion.title)} />
+          <p class="lead">{r.onion.body}</p>
+          <ul class="av-onion-points">
+            {
+              r.onion.points.map((p) => (
+                <li>
+                  <Check class="size-4" aria-hidden="true" />
+                  {p}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+        <figure class="av-onion-clip" data-reveal="1">
+          <Clip name={r.onion.clip.clip} label={r.onion.clip.shows} title={r.onion.clip.title} zoom />
+          <figcaption class="av-onion-cap">{r.onion.clip.body}</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="av-section" aria-labelledby="films-title">
+      <div class="av-wrap">
+        <div class="av-head" data-reveal>
+          <p class="label">{r.films.kicker}</p>
+          <h2 id="films-title" class="h2" set:html={rich(r.films.title)} />
+        </div>
+        <div class="av-rev-films">
+          {
+            r.films.items.map((f) => (
+              <figure data-reveal>
+                <Clip name={f.clip} label={f.shows} title={f.title} width={1600} height={1000} />
+                <figcaption class="av-ask">
+                  <span class="av-cap-t">{f.title}.</span> <span class="av-cap-b">{f.body}</span>
+                </figcaption>
+              </figure>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="av-section" aria-labelledby="more-title">
+      <div class="av-wrap">
+        <div class="av-head" data-reveal>
+          <p class="label">{r.more.kicker}</p>
+          <h2 id="more-title" class="h2" set:html={rich(r.more.title)} />
+        </div>
+        <ul class="av-rev-cards">
+          {
+            r.more.items.map((f, i) => (
+              <li class="av-card av-clip" data-reveal={String(i % 3)}>
+                <Clip name={f.clip} label={f.shows} title={f.title} class="av-clip-frame" zoom />
+                <div class="av-card-body">
+                  <h3 class="av-card-title">{f.title}</h3>
+                  <p class="av-card-text">{f.body}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <Cta />
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  .av-sub.is-rev {
+    max-width: 40rem;
+  }
+  .av-cap-t {
+    color: var(--fg);
+  }
+  .av-cap-b {
+    font-weight: 400;
+    color: var(--fg-muted);
+  }
+
+  .av-rev-steps {
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 720px) {
+    .av-rev-steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1080px) {
+    .av-rev-steps {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .av-rev-steps .av-num {
+    justify-self: start;
+  }
+
+  .av-rev-stage {
+    margin-top: clamp(1.75rem, 1.25rem + 1.5vw, 2.5rem);
+  }
+  .av-rev-link {
+    margin-top: 0.75rem;
+    text-align: center;
+  }
+
+  /* the onion skin up close: the copy beside the clip on a desktop */
+  .av-onion {
+    display: grid;
+    gap: clamp(2rem, 1rem + 3vw, 3.5rem);
+    align-items: center;
+  }
+  @media (min-width: 1024px) {
+    .av-onion {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    }
+  }
+  .av-onion-copy {
+    display: grid;
+    gap: 1rem;
+  }
+  .av-onion-points {
+    display: grid;
+    gap: 0.55rem;
+    margin-top: 0.5rem;
+    font-size: 0.9375rem;
+    color: var(--fg-muted);
+  }
+  .av-onion-points li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .av-onion-points :global(svg) {
+    flex: none;
+    color: var(--brand-fg);
+  }
+  .av-onion-clip {
+    margin: 0;
+  }
+  .av-onion-cap {
+    margin-top: 0.9rem;
+    font-size: 0.875rem;
+    color: var(--fg-subtle);
+  }
+
+  .av-rev-films {
+    display: grid;
+    gap: clamp(3rem, 2rem + 3vw, 5rem);
+  }
+  .av-rev-films figure {
+    margin: 0;
+  }
+
+  .av-rev-cards {
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 720px) {
+    .av-rev-cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1080px) {
+    .av-rev-cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  /* a card's clip fills its top edge to edge: no frame of its own */
+  .av-clip :global(.av-clip-frame) {
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    box-shadow: none;
+  }
+</style>

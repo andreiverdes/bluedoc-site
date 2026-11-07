@@ -1,19 +1,7 @@
-// Every piece of copy on the page lives here. Edit text, links and images in this one file;
-// the components in src/components only lay it out.
-import type { ImageMetadata } from 'astro';
+// The facts every page shares: the doc types, the features, the install commands, the FAQ and the legal page.
+// atlas.ts arranges most of them for the pages; the type, Features and legal pages read some directly.
 import type { PixelIconName } from '../lib/pixel-icons';
 import { base } from '../lib/paths';
-import { every, type ClipCopy } from './types';
-
-import homeShot from '../assets/shots/home-hero.webp';
-import docsShot from '../assets/shots/docs-hero.webp';
-import planShot from '../assets/shots/plan-hero.webp';
-import reviewShot from '../assets/shots/review-hero.webp';
-import designShot from '../assets/shots/design-hero.webp';
-import presentationShot from '../assets/shots/presentation-hero.webp';
-import otherShot from '../assets/shots/other-hero.webp';
-import websiteShot from '../assets/shots/website-hero.webp';
-import storeListingShot from '../assets/shots/storelisting-hero.webp';
 
 // Headings use a small markup that src/lib/rich.ts renders: [words] in the blue pixel face, {words} in the soft
 // second ink, and a line break where the text has one.
@@ -27,78 +15,21 @@ export const meta = {
   ogImageAlt: 'bluedoc: a pixel-art night bay with a ringed planet, the bluedoc logo and the headline “Point, pick, approve. Your agent does the rest.”',
 };
 
-// Anchors on the home page carry the base path, so they work from the type pages too.
+// The type pages link to the Features page from their shared clips.
 export const nav = {
-  links: [
-    { label: 'Features', href: `${base}#features` },
-    { label: 'How it works', href: `${base}#how-it-works` },
-    { label: 'Install', href: `${base}#install` },
-  ],
-  // The Doc types menu lists every type in docTypes, then the Features page; it sits after Features.
   typesMenu: {
-    label: 'Doc types',
-    features: {
-      label: 'Features on every type',
-      pitch: 'Comments, decisions, approval and revisions.',
-      href: `${base}features/`,
-    },
-    all: { label: 'All doc types', href: `${base}#doc-types` },
+    features: { href: `${base}features/` },
   },
-  github: { label: 'GitHub', href: repoUrl },
 };
 
-export const hero = {
-  kicker: 'v1.0 · Agent skill · Local · MIT',
-  headline: 'Point, pick, approve.\nYour agent does [the rest].',
-  subline:
-    'bluedoc turns plans, code reviews, architecture docs, UI designs, slide decks and store listings into interactive pages. Comment on any element, pick an option, approve. Your agent reads the answers and gets on with it.',
-  primaryCta: { label: 'Install', href: '#install' },
-  secondaryCta: { label: 'View on GitHub', href: repoUrl },
-  // under the headline: each agent's install commands as tabs; this link goes to the Install row's notes
-  commandNote: { label: 'Notes and requirements', href: '#install' },
-};
-
-export const productShot = {
-  kicker: 'One home for every doc',
-  title: 'Every doc your agent writes, {in one place.}',
-  body: 'The local server lists each doc with its type, status and revision. Filter by type or status, browse projects in the sidebar, and open a doc to read, comment and decide.',
-  url: '127.0.0.1 / bluedoc',
-  image: homeShot,
-  alt: 'The bluedoc home page in dark mode: the pixel-art banner behind the title and search field, filter chips by type and status, the sidebar of projects and the doc cards.',
-};
-
-export type LoopIcon = 'write' | 'markup' | 'decide' | 'revise' | 'approve';
-
-export const loop = {
-  id: 'how-it-works',
-  kicker: 'How it works',
-  title: 'One loop, {from draft to approved.}',
-  lead: 'The agent writes, you answer on the page, the agent revises. Each round is a revision you can compare with the last.',
-  // `title` is two words: the actor, then the act in the soft ink. A step with a `clip` plays it; the first step
-  // shows the start of the JSON the agent writes (codePeek.snippet).
-  steps: [
-    { icon: 'write', title: 'Agent {writes}', tag: 'One JSON file', body: 'One JSON file. The local server renders it as a page; no HTML to keep in sync.' },
-    { icon: 'markup', title: 'You {mark up}', tag: 'Pins · passages · drawings', body: 'Pin a comment on any element, a selected passage or a box you draw.', clip: every.pin },
-    { icon: 'decide', title: 'You {decide}', tag: 'Option rows · ★ recommended', body: 'Pick an option per question. The agent’s recommendation is starred.', clip: every.optionRows },
-    { icon: 'revise', title: 'Agent {revises}', tag: 'Revisions · word by word', body: 'It edits one part at a time and marks the comments it resolved.', clip: every.compare },
-    { icon: 'approve', title: 'You {approve}', tag: 'Approved · rev 1', body: 'Approve the current revision; the agent waits for it before it writes code.', clip: every.approve },
-  ] satisfies { icon: LoopIcon; title: string; tag: string; body: string; clip?: ClipCopy }[],
-};
-
-export type DocType = {
+type DocType = {
   id: PixelIconName;
   name: string;
   tag: string;
   pitch: string;
-  bullets: string[];
-  image: ImageMetadata;
-  alt: string;
-  /** the type's showcase page */
-  href: string;
 };
 
 export const docTypes = {
-  id: 'doc-types',
   kicker: 'Doc types',
   title: 'Eight kinds of page, {one way to answer them.}',
   lead: 'Each type has its own layout and its own decisions. Comments, revisions and approval work the same on all of them.',
@@ -108,103 +39,56 @@ export const docTypes = {
       name: 'Docs',
       tag: 'docs',
       pitch: 'Architecture pages, walkthroughs, runbooks, setup guides and change proposals.',
-      bullets: [
-        'A zoomable blueprint canvas, nested up to 3 levels',
-        'Animated flows: a request, an event, a data path',
-        'Checklists whose ticks the local server keeps',
-      ],
-      image: docsShot,
-      alt: 'The Acme orders doc: the order path canvas zoomed into the orders-api system, playing step 3 of a flow.',
-      href: `${base}docs/`,
     },
     {
       id: 'plans',
       name: 'Plans',
       tag: 'plan',
       pitch: 'A plan you approve or send back before the agent writes code.',
-      bullets: ['Steps, files, risks and checks on one page', 'Open questions with the recommendation starred', 'The agent waits for Approve plan'],
-      image: planShot,
-      alt: 'The Acme saved carts plan: open questions as option rows, 90 days picked and the recommended options starred, a pending comment in the panel, and Approve plan in the bottom tray.',
-      href: `${base}plans/`,
     },
     {
       id: 'reviews',
       name: 'Reviews',
       tag: 'review',
       pitch: 'Review findings pinned to their lines from git, one decision per finding.',
-      bullets: ['Diffs expanded from git on each render', 'Fix in PR, Ticket or Decline, with a reason', 'GitHub review threads imported as findings'],
-      image: reviewShot,
-      alt: 'The Acme review findings: a finding card under the lines of createOrder.ts it is about, with Fix in PR picked.',
-      href: `${base}reviews/`,
     },
     {
       id: 'designs',
       name: 'Designs',
       tag: 'design',
       pitch: 'UI screens on a pan-and-zoom board, and app icons.',
-      bullets: ['Watch, phone, tablet, desktop and browser frames', 'Screens link to each other; Present follows the taps', 'App icon sheets with PNG export'],
-      image: designShot,
-      alt: 'The Acme Fit design board: the Today phone screen selected, with its links drawn as right-angle connectors to other screens.',
-      href: `${base}designs/`,
     },
     {
       id: 'presentations',
       name: 'Presentations',
       tag: 'presentation',
       pitch: 'Slide decks with speaker notes, played in Present.',
-      bullets: ['16:9 HTML slides in deck order', '← → to step, N for notes, Esc to leave'],
-      image: presentationShot,
-      alt: 'The Acme Fit Q3 launch review deck: five slides stacked in one column, with the Present key in the toolbar.',
-      href: `${base}presentations/`,
     },
     {
       id: 'websites',
       name: 'Websites',
       tag: 'website',
       pitch: 'A site’s pages on a board, live from its dev server.',
-      bullets: [
-        'Live pages from localhost, hot reload included',
-        'Comments that name the source file to edit',
-        'Versions of a section, picked in place',
-      ],
-      image: websiteShot,
-      alt: 'The Acme Fit site board: the Home mockup at 1440 px with its hero’s A, B and C versions, and the Blog live from the dev server at 390 px with a pin on a post title.',
-      href: `${base}websites/`,
     },
     {
       id: 'store-listings',
       name: 'Store listings',
       tag: 'storelisting',
       pitch: 'An app’s Google Play and App Store listing, checked against the stores’ rules.',
-      bullets: [
-        'Screenshots per device at each store’s sizes',
-        'Store text per locale, with live counters',
-        'Store checks, variants, ads and a fastlane ZIP',
-      ],
-      image: storeListingShot,
-      alt: 'The Acme Fit store listing on Google Play: the Text tab with the caption Typography and the store text with its counters, the toolbar’s platform switch, locale menu and Export to…, and the Wear OS and phone screenshot sets.',
-      href: `${base}store-listings/`,
     },
     {
       id: 'other',
       name: 'Other',
       tag: 'other',
       pitch: 'Status pages, incident reports, inventories, meeting notes and comparisons.',
-      bullets: ['A TL;DR, then one section per question', 'A hero stat that sums the page up'],
-      image: otherShot,
-      alt: 'The Acme weekly status page for week 41: the TL;DR and the week-over-week numbers table.',
-      href: `${base}other/`,
     },
   ] satisfies DocType[],
 };
 
-export type FeatureIcon = 'comment' | 'star' | 'compare' | 'approve' | 'local' | 'agents';
+type FeatureIcon = 'comment' | 'star' | 'compare' | 'approve' | 'local' | 'agents';
 
 export const features = {
-  id: 'features',
-  kicker: 'Features',
   title: 'Built for answering, {not just reading.}',
-  lead: 'Six things every doc type does, from the first comment to the approval.',
   more: { label: 'See every feature', href: `${base}features/` },
   items: [
     {
@@ -240,45 +124,7 @@ export const features = {
   ] satisfies { icon: FeatureIcon; title: string; body: string }[],
 };
 
-export const codePeek = {
-  kicker: 'JSON in, page out',
-  title: 'The agent writes JSON. {You get a page.}',
-  lead: 'Agents never write page HTML. The server renders each doc from its JSON on every request, so an edit and a reload is the whole build.',
-  fileName: 'saved-carts.bluedoc.json',
-  // Shown with a typing animation. Keep it short (about 20 lines fit the editor) and narrow: a line over about 60
-  // characters runs past the box at 1440 px.
-  snippet: `{
-  "title": "Acme Shop: saved carts",
-  "meta": { "type": "plan", "rev": "1" },
-  "sections": [{
-    "title": "Open questions",
-    "blocks": [{
-      "type": "checklist", "id": "decisions",
-      "items": [{
-        "id": "retention", "recommend": "d180",
-        "text": "How long does a saved cart stay?",
-        "choices": [
-          { "id": "d90", "label": "90 days",
-            "md": "Half the storage." },
-          { "id": "d180", "label": "180 days",
-            "md": "Most reorders fit." },
-          { "id": "forever", "label": "Until deleted",
-            "md": "No sweeper." }
-        ]
-      }]
-    }]
-  }]
-}`,
-  resultLabel: 'Rendered by the local server',
-  image: planShot,
-  alt: 'The rendered Acme saved carts plan: the retention question with its options 90 days, 180 days (starred) and Until deleted.',
-};
-
 export const install = {
-  id: 'install',
-  kicker: 'Install',
-  title: 'Pick your [agent].',
-  lead: 'Each one installs the same skill from the GitHub repository.',
   tabs: [
     {
       id: 'claude',
@@ -326,13 +172,10 @@ export const install = {
   requirements: ['Python 3.9 or later on PATH', 'git, for code reviews', 'gh, only to import GitHub review threads'],
 };
 
-// The band under the hero: what a page gives you that a chat reply doesn't, in four counts. Each `count` is
-// worked out from the lists above, so it stays true when a type or an agent is added.
+// What a page gives you that a chat reply doesn't, in four counts. Each `count` is worked out from the lists above,
+// so it stays true when a type or an agent is added.
 const pluginAgents = install.tabs.filter((t) => t.id !== 'skills');
 export const why = {
-  id: 'why',
-  kicker: 'Why a page',
-  title: 'A chat asks you to reply {in prose.}',
   lead: 'Agents answer in walls of text and wait for a reply in prose. A bluedoc page asks you the questions and keeps your answers.',
   stats: [
     { count: docTypes.items.length, label: 'Doc types', body: 'Docs, plans, reviews, designs, decks, sites, store listings and more.' },
@@ -340,15 +183,9 @@ export const why = {
     { count: 1, label: 'JSON file per doc', body: 'The server renders the page from it; no HTML to keep in sync.' },
     { count: 0, label: 'Accounts', body: 'It runs on 127.0.0.1, MIT, with no hosted service.' },
   ],
-  withLabel: 'With bluedoc',
-  claim: 'Point, pick, approve, and your agent [reads every answer].',
-  cta: { label: 'See how it works', href: '#how-it-works' },
 };
 
 export const faq = {
-  id: 'faq',
-  kicker: 'FAQ',
-  title: 'Questions, {answered.}',
   items: [
     {
       q: 'Is it free?',
@@ -377,27 +214,8 @@ export const faq = {
   ],
 };
 
-export const finalCta = {
-  kicker: 'Approved · rev 1',
-  title: 'Answer your agent\non a [page].',
-  body: 'Install the skill, ask your agent for a plan, and answer it on a page.',
-  primary: { label: 'Star on GitHub', href: repoUrl },
-  secondary: { label: 'Install', href: '#install' },
-};
-
 export const footer = {
-  tagline: 'An agent skill for docs, plans, reviews, designs, decks and store listings you can decide on.',
-  // the columns after the brand: the doc types (from docTypes, with Features) and the site's own links
-  typesTitle: 'Doc types',
-  siteTitle: 'bluedoc',
-  links: [
-    { label: 'How it works', href: `${base}#how-it-works` },
-    { label: 'Install', href: `${base}#install` },
-    { label: 'FAQ', href: `${base}#faq` },
-    { label: 'GitHub', href: repoUrl },
-  ],
   licence: { label: 'MIT licence', href: `${repoUrl}/blob/main/LICENSE` },
-  legal: { label: 'Credits and privacy', href: `${base}legal/` },
 };
 
 // /legal/: what the site and bluedoc collect (nothing), and the licences of what the site is built from
@@ -430,7 +248,7 @@ export const legal = {
         '**Fonts:** Geist, Geist Mono and Geist Pixel, under the SIL Open Font License 1.1, served from this site.',
         '**Icons:** [Lucide](https://lucide.dev), under the ISC licence.',
         '**Animation:** [Motion](https://motion.dev), under the MIT licence.',
-        '**Art and recordings:** the pixel-art banners, the screenshots and the clips come from the [bluedoc repository](' + repoUrl + ') (MIT), recorded from its Acme examples. They show bluedoc’s HorizonUI build (Apache-2.0).',
+        '**Art and recordings:** the pixel-art banners and the clips come from the [bluedoc repository](' + repoUrl + ') (MIT), recorded from its Acme examples. They show bluedoc’s HorizonUI build (Apache-2.0).',
       ],
     },
   ],

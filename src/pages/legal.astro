@@ -1,73 +1,95 @@
 ---
 // /legal/: the licence, what bluedoc and this site store (nothing that leaves your machine or browser), and the
-// credits for the fonts, icons and art, one ruled row each. Copy in `legal` in src/content/site.ts.
+// credits for the fonts, icons and art: the heading over the blueprint grid, then one card per section in a single
+// readable column. Copy in `legal` in src/content/site.ts.
+import '../styles/atlas.css';
 import Base from '../layouts/Base.astro';
-import Nav from '../components/Nav.astro';
-import Footer from '../components/Footer.astro';
-import Row from '../components/Row.astro';
-import SectionHead from '../components/SectionHead.astro';
+import Nav from '../components/atlas/Nav.astro';
+import Footer from '../components/atlas/Footer.astro';
+import PixelIcon from '../components/PixelIcon.astro';
+import PixelSky from '../components/PixelSky.astro';
 import { legal } from '../content/site';
 import { inlineMd } from '../lib/inline-code';
 ---
 
 <Base title={legal.metaTitle} description={legal.metaDescription}>
   <Nav />
-  <main id="main" class="pt-16">
-    <Row n="01" labelledby="legal-title">
-      <SectionHead kicker={legal.kicker} title={legal.title} titleId="legal-title" lead={legal.lead} h1 />
-    </Row>
-    {
-      legal.sections.map((s, i) => (
-        <Row n={String(i + 2).padStart(2, '0')} id={s.id} labelledby={`${s.id}-title`}>
-          <div class="sec rail-pad">
-            <h2 id={`${s.id}-title`} class="h3">
-              {s.title}
-            </h2>
-            <div class="sec-body">
-              {s.body.map((p) => (
-                <p set:html={inlineMd(p)} />
-              ))}
-            </div>
-          </div>
-        </Row>
-      ))
-    }
+  <main id="main">
+    <section id="top" class="av-hero" aria-labelledby="legal-title">
+      <div class="av-grid-bg"></div>
+      <PixelSky class="av-sky" seed={31} count={100} />
+      <div class="av-wrap av-hero-copy">
+        <p class="av-kicker enter"><PixelIcon name="spark" size={14} />{legal.kicker}</p>
+        <h1 id="legal-title" class="av-h1 is-legal enter" style="--d:0.08s">{legal.title}</h1>
+        <p class="lead av-sub is-legal enter" style="--d:0.16s">{legal.lead}</p>
+      </div>
+    </section>
+
+    <div class="av-section av-legal">
+      <div class="av-wrap av-legal-col">
+        {
+          legal.sections.map((s, i) => (
+            <section id={s.id} class="av-card av-card-body av-legal-sec" aria-labelledby={`${s.id}-title`} data-reveal={String(i)}>
+              <h2 id={`${s.id}-title`} class="h3">
+                {s.title}
+              </h2>
+              <div class="av-legal-body">
+                {s.body.map((p) => (
+                  <p set:html={inlineMd(p)} />
+                ))}
+              </div>
+            </section>
+          ))
+        }
+      </div>
+    </div>
   </main>
   <Footer />
 </Base>
 
 <style>
-  .sec {
-    display: grid;
-    gap: 1rem 3rem;
-    padding-block: clamp(2rem, 1.5rem + 2vw, 3rem);
+  /* the hero rules are in styles/atlas.css; the heading is a sentence, so it runs smaller and narrower */
+  .av-h1.is-legal {
+    max-width: 20ch;
+    font-size: clamp(2.1rem, 1rem + 3.8vw, 3.8rem);
+    line-height: 1.06;
   }
-  @media (min-width: 768px) {
-    .sec {
-      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
-    }
+  .av-sub.is-legal {
+    max-width: 40rem;
   }
-  .sec-body {
+
+  .av-legal {
+    padding-top: clamp(3rem, 2rem + 3vw, 4.5rem);
+  }
+  .av-legal-col {
     display: grid;
     gap: 1rem;
-    max-width: 42rem;
+    max-width: 46rem;
+  }
+  .av-legal-sec {
+    gap: 1rem;
+    padding: clamp(1.4rem, 1rem + 2vw, 2.25rem);
+  }
+  .av-legal-body {
+    display: grid;
+    gap: 1rem;
     color: var(--fg-muted);
     line-height: 1.65;
   }
-  .sec-body :global(strong) {
+  .av-legal-body :global(strong) {
     color: var(--fg);
     font-weight: 600;
   }
-  .sec-body :global(a) {
+  .av-legal-body :global(a) {
     color: var(--fg);
     text-decoration: underline;
     text-decoration-color: var(--line-strong);
     text-underline-offset: 4px;
   }
-  .sec-body :global(a:hover) {
+  .av-legal-body :global(a:hover) {
     text-decoration-color: currentColor;
   }
-  .sec-body :global(code) {
+  .av-legal-body :global(code) {
     font-family: var(--font-mono);
     font-size: 0.88em;
   }

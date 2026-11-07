@@ -9,7 +9,7 @@
 type Columns = 1 | 2 | 3 | 4;
 
 /** Each item's span, out of 12 tracks, for `cols` columns. */
-export function fillSpans(count: number, cols: Columns): number[] {
+function fillSpans(count: number, cols: Columns): number[] {
   const spans = Array<number>(count).fill(12 / cols);
   const r = count % cols;
   if (r === 0 || count === 0) return spans;

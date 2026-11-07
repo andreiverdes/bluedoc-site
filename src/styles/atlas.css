@@ -1,7 +1,7 @@
-/* The Atlas variant (/variants/atlas/): atlas.insanearts.io's composition — a floating nav, centred heads over a
-   blueprint grid, a big product frame, segmented pickers and cards — drawn with bluedoc's tokens from global.css:
-   hairlines, Geist with Geist Pixel accents, mono labels and bluedoc blue, with rounded corners (see Shape, at the
-   end). */
+/* The site's layout (every page imports this, with src/components/atlas/): a floating nav, centred heads over a
+   blueprint grid or the night bay, a big product frame, segmented pickers and cards, drawn with bluedoc's tokens
+   from global.css: hairlines, Geist with Geist Pixel accents, mono labels and bluedoc blue, with rounded corners
+   (see Shape, at the end). */
 
 /* state colours for the small mock UIs, readable on both themes */
 :root,
@@ -92,7 +92,7 @@
   margin-top: clamp(2.75rem, 2rem + 3vw, 4.5rem);
 }
 
-/* the blueprint: a 64 px grid in the rail ink under a bluedoc-blue glow, fading out from the top centre */
+/* the blueprint: a 64 px grid in the line ink under a bluedoc-blue glow, fading out from the top centre */
 .av-grid-bg {
   position: absolute;
   inset: 0;

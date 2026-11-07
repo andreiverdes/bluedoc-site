@@ -131,7 +131,7 @@ right, both driven live in one take. It is a scenario with `stage: true` and
 - **Captions**: three per film, seven words or fewer: the pain, the turn, the payoff.
 - **Outputs**: `public/clips/<name>.{mp4,webm,poster.webp}` for the site (`<Clip … width={1600} height={1000} />`),
   and `clips/social/<name>.16x9.mp4` and `.1x1.mp4` for posts: the same take padded with the stage's edge colour.
-- **Ask films** (`ask-<type>`, 14–18 s, one per doc type) are short films for the Atlas home's doc-type tabs: the
+- **Ask films** (`ask-<type>`, 14–18 s, one per doc type) are short films for the home's doc-type tabs: the
   request typed in Claude Code, the agent writes, builds and opens the doc (real output), and the page slides in
   beside the terminal for a short tour. No captions; the site prints the request under the frame. Each tab stays up
   for its film's length, read from the MP4 at build time (`src/lib/clip-length.ts`).

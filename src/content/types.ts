@@ -1,5 +1,5 @@
-// Copy and clip lists for the eight type pages (/docs/ … /other/) and the Features page (/features/). TypePage.astro
-// lays out one type page; src/pages/features.astro lays out featuresPage.
+// Copy and clip lists for the eight type pages (/docs/ … /other/) and the Features page (/features/).
+// src/pages/[type].astro lays out one type page; src/pages/features.astro lays out featuresPage.
 // Each clip is named by its id in the showcase plan; its files are public/clips/<clip>.{mp4,webm,poster.webp}.
 // A clip whose files aren't recorded yet shows as a card with its title (see Clip.astro).
 export type ClipCopy = {
@@ -18,9 +18,6 @@ export type CodeFile = { name: string; lang: 'json' | 'html' | 'md'; code: strin
 export type TypePageCopy = {
   /** the doc type's id in docTypes (site.ts) */
   type: string;
-  name: string;
-  /** the page's large heading, at the top of its hero */
-  display: string;
   /** page <title> and meta description */
   metaTitle: string;
   metaDescription: string;
@@ -34,7 +31,7 @@ export type TypePageCopy = {
   /** shared clips from the Every doc list */
   shared: ClipCopy[];
   agent: { lead: string; commands: string[]; files: CodeFile[]; note: string };
-  /** films (clips/scenarios/film-*.mjs): the agent's terminal beside the page, shown full width under How the agent uses it */
+  /** films (clips/scenarios/film-*.mjs): the agent's terminal beside the page; the first opens the page in the big frame, the rest follow full width */
   films?: ClipCopy[];
 };
 
@@ -238,8 +235,6 @@ export const films = {
 
 const docs: TypePageCopy = {
   type: 'docs',
-  display: 'Documentation',
-  name: 'Docs',
   metaTitle: 'Docs: architecture pages, runbooks and walkthroughs · bluedoc',
   metaDescription:
     'A bluedoc docs page explains a system that exists: a zoomable blueprint canvas nested 3 levels deep, animated data flows, and runbook checklists whose ticks the local server keeps.',
@@ -370,8 +365,6 @@ const docs: TypePageCopy = {
 
 const plans: TypePageCopy = {
   type: 'plans',
-  display: 'Plans',
-  name: 'Plans',
   metaTitle: 'Plans: approve or send back before the agent writes code · bluedoc',
   metaDescription:
     'A bluedoc plan puts the goal, the proposed design, the steps, the files, the risks and the checks on one page, with open questions to pick. The agent waits for Approve plan before it writes code.',
@@ -492,8 +485,6 @@ const plans: TypePageCopy = {
 
 const reviews: TypePageCopy = {
   type: 'reviews',
-  display: 'Reviews',
-  name: 'Reviews',
   metaTitle: 'Reviews: code review findings pinned to their lines · bluedoc',
   metaDescription:
     'A bluedoc review pins each finding to its lines in a diff read from git, with Fix in PR, Ticket or Decline to pick and the agent’s recommendation starred. GitHub review threads come in as findings.',
@@ -618,8 +609,6 @@ const reviews: TypePageCopy = {
 
 const designs: TypePageCopy = {
   type: 'designs',
-  display: 'Designs',
-  name: 'Designs',
   metaTitle: 'Designs: UI screens on a board you click through · bluedoc',
   metaDescription:
     'A bluedoc design is a pan-and-zoom board of HTML screens in device frames: linked screens you tap through in Present, app icon sheets with PNG export, and side-by-side revision compare.',
@@ -787,8 +776,6 @@ const designs: TypePageCopy = {
 
 const presentations: TypePageCopy = {
   type: 'presentations',
-  display: 'Presentations',
-  name: 'Presentations',
   metaTitle: 'Presentations: slide decks you rehearse and approve · bluedoc',
   metaDescription:
     'A bluedoc presentation is a deck of 16:9 HTML slides in one column, with speaker notes, played full-window in Present. Comment on any element of a slide, compare revisions and approve the deck.',
@@ -889,8 +876,6 @@ const presentations: TypePageCopy = {
 
 const websites: TypePageCopy = {
   type: 'websites',
-  display: 'Websites',
-  name: 'Websites',
   metaTitle: 'Websites: review a live site on a board · bluedoc',
   metaDescription:
     'A bluedoc website shows a site’s pages on a board, live from its local dev server: comments that name the source file, versions of a section picked in place, breakpoints and snapshots per revision.',
@@ -1009,8 +994,6 @@ const websites: TypePageCopy = {
 
 const storeListings: TypePageCopy = {
   type: 'store-listings',
-  display: 'Store listings',
-  name: 'Store listings',
   metaTitle: 'Store listings: Google Play and App Store pages you check and approve · bluedoc',
   metaDescription:
     'A bluedoc store listing lays out an app’s Google Play and App Store pages: every device’s screenshots at their store sizes, the store text per locale with live counters, styles and colours, store checks, variants and ads, then a fastlane ZIP.',
@@ -1151,8 +1134,6 @@ const storeListings: TypePageCopy = {
 
 const other: TypePageCopy = {
   type: 'other',
-  display: 'Everything else',
-  name: 'Other',
   metaTitle: 'Other: status pages, reports and inventories · bluedoc',
   metaDescription:
     'A bluedoc page for everything else: a status page, an incident report, an inventory, meeting notes or a comparison. A TL;DR, one section per question, and a hero stat the home page shows on its card.',
@@ -1236,7 +1217,7 @@ export const typePageLabels = {
 
 // ---- Features: the clips of what every doc type has, in groups ----
 
-export type FeatureGroup = {
+type FeatureGroup = {
   /** the section's anchor on /features/ */
   id: string;
   kicker: string;

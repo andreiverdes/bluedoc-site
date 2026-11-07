@@ -7,8 +7,7 @@
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 @custom-variant light (&:where([data-theme='light'], [data-theme='light'] *));
 
-/* bluedoc's colours on a ruled page: hairline rails frame one column, every row is numbered in the left gutter,
-   and bands (.band) set some rows apart. */
+/* bluedoc's colours, per theme. */
 :root,
 [data-theme='dark'] {
   color-scheme: dark;
@@ -18,7 +17,6 @@
   --surface-2: #101a38;
   --line: rgb(140 170 255 / 0.13);
   --line-strong: rgb(140 170 255 / 0.26);
-  --rail: rgb(140 170 255 / 0.11);
   --fg: #eaf4ff;
   --fg-muted: #a9b8d6;
   --fg-subtle: #7584a6;
@@ -33,10 +31,8 @@
   --code-str: #ffc46b;
   --code-num: #c4a7ff;
   --code-punct: #7f8fb3;
-  /* pixel stars (PixelSky) and the footer's giant wordmark */
+  /* pixel stars (PixelSky) */
   --star: #dbe9ff;
-  --wm-dim: rgb(140 170 255 / 0.1);
-  --wm-lit: rgb(79 155 255 / 0.55);
 }
 
 [data-theme='light'] {
@@ -47,7 +43,6 @@
   --surface-2: #edf2fb;
   --line: rgb(11 37 96 / 0.11);
   --line-strong: rgb(11 37 96 / 0.22);
-  --rail: rgb(11 37 96 / 0.12);
   --fg: #0a1838;
   --fg-muted: #3d4d70;
   --fg-subtle: #66759a;
@@ -63,33 +58,6 @@
   --code-num: #6b3fd1;
   --code-punct: #5b6a8c;
   --star: rgb(10 90 214 / 0.5);
-  --wm-dim: rgb(11 37 96 / 0.07);
-  --wm-lit: rgb(10 109 255 / 0.5);
-}
-
-/* A band: a row set apart from the page. In the dark theme it is the night palette, a deeper blue than the page;
-   in the light theme a pale blue. Components inside read the same tokens as anywhere. */
-.band {
-  background: var(--bg);
-  color: var(--fg);
-}
-[data-theme='dark'] .band {
-  --bg: #0a1230;
-  --surface: #0d1634;
-  --surface-2: #13204a;
-  --line: rgb(140 170 255 / 0.14);
-  --line-strong: rgb(140 170 255 / 0.28);
-  --rail: rgb(140 170 255 / 0.12);
-  --brand-tint: rgb(10 109 255 / 0.16);
-}
-[data-theme='light'] .band {
-  --bg: #e4ecfa;
-  --surface: #f8faff;
-  --surface-2: #edf2fb;
-  --line: rgb(11 37 96 / 0.12);
-  --line-strong: rgb(11 37 96 / 0.24);
-  --rail: rgb(11 37 96 / 0.13);
-  --brand-tint: rgb(10 109 255 / 0.11);
 }
 
 @theme inline {
@@ -162,23 +130,6 @@
 /* ---------- shared pieces ---------- */
 
 @layer components {
-  /* The ruled column: every Row's content sits between these two rails, so the rails run unbroken down the page. */
-  .rail {
-    position: relative;
-    width: min(100% - 2 * var(--gutter), 72rem);
-    margin-inline: auto;
-    border-inline: 1px solid var(--rail);
-  }
-  :root {
-    --gutter: clamp(0.75rem, 4.2vw, 4.5rem);
-  }
-  .rail-pad {
-    padding-inline: clamp(1.25rem, 3.5vw, 3rem);
-  }
-  .row-y {
-    padding-block: clamp(4rem, 2.5rem + 6vw, 7.5rem);
-  }
-
   /* mono label: SECTION NAMES, STATUS, META */
   .label {
     font-family: var(--font-mono);
@@ -188,36 +139,12 @@
     text-transform: uppercase;
     color: var(--fg-subtle);
   }
-  /* the tag above a section title: a blue pixel square, then the label */
-  .kicker {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    padding: 0.3rem 0.6rem 0.3rem 0.5rem;
-    border: 1px solid var(--line-strong);
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--fg-muted);
-  }
-  .kicker::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    background: var(--brand-fg);
-  }
   /* a word set in the pixel face, in bluedoc blue */
   .px {
     font-family: var(--font-pixel);
     font-weight: 400;
     letter-spacing: -0.02em;
     color: var(--brand-fg);
-  }
-  .display {
-    font-size: clamp(2.6rem, 1.2rem + 5.4vw, 5.6rem);
-    line-height: 1;
-    letter-spacing: -0.045em;
   }
   .h2 {
     font-size: clamp(2rem, 1.2rem + 2.8vw, 3.5rem);
@@ -312,29 +239,6 @@
     }
   }
 
-  /* .ruled: a .fill-grid drawn with hairlines (--rule, the rail colour by default) between its cells. ruledGrid
-     (src/lib/ruled-grid.ts) sets --e1/--e2/--e3 to 1 on the items that end a row at each width; they leave their right
-     edge to the rail. A cell's bottom rule hangs 1px into the row below, so the last row's lies on the next section's
-     top rule. */
-  .ruled {
-    border-top: 1px solid var(--rule, var(--rail));
-  }
-  .ruled > * {
-    border-right: calc(1px - var(--e1, 0) * 1px) solid var(--rule, var(--rail));
-    border-bottom: 1px solid var(--rule, var(--rail));
-    margin-bottom: -1px;
-  }
-  @media (min-width: 720px) {
-    .ruled > * {
-      border-right-width: calc(1px - var(--e2, 0) * 1px);
-    }
-  }
-  @media (min-width: 1080px) {
-    .ruled > * {
-      border-right-width: calc(1px - var(--e3, 0) * 1px);
-    }
-  }
-
   /* the four L marks at a panel's corners */
   .corners {
     position: relative;
@@ -403,11 +307,6 @@
     overflow: hidden;
     clip-path: inset(50%);
     white-space: nowrap;
-  }
-
-  /* the cells of a ruled grid of ClipCards (with .fill-grid.ruled) */
-  .clip-grid > li {
-    padding: clamp(1.25rem, 2.5vw, 2rem);
   }
 }
 

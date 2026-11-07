@@ -1,111 +1,235 @@
 ---
-// The Features page: what every doc type has, in clips grouped by what the reader does (comment, decide, send
-// and approve, revise, the home page, theme and width), then how the agent reads the notes, the install row and a
-// cell per type. Laid out like a type page (TypePage.astro) from featuresPage in src/content/types.ts; the groups
-// alternate between the page and a band.
+// The Features page (/features/): what every doc type has. The pin clip in the big frame, a row of pill links to the
+// groups, then each group (comment, decide, send and approve, revise, the home page, theme and width) as a section
+// of clip cards, how the agent reads the notes, and a card per doc type. Copy in featuresPage (src/content/types.ts).
+import ArrowRight from '@lucide/astro/icons/arrow-right';
+import '../styles/atlas.css';
 import Base from '../layouts/Base.astro';
-import Nav from '../components/Nav.astro';
-import Footer from '../components/Footer.astro';
-import Row from '../components/Row.astro';
-import SectionHead from '../components/SectionHead.astro';
-import TypeHero from '../components/TypeHero.astro';
-import ClipCard from '../components/ClipCard.astro';
+import Nav from '../components/atlas/Nav.astro';
+import Cta from '../components/atlas/Cta.astro';
+import Footer from '../components/atlas/Footer.astro';
+import InstallTabs from '../components/atlas/InstallTabs.astro';
+import Clip from '../components/Clip.astro';
+import PixelIcon from '../components/PixelIcon.astro';
+import PixelSky from '../components/PixelSky.astro';
 import AgentSnippet from '../components/AgentSnippet.astro';
-import Install from '../components/Install.astro';
-import TypeLinks from '../components/TypeLinks.astro';
+import { atlasTypeHref } from '../content/atlas';
+import { docTypes } from '../content/site';
 import { featuresPage as page } from '../content/types';
+import type { PixelIconName } from '../lib/pixel-icons';
 import { inlineCode } from '../lib/inline-code';
-import { ruledGrid } from '../lib/ruled-grid';
+import { rich } from '../lib/rich';
+import { fillGrid } from '../lib/fill-grid';
 
-// rows 01–02 are the hero and 03 the groups' index, so the groups start at 04; the rows after them follow on
-const after = page.groups.length + 4;
-// each group's clips: three to a row on a desktop when there's an odd number of them, else two
-const groupStyles = page.groups.map((g) => ruledGrid(g.clips.length, [1, 2, g.clips.length % 2 === 1 ? 3 : 2]));
-// the groups' index: two to a row on a phone, three from 720 px, all in one row from 1280 px
-const indexStyles = ruledGrid(page.groups.length, [2, 3, 3]);
+// complete grids (src/lib/fill-grid.ts): each group's clips in 1, 2 then 3 columns, the doc types in 1 then 2
+const groupSpans = page.groups.map((g) => fillGrid(g.clips.length, [1, 2, 3]));
+const typeSpans = fillGrid(docTypes.items.length, [1, 2, 2]);
 ---
 
 <Base title={page.metaTitle} description={page.metaDescription}>
   <Nav />
   <main id="main">
-    <TypeHero kicker={page.kicker} display={page.display} title={page.title} pitch={page.pitch} hero={page.hero} />
+    <section id="top" class="av-hero" aria-labelledby="features-title">
+      <div class="av-grid-bg"></div>
+      <PixelSky class="av-sky" seed={11} count={100} />
+      <div class="av-wrap av-hero-copy">
+        <p class="av-kicker enter">
+          <PixelIcon name="spark" size={14} />
+          {page.display} · {page.kicker}
+        </p>
+        <h1 id="features-title" class="av-h1 is-features enter" style="--d:0.08s">{page.title}</h1>
+        <p class="lead av-sub is-features enter" style="--d:0.16s">{page.pitch}</p>
+        <div class="enter w-full" style="--d:0.24s">
+          <InstallTabs id="hero" />
+        </div>
+      </div>
 
-    <Row n="03" plain>
-      <nav aria-label={page.groupsLabel}>
-        <ul class="index fill-grid ruled" style={`--groups:${page.groups.length}`}>
+      <figure class="av-wrap av-stage enter" style="--d:0.4s">
+        <Clip name={page.hero.clip} label={page.hero.shows} title={page.hero.title} width={1280} height={800} url={page.hero.url} priority />
+        <figcaption class="av-ask"><span class="av-cap-t">{page.hero.title}.</span> <span class="av-cap-b">{page.hero.body}</span></figcaption>
+      </figure>
+
+      <nav class="av-wrap av-index" aria-label={page.groupsLabel} data-reveal>
+        <p class="label">{page.groupsLabel}</p>
+        <ul class="av-index-list">
           {
-            page.groups.map((g, i) => (
-              <li style={indexStyles[i]}>
-                <a class="index-link" href={`#${g.id}`}>
-                  <span>{g.kicker}</span>
-                  <span class="label whitespace-nowrap">{g.clips.length} clips</span>
+            page.groups.map((g) => (
+              <li>
+                <a class="av-index-link" href={`#${g.id}`}>
+                  {g.kicker}
+                  <span class="av-index-count">{g.clips.length}</span>
                 </a>
               </li>
             ))
           }
         </ul>
       </nav>
-    </Row>
+    </section>
 
     {
       page.groups.map((g, gi) => (
-        <Row n={String(gi + 4).padStart(2, '0')} id={g.id} band={gi % 2 === 1} labelledby={`${g.id}-title`} class="scroll-mt-16">
-          <SectionHead kicker={g.kicker} title={g.title} titleId={`${g.id}-title`} lead={g.lead} />
-          <ul class="clip-grid fill-grid ruled">
-            {g.clips.map((item, i) => (
-              <ClipCard item={item} index={i % 3} style={groupStyles[gi][i]} />
-            ))}
-          </ul>
-        </Row>
+        <section id={g.id} class="av-section" aria-labelledby={`${g.id}-title`}>
+          <div class="av-wrap">
+            <div class="av-head" data-reveal>
+              <p class="label">{g.kicker}</p>
+              <h2 id={`${g.id}-title`} class="h2">
+                {g.title}
+              </h2>
+              <p class="lead">{g.lead}</p>
+            </div>
+            <ul class="av-clips fill-grid">
+              {g.clips.map((f, i) => (
+                <li class="av-card av-clip" style={groupSpans[gi][i]} data-reveal={String(i % 3)}>
+                  <Clip name={f.clip} label={f.shows} title={f.title} class="av-clip-frame" zoom />
+                  <div class="av-card-body">
+                    <h3 class="av-card-title">{f.title}</h3>
+                    <p class="av-card-text">{f.body}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
       ))
     }
 
-    <Row n={String(after).padStart(2, '0')} labelledby="agent-title">
-      <SectionHead kicker={page.agentKicker} title={page.agentTitle} titleId="agent-title" leadHtml={inlineCode(page.agent.lead)} />
-      <div class="rail-pad row-y pt-0!" data-reveal>
-        <AgentSnippet agent={page.agent} />
+    <section class="av-section" aria-labelledby="agent-title">
+      <div class="av-wrap">
+        <div class="av-head" data-reveal>
+          <p class="label">{page.agentKicker}</p>
+          <h2 id="agent-title" class="h2">{page.agentTitle}</h2>
+          <p class="lead" set:html={inlineCode(page.agent.lead)} />
+        </div>
+        <div data-reveal>
+          <AgentSnippet agent={page.agent} />
+        </div>
       </div>
-    </Row>
+    </section>
 
-    <Install n={String(after + 1).padStart(2, '0')} />
-    <TypeLinks n={String(after + 2).padStart(2, '0')} />
+    <section class="av-section" aria-labelledby="types-title">
+      <div class="av-wrap">
+        <div class="av-head" data-reveal>
+          <p class="label">{docTypes.kicker}</p>
+          <h2 id="types-title" class="h2" set:html={rich(docTypes.title)} />
+          <p class="lead">{docTypes.lead}</p>
+        </div>
+        <ul class="av-types fill-grid" data-reveal>
+          {
+            docTypes.items.map((t, i) => (
+              <li style={typeSpans[i]}>
+                <a class="av-card av-type" href={atlasTypeHref(t.id)}>
+                  <PixelIcon name={t.id as PixelIconName} size={22} />
+                  <span class="grid gap-1">
+                    <span class="av-card-title">{t.name}</span>
+                    <span class="av-card-text">{t.pitch}</span>
+                  </span>
+                  <ArrowRight class="av-type-arrow size-4" aria-hidden="true" />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <Cta />
   </main>
   <Footer />
 </Base>
 
 <style>
-  /* the row above draws the index's top rule */
-  .index {
-    border-top: 0;
+  /* the hero rules are in styles/atlas.css; the heading is a sentence, so it runs smaller and narrower */
+  .av-h1.is-features {
+    max-width: 20ch;
+    font-size: clamp(2.1rem, 1rem + 3.8vw, 3.8rem);
+    line-height: 1.06;
   }
-  @media (min-width: 1280px) {
-    .index {
-      grid-template-columns: repeat(var(--groups), minmax(0, 1fr));
-    }
-    .index > li {
-      grid-column: auto;
-      border-right-width: 1px;
-    }
-    .index > li:last-child {
-      border-right-width: 0;
-    }
+  .av-sub.is-features {
+    max-width: 40rem;
   }
-  .index-link {
+  .av-cap-t {
+    color: var(--fg);
+  }
+  .av-cap-b {
+    font-weight: 400;
+    color: var(--fg-muted);
+  }
+
+  /* the groups' index: a centred row of pill links under the hero clip, wrapping on a phone */
+  .av-index {
+    display: grid;
+    justify-items: center;
+    gap: 1rem;
+    padding-top: clamp(3rem, 2rem + 3vw, 4.5rem);
+  }
+  .av-index-list {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .av-index-link {
+    display: inline-flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    height: 100%;
-    min-height: 3.5rem;
-    padding: 0.25rem 1.1rem;
+    gap: 0.55rem;
+    height: 2.5rem;
+    padding: 0 0.5rem 0 1rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--av-pill);
+    background: var(--surface);
     font-size: 0.9375rem;
     color: var(--fg-muted);
     transition:
       color 0.15s,
-      background-color 0.15s;
+      border-color 0.15s;
   }
-  .index-link:hover {
+  .av-index-link:hover {
     color: var(--fg);
-    background: var(--brand-tint);
+    border-color: var(--brand-fg);
+  }
+  .av-index-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.6rem;
+    height: 1.6rem;
+    padding-inline: 0.4rem;
+    border-radius: var(--av-pill);
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--fg-subtle);
+  }
+  .av-index-link:hover .av-index-count {
+    color: var(--brand-fg);
+  }
+
+  .av-clips {
+    gap: 1rem;
+  }
+  /* a card's clip fills its top edge to edge: no frame of its own */
+  .av-clip :global(.av-clip-frame) {
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    box-shadow: none;
+  }
+
+  .av-types {
+    gap: 0.75rem;
+  }
+  .av-type {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.9rem;
+    height: 100%;
+    padding: 1.1rem 1.2rem;
+    transition: border-color 0.15s;
+  }
+  .av-type:hover {
+    border-color: var(--brand-fg);
+  }
+  .av-type :global(.av-type-arrow) {
+    margin-top: 0.2rem;
+    color: var(--fg-subtle);
   }
 </style>

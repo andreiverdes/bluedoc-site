@@ -1,32 +1,32 @@
 ---
+// The home page: a floating nav, the night bay behind the headline and the install tabs, the plan hook film, then
+// the doc types, setup, the chat-versus-page comparison, what you do on a page, the FAQ and the install band. The
+// sections live in src/components/atlas/ and their copy in src/content/atlas.ts. Each doc type has its own page
+// ([type].astro), and revisions one of their own (revisions.astro).
+import '../styles/atlas.css';
 import Base from '../layouts/Base.astro';
-import Nav from '../components/Nav.astro';
-import Hero from '../components/Hero.astro';
-import Why from '../components/Why.astro';
-import ProductShot from '../components/ProductShot.astro';
-import Loop from '../components/Loop.astro';
-import DocTypes from '../components/DocTypes.astro';
-import Features from '../components/Features.astro';
-import CodePeek from '../components/CodePeek.astro';
-import Install from '../components/Install.astro';
-import Faq from '../components/Faq.astro';
-import FinalCta from '../components/FinalCta.astro';
-import Footer from '../components/Footer.astro';
+import Nav from '../components/atlas/Nav.astro';
+import Hero from '../components/atlas/Hero.astro';
+import Types from '../components/atlas/Types.astro';
+import Setup from '../components/atlas/Setup.astro';
+import Compare from '../components/atlas/Compare.astro';
+import Answering from '../components/atlas/Answering.astro';
+import Faq from '../components/atlas/Faq.astro';
+import Cta from '../components/atlas/Cta.astro';
+import Footer from '../components/atlas/Footer.astro';
+import { atlasMeta } from '../content/atlas';
 ---
 
-<Base>
+<Base title={atlasMeta.title} description={atlasMeta.description}>
   <Nav />
   <main id="main">
     <Hero />
-    <Why />
-    <ProductShot />
-    <Loop />
-    <DocTypes />
-    <Features />
-    <CodePeek />
-    <Install n="09" />
+    <Types />
+    <Setup />
+    <Compare />
+    <Answering />
     <Faq />
-    <FinalCta n="11" />
+    <Cta />
   </main>
   <Footer />
 </Base>

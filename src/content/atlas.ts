@@ -1,6 +1,6 @@
-// Copy for the Atlas variant of the home page (/variants/atlas/): the layout of atlas.insanearts.io in bluedoc's
-// colours, type and square geometry. Facts come from site.ts, so the two pages never disagree; only the
-// arrangement and the short connecting lines are new here.
+// Copy for the site's pages (the home, the doc type pages, the revisions page), in the layout of src/components/atlas/.
+// Facts come from site.ts and types.ts, so no two pages ever disagree; only the arrangement and the short
+// connecting lines are written here.
 import type { PixelIconName } from '../lib/pixel-icons';
 import { base } from '../lib/paths';
 import { docTypes, faq, features, install, meta, repoUrl, why } from './site';
@@ -10,15 +10,14 @@ import { clipSeconds } from '../lib/clip-length';
 const feature = (icon: string) => features.items.find((f) => f.icon === icon)!;
 const question = (q: string) => faq.items.find((f) => f.q === q)!;
 
-// The variant's home and its doc type pages (src/pages/variants/atlas/): anchors carry the home's path, so they work
-// from a type page too.
-export const atlasBase = `${base}variants/atlas/`;
+// The home, the doc type pages and the revisions page: anchors carry the home's path, so they work from any page.
+export const atlasBase = base;
 export const atlasTypeHref = (id: string) => `${atlasBase}${id}/`;
 export const atlasRevisionsHref = `${atlasBase}revisions/`;
 const pluginAgents = install.tabs.filter((t) => t.id !== 'skills');
 
 export const atlasMeta = {
-  title: `${meta.title} · Atlas variant`,
+  title: meta.title,
   description: meta.description,
 };
 
@@ -217,16 +216,15 @@ export const atlasFooter = {
     { label: 'GitHub', href: repoUrl },
     { label: 'Credits and privacy', href: `${base}legal/` },
   ],
-  current: { label: 'Current design', href: base },
 };
 
-// The revisions page (/variants/atlas/revisions/): what a revision is, how each doc type compares two, the onion
+// The revisions page (/revisions/): what a revision is, how each doc type compares two, the onion
 // skin, and the films where a revision lands. Clip copy comes from types.ts wherever a type page already shows the
 // clip, so the two never describe it differently.
 const typeClip = (type: keyof typeof typePages, clip: string): ClipCopy => typePages[type].features.find((f) => f.clip === clip)!;
 
 export const atlasRevisions = {
-  metaTitle: 'Revisions: compare any two, side by side or as an onion skin · bluedoc · Atlas variant',
+  metaTitle: 'Revisions: compare any two, side by side or as an onion skin · bluedoc',
   metaDescription:
     'Every bluedoc build records a revision with the agent’s note on what changed. Mark the changes word by word, put two screens side by side, or fade one over the other.',
   kicker: 'Feature · Revisions',

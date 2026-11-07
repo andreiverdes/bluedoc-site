@@ -109,8 +109,6 @@ document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((box) => {
 // The reader's pick wins over both: a clip they paused stays paused, one they started plays while in view. A mouse
 // over a big clip shows the browser's own controls (seek, fullscreen) in place of the play button; play or pause
 // from there is a pick too. A thumbnail (`zoom`) opens larger in the lightbox (ClipLightbox.astro) on a click.
-// Clips that share one spot (the loop's sticky stage, motion.ts) get `bd:stage` to say whether theirs is the one on
-// show; a clip that isn't stays paused.
 const lightbox = document.querySelector<HTMLDialogElement>('[data-clip-lightbox]');
 const lightboxVideo = lightbox?.querySelector<HTMLVideoElement>('[data-clip-lightbox-video]');
 const openLightbox = (clip: HTMLElement, video: HTMLVideoElement) => {
@@ -147,7 +145,6 @@ document.querySelectorAll<HTMLElement>('[data-clip]').forEach((clip) => {
   if (!video || !toggle) return;
   const zoom = clip.querySelector<HTMLButtonElement>('[data-clip-zoom]');
   let inView = false;
-  let onStage = true;
   let picked: 'play' | 'pause' | null = null;
   // the state this script last asked for: a play or pause event it didn't ask for came from the controls
   let asked: 'play' | 'pause' | null = null;
@@ -157,7 +154,7 @@ document.querySelectorAll<HTMLElement>('[data-clip]').forEach((clip) => {
     toggle.setAttribute('aria-label', playing ? 'Pause clip' : 'Play clip');
   };
   const update = () => {
-    const want = inView && onStage && (picked ? picked === 'play' : !reduceMotion.matches);
+    const want = inView && (picked ? picked === 'play' : !reduceMotion.matches);
     if (want && video.paused) {
       asked = 'play';
       video.play().catch(() => {});
@@ -194,10 +191,6 @@ document.querySelectorAll<HTMLElement>('[data-clip]').forEach((clip) => {
   }
   toggle.addEventListener('click', () => {
     picked = video.paused ? 'play' : 'pause';
-    update();
-  });
-  clip.addEventListener('bd:stage', (e) => {
-    onStage = (e as CustomEvent<boolean>).detail;
     update();
   });
   reduceMotion.addEventListener('change', syncMotion);

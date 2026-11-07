@@ -1,0 +1,260 @@
+---
+// A doc type's page (/<type>/), from its entry in src/content/types.ts. The films come first: the type's films (the
+// agent's terminal beside the page) in the big frame, then its clips as cards. A type without a film opens on its
+// hero clip.
+import ArrowRight from '@lucide/astro/icons/arrow-right';
+import '../styles/atlas.css';
+import Base from '../layouts/Base.astro';
+import Nav from '../components/atlas/Nav.astro';
+import Cta from '../components/atlas/Cta.astro';
+import Footer from '../components/atlas/Footer.astro';
+import InstallTabs from '../components/atlas/InstallTabs.astro';
+import Clip from '../components/Clip.astro';
+import PixelIcon from '../components/PixelIcon.astro';
+import PixelSky from '../components/PixelSky.astro';
+import AgentSnippet from '../components/AgentSnippet.astro';
+import { atlasBase, atlasTypeHref } from '../content/atlas';
+import { docTypes, nav } from '../content/site';
+import { typePageLabels as labels, typePages, type ClipCopy, type TypePageCopy } from '../content/types';
+import type { PixelIconName } from '../lib/pixel-icons';
+import { inlineCode } from '../lib/inline-code';
+import { fillGrid } from '../lib/fill-grid';
+
+export function getStaticPaths() {
+  return Object.entries(typePages).map(([type, page]) => ({ params: { type }, props: { page } }));
+}
+
+interface Props {
+  page: TypePageCopy;
+}
+
+const { page } = Astro.props;
+const docType = docTypes.items.find((t) => t.id === page.type)!;
+const [lead, ...moreFilms] = page.films ?? [];
+// with a film in the frame, the hero clip goes first among the cards, so no clip is lost
+const cards: ClipCopy[] = lead ? [page.hero, ...page.features.filter((f) => f.clip !== page.hero.clip)] : page.features;
+const first = lead
+  ? { clip: lead, width: 1600, height: 1000, url: undefined }
+  : { clip: page.hero as ClipCopy, width: 1280, height: 800, url: page.hero.url };
+const others = docTypes.items.filter((t) => t.id !== page.type);
+// complete grids (src/lib/fill-grid.ts): kinds and clips in 1, 2 then 3 columns, the other types in 1 then 2
+const kindSpans = fillGrid(page.kinds.length, [1, 2, 3]);
+const cardSpans = fillGrid(cards.length, [1, 2, 3]);
+const sharedSpans = fillGrid(page.shared.length, [1, 2, 3]);
+const otherSpans = fillGrid(others.length, [1, 2, 2]);
+---
+
+<Base title={page.metaTitle} description={page.metaDescription}>
+  <Nav />
+  <main id="main">
+    <section id="top" class="av-hero" aria-labelledby="type-title">
+      <div class="av-grid-bg"></div>
+      <PixelSky class="av-sky" seed={17} count={100} />
+      <div class="av-wrap av-hero-copy">
+        <p class="av-kicker enter">
+          <PixelIcon name={docType.id} size={14} />
+          Doc type · <code>"type": "{docType.tag}"</code>
+        </p>
+        <h1 id="type-title" class="av-h1 is-type enter" style="--d:0.08s">{page.title}</h1>
+        <p class="lead av-sub is-type enter" style="--d:0.16s">{page.pitch}</p>
+        <div class="enter w-full" style="--d:0.24s">
+          <InstallTabs id="hero" />
+        </div>
+      </div>
+
+      <figure class="av-wrap av-stage enter" style="--d:0.4s">
+        <Clip name={first.clip.clip} label={first.clip.shows} title={first.clip.title} width={first.width} height={first.height} url={first.url} priority />
+        <figcaption class="av-ask"><span class="av-cap-t">{first.clip.title}.</span> <span class="av-cap-b">{first.clip.body}</span></figcaption>
+      </figure>
+    </section>
+
+    {
+      moreFilms.map((f) => (
+        <section class="av-section av-film" aria-label={f.title}>
+          <figure class="av-wrap" data-reveal>
+            <Clip name={f.clip} label={f.shows} title={f.title} width={1600} height={1000} />
+            <figcaption class="av-ask">
+              <span class="av-cap-t">{f.title}.</span> <span class="av-cap-b">{f.body}</span>
+            </figcaption>
+          </figure>
+        </section>
+      ))
+    }
+
+    <section class="av-section" aria-labelledby="for-title">
+      <div class="av-wrap">
+        <div class="av-head" data-reveal>
+          <p class="label">{labels.forKicker}</p>
+          <h2 id="for-title" class="h2">{page.forTitle}</h2>
+          <p class="lead">{page.forLead}</p>
+        </div>
+        <ul class="av-kinds fill-grid">
+          {
+            page.kinds.map((k, i) => (
+              <li class="av-card av-card-body" style={kindSpans[i]} data-reveal={String(i % 4)}>
+                <span class="pill">{k.label}</span>
+                <p class="av-card-text mt-2">{k.body}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="av-section" aria-labelledby="features-title">
+      <div class="av-wrap">
+        <div class="av-head" data-reveal>
+          <p class="label">{labels.featuresKicker}</p>
+          <h2 id="features-title" class="h2">{labels.featuresTitle}</h2>
+        </div>
+        <ul class="av-clips fill-grid">
+          {
+            cards.map((f, i) => (
+              <li class="av-card av-clip" style={cardSpans[i]} data-reveal={String(i % 3)}>
+                <Clip name={f.clip} label={f.shows} title={f.title} class="av-clip-frame" zoom />
+                <div class="av-card-body">
+                  <h3 class="av-card-title">{f.title}</h3>
+                  <p class="av-card-text">{f.body}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="av-section" aria-labelledby="shared-title">
+      <div class="av-wrap">
+        <div class="av-head" data-reveal>
+          <p class="label">{labels.sharedKicker}</p>
+          <h2 id="shared-title" class="h2">{labels.sharedTitle}</h2>
+          <a class="link-arrow" href={nav.typesMenu.features.href}>
+            {labels.sharedLink}
+            <ArrowRight class="size-4" aria-hidden="true" />
+          </a>
+        </div>
+        <ul class="av-clips fill-grid">
+          {
+            page.shared.map((f, i) => (
+              <li class="av-card av-clip" style={sharedSpans[i]} data-reveal={String(i % 3)}>
+                <Clip name={f.clip} label={f.shows} title={f.title} class="av-clip-frame" zoom />
+                <div class="av-card-body">
+                  <h3 class="av-card-title">{f.title}</h3>
+                  <p class="av-card-text">{f.body}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="av-section" aria-labelledby="agent-title">
+      <div class="av-wrap">
+        <div class="av-head" data-reveal>
+          <p class="label">{labels.agentKicker}</p>
+          <h2 id="agent-title" class="h2">{labels.agentTitle}</h2>
+          <p class="lead" set:html={inlineCode(page.agent.lead)} />
+        </div>
+        <div data-reveal>
+          <AgentSnippet agent={page.agent} />
+        </div>
+      </div>
+    </section>
+
+    <section class="av-section" aria-labelledby="others-title">
+      <div class="av-wrap">
+        <div class="av-head" data-reveal>
+          <p class="label">{labels.otherKicker}</p>
+          <h2 id="others-title" class="h2">{labels.otherTitle}</h2>
+        </div>
+        <ul class="av-others fill-grid" data-reveal>
+          {
+            others.map((t, i) => (
+              <li style={otherSpans[i]}>
+                <a class="av-card av-other" href={atlasTypeHref(t.id)}>
+                  <PixelIcon name={t.id as PixelIconName} size={22} />
+                  <span class="grid gap-1">
+                    <span class="av-card-title">{t.name}</span>
+                    <span class="av-card-text">{t.pitch}</span>
+                  </span>
+                  <ArrowRight class="av-other-arrow size-4" aria-hidden="true" />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="mt-8 flex justify-center">
+          <a class="link-arrow" href={`${atlasBase}#doc-types`}>
+            All doc types
+            <ArrowRight class="size-4" aria-hidden="true" />
+          </a>
+        </p>
+      </div>
+    </section>
+
+    <Cta />
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  /* the hero rules are in styles/atlas.css; a type page's heading is a sentence, so it runs smaller and narrower */
+  .av-kicker code {
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--brand-fg);
+  }
+  .av-h1.is-type {
+    max-width: 20ch;
+    font-size: clamp(2.1rem, 1rem + 3.8vw, 3.8rem);
+    line-height: 1.06;
+  }
+  .av-sub.is-type {
+    max-width: 40rem;
+  }
+  .av-kinds .pill {
+    justify-self: start;
+  }
+  .av-film {
+    padding-block: clamp(2rem, 1.5rem + 2vw, 3.5rem);
+  }
+  .av-cap-t {
+    color: var(--fg);
+  }
+  .av-cap-b {
+    font-weight: 400;
+    color: var(--fg-muted);
+  }
+
+  .av-kinds,
+  .av-clips {
+    gap: 1rem;
+  }
+  /* a card's clip fills its top edge to edge: no frame of its own */
+  .av-clip :global(.av-clip-frame) {
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    box-shadow: none;
+  }
+
+  .av-others {
+    gap: 0.75rem;
+  }
+  .av-other {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.9rem;
+    height: 100%;
+    padding: 1.1rem 1.2rem;
+    transition: border-color 0.15s;
+  }
+  .av-other:hover {
+    border-color: var(--brand-fg);
+  }
+  .av-other :global(.av-other-arrow) {
+    margin-top: 0.2rem;
+    color: var(--fg-subtle);
+  }
+</style>
