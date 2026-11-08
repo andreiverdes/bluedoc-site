@@ -67,6 +67,6 @@ The page is static HTML and CSS plus one bundle of two scripts. `src/scripts/sit
 ## Credits
 
 - bluedoc, its banners, logo and recordings: MIT, from the [bluedoc repository](https://github.com/andreiverdes/bluedoc). The recordings show bluedoc's HorizonUI build (Apache-2.0).
-- Fonts, self-hosted via Fontsource: Geist, Geist Mono and Geist Pixel, all SIL Open Font License 1.1. The social card (`scripts/og/og.html`) still uses Lexend, Inter and Silkscreen.
+- Fonts, self-hosted via Fontsource: Geist, Geist Mono and Geist Pixel, all SIL Open Font License 1.1. The bluedoc wordmark is Lexend (OFL 1.1): outlined to paths in `Logo.astro`, and set as text in the social card.
 - Animation: [Motion](https://motion.dev) (MIT).
 - Icons: [Lucide](https://lucide.dev) (ISC).

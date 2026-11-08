@@ -9,10 +9,10 @@ import { base } from '../lib/paths';
 export const repoUrl = 'https://github.com/andreiverdes/bluedoc';
 
 export const meta = {
-  title: 'bluedoc: point, pick, approve. Your agent does the rest.',
+  title: 'bluedoc: a visual reply to your verbose agent',
   description:
     'An agent skill for docs, plans, code reviews, UI designs, slide decks, app icons and store listings. The agent writes one JSON file; a local server renders it as a page you comment on, decide and approve.',
-  ogImageAlt: 'bluedoc: a pixel-art night bay with a ringed planet, the bluedoc logo and the headline “Point, pick, approve. Your agent does the rest.”',
+  ogImageAlt: 'bluedoc: a pixel-art night bay with a ringed planet, the bluedoc logo and the headline “Plan, document, design and more. A visual reply to your verbose agent.”',
 };
 
 // The type pages link to the Features page from their shared clips.

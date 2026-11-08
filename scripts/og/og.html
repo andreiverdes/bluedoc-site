@@ -10,13 +10,18 @@
         src: url(../../node_modules/@fontsource-variable/lexend/files/lexend-latin-wght-normal.woff2) format('woff2');
       }
       @font-face {
-        font-family: 'Inter';
+        font-family: 'Geist';
         font-weight: 100 900;
-        src: url(../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2) format('woff2');
+        src: url(../../node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2) format('woff2');
       }
       @font-face {
-        font-family: 'Silkscreen';
-        src: url(../../node_modules/@fontsource/silkscreen/files/silkscreen-latin-400-normal.woff2) format('woff2');
+        font-family: 'Geist Mono';
+        font-weight: 100 900;
+        src: url(../../node_modules/@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2) format('woff2');
+      }
+      @font-face {
+        font-family: 'Geist Pixel';
+        src: url(../../node_modules/@fontsource/geist-pixel/files/geist-pixel-latin-400-normal.woff2) format('woff2');
       }
       html,
       body {
@@ -31,7 +36,7 @@
         width: 1200px;
         height: 630px;
         overflow: hidden;
-        font-family: 'Inter', sans-serif;
+        font-family: 'Geist', sans-serif;
         color: #eaf4ff;
       }
       /* the banner at 1.2× its source pixels, shifted so the city sits left and the ringed planet right */
@@ -76,27 +81,30 @@
       .brand .d {
         color: #4f9bff;
       }
+      /* the home's headline: Geist 500, one word in the pixel face in bluedoc blue */
       h1 {
         margin: 26px 0 0;
-        max-width: 930px;
-        font-family: 'Lexend', sans-serif;
-        font-weight: 700;
-        font-size: 66px;
+        font-family: 'Geist', sans-serif;
+        font-weight: 500;
+        font-size: 64px;
         line-height: 1.04;
-        letter-spacing: -0.035em;
+        letter-spacing: -0.045em;
         text-shadow: 0 2px 24px rgb(5 7 15 / 0.8);
       }
-      .tag {
-        margin-top: 22px;
-        font-family: 'Silkscreen', monospace;
-        font-size: 18px;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: #5fd4ff;
-      }
-      .tag b {
-        color: #ffc46b;
+      h1 .px {
+        font-family: 'Geist Pixel', monospace;
         font-weight: 400;
+        letter-spacing: -0.02em;
+        color: #4f9bff;
+      }
+      .tag {
+        margin-top: 24px;
+        font-family: 'Geist Mono', monospace;
+        font-weight: 450;
+        font-size: 17px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #8fb8ff;
       }
     </style>
   </head>
@@ -106,8 +114,8 @@
       <div class="shade"></div>
       <div class="copy">
         <div class="brand"><img src="../../public/favicon.svg" alt="" /><span><span class="b">blue</span><span class="d">doc</span></span></div>
-        <h1>Point, pick, approve. Your agent does the rest.</h1>
-        <div class="tag">Plans · Reviews · Docs · Designs · Decks <b>· Approve</b></div>
+        <h1>Plan, document, design and more.<br />A <span class="px">visual</span> reply to your verbose agent.</h1>
+        <div class="tag">Docs · Plans · Reviews · Designs · Decks · Websites · Store listings</div>
       </div>
     </div>
   </body>
