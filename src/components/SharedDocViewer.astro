@@ -1,0 +1,199 @@
+---
+// The shared-doc viewer (src/scripts/viewer.ts), and the site's not-found page: both src/pages/g/index.astro (/g/,
+// the old links' /g/#<user>/<gist id>) and src/pages/404.astro, which GitHub Pages sends for every path the site
+// lacks, among them the shared docs' /g/<code>. The head script picks before the first paint: a viewer's address
+// (/g/, or one segment under it) shows the viewer, any other the not-found card. Not for search: noindex, Disallow
+// in robots.txt, neither page in the sitemap.
+import '../styles/global.css';
+import Logo from './Logo.astro';
+import { base } from '../lib/paths';
+
+const root = `${base}g/`;
+---
+
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shared doc · bluedoc</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="theme-color" content="#05070f" />
+    <meta name="color-scheme" content="dark light" />
+    <script is:inline define:vars={{ root }}>
+      // the theme the site's toggle picked in this tab, as Base.astro reads it; and which card this address shows, as
+      // viewer.ts reads it (sourceOf)
+      (function () {
+        var t = 'dark';
+        try {
+          t = sessionStorage.getItem('bd-site-theme') || 'dark';
+        } catch (e) {}
+        var d = document.documentElement, p = location.pathname;
+        d.dataset.theme = t === 'light' ? 'light' : 'dark';
+        if (!(p === root || p === root + 'index.html' || (p.indexOf(root) === 0 && /^[^/]+\/?$/.test(p.slice(root.length))))) {
+          d.dataset.view = 'missing';
+          document.title = 'Page not found · bluedoc';
+        }
+      })();
+    </script>
+    <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+    <link rel="icon" href={`${base}favicon.ico`} sizes="32x32" />
+  </head>
+  <body class="viewer">
+    <div id="viewer-note" class="viewer-note" role="status" hidden>
+      <span class="t"></span>
+      <button type="button" aria-label="Dismiss">×</button>
+    </div>
+    <main id="viewer-status" class="viewer-status" data-state="loading" aria-live="polite">
+      <div class="card">
+        <a href={base} class="mark" aria-label="bluedoc home"><Logo /></a>
+        <h1>Opening the shared doc…</h1>
+        <p hidden></p>
+        <code class="detail" hidden></code>
+        <div class="acts">
+          <button type="button" class="btn btn-primary retry" hidden>Try again</button>
+          <a href={base} class="link-arrow">What is bluedoc?</a>
+        </div>
+      </div>
+    </main>
+    <main id="not-found" class="viewer-status">
+      <div class="card">
+        <a href={base} class="mark" aria-label="bluedoc home"><Logo /></a>
+        <h1>Page not found</h1>
+        <p>There’s nothing at this address on bluedoc.ai. The link may have a typo, or the page has moved.</p>
+        <div class="acts">
+          <a href={base} class="btn btn-primary">Go to the home page</a>
+        </div>
+      </div>
+    </main>
+    <script>
+      import '../scripts/viewer';
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  html,
+  body.viewer {
+    height: 100%;
+  }
+  body.viewer {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #viewer-doc {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    border: 0;
+    display: block;
+    background: var(--bg);
+  }
+  .viewer-status {
+    flex: 1;
+    display: grid;
+    place-items: center;
+    padding: 1.5rem;
+    overflow: auto;
+  }
+  .viewer-status[hidden],
+  #not-found,
+  [data-view='missing'] #viewer-status {
+    display: none;
+  }
+  [data-view='missing'] #not-found {
+    display: grid;
+  }
+  .viewer-status .card {
+    width: min(30rem, 100%);
+    padding: 2rem;
+    border: 1px solid var(--line);
+    border-radius: 1.25rem;
+    background: var(--surface);
+  }
+  .viewer-status .mark {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+  }
+  .viewer-status h1 {
+    font-size: 1.375rem;
+    line-height: 1.3;
+  }
+  .viewer-status p {
+    margin-top: 0.5rem;
+    color: var(--fg-muted);
+  }
+  .viewer-status .detail {
+    display: block;
+    margin-top: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--fg-subtle);
+  }
+  .viewer-status .detail[hidden] {
+    display: none;
+  }
+  .viewer-status .acts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.25rem;
+    margin-top: 1.5rem;
+  }
+  .viewer-status[data-state='loading'] .acts {
+    display: none;
+  }
+  .viewer-status[data-state='loading'] h1::after {
+    content: '';
+    display: block;
+    height: 3px;
+    margin-top: 1.25rem;
+    border-radius: 3px;
+    background: linear-gradient(90deg, transparent, var(--brand-fg), transparent) 0 0 / 40% 100% no-repeat var(--line);
+    animation: viewer-load 1.2s linear infinite;
+  }
+  @keyframes viewer-load {
+    from {
+      background-position: -40% 0;
+    }
+    to {
+      background-position: 140% 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .viewer-status[data-state='loading'] h1::after {
+      animation: none;
+    }
+  }
+  .viewer-note {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem 0.5rem 1rem;
+    font-size: 0.875rem;
+    color: var(--fg);
+    background: var(--brand-tint);
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .viewer-note[hidden] {
+    display: none;
+  }
+  .viewer-note .t {
+    flex: 1;
+  }
+  .viewer-note button {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.5rem;
+    color: var(--fg-muted);
+    font-size: 1.125rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .viewer-note button:hover {
+    background: var(--line);
+    color: var(--fg);
+  }
+</style>

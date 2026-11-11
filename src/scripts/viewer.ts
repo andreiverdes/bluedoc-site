@@ -1,14 +1,19 @@
-// The shared-doc viewer at /g/: https://bluedoc.ai/g/#<github user>/<gist id> draws the gist's bluedoc-page.json
-// with the page template of the latest bluedoc release (public/g/, copied by scripts/sync-template.mjs).
+// The shared-doc viewer: https://bluedoc.ai/g/<code> draws a gist's bluedoc-page.json with the page template of the
+// latest bluedoc release (public/g/, copied by scripts/sync-template.mjs). <code> is the gist id's bytes in base64url
+// without padding (32 hex digits → 22 characters). No such page exists on the site: GitHub Pages answers /g/<code>
+// with 404.html, which is this viewer too (src/components/SharedDocViewer.astro), and every other unknown path gets
+// its not-found card. /g/ itself still opens the first links, /g/#<github user>/<gist id>.
 //
 // The bundle ({bluedoc: 'share/1', version, name, title, rev, boardGeo, fill}) holds the strings bluedoc's build.py
 // fills its template with for an -o file. The page is drawn in a same-origin frame, written with document.write: it
-// keeps this page's URL (so ?rev= and ?diff= reach it) while its own #anchors stay in the frame, and reader state goes
-// to bluedoc.ai's localStorage. window.bluedocShare tells the template it is a shared page: no server, revision links
-// in the top window. The part after # never leaves the browser: nothing here sends or logs it.
+// keeps this page's URL (so /g/<code>?rev= and ?diff= reach it) while its own #anchors stay in the frame.
+// window.bluedocShare tells the template it is a shared page: no server, revision links in the top window, and
+// view-only (its VIEW_ONLY): no dock, picks, ticks or comments, and nothing in bluedoc.ai's localStorage but its view
+// prefs (theme, panel open and width). An old link's fragment never leaves the browser: nothing here sends or logs it.
 //
-// The gist is anyone's: every value it fills is checked before it goes in the page (fillOf). On localhost only,
-// #url=<encoded URL of a bluedoc-page.json> loads a bundle from anywhere (scripts/viewer-smoke.mjs).
+// The gist is anyone's: every value it fills is checked before it goes in the page (bundleOf). On localhost only,
+// /g/#url=<encoded URL of a bluedoc-page.json> loads a bundle from anywhere, and /g/<code> resolves through the map
+// in localStorage['bluedoc-viewer:local'] ({code: URL of a bluedoc-page.json}) before GitHub (scripts/viewer-smoke.mjs).
 import shipped from '../../public/g/version.json';
 
 const FORMAT = 'share/1';
@@ -17,9 +22,14 @@ const GEO_SLOT = '/*__BOARD_GEO__*/';
 // what the page reads as JSON from <script type="application/json"> blocks; the server-only ones are always null here
 const JSON_SLOTS = ['__BLUEDOC_DOC__', '__BLUEDOC_HISTORY__', '__BLUEDOC_SCREENS__', '__BLUEDOC_LISTING__', '__BLUEDOC_PINS__'];
 const NULL_SLOTS = ['__BLUEDOC_STATE__', '__BLUEDOC_LIVE__', '__BLUEDOC_SNAPS__'];
-const LOCAL = ['localhost', '127.0.0.1', '[::1]'];
+const LOCAL = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+const LOCAL_MAP = 'bluedoc-viewer:local';
+const ROOT = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}g/`;
+// /g/ itself, where the old links' fragment names the gist
+const AT_ROOT = location.pathname === ROOT || location.pathname === `${ROOT}index.html`;
 
-type Source = { kind: 'gist'; user: string; id: string } | { kind: 'url'; url: string };
+// user: the old link's, for the gist's raw URL when the API's limit is spent; a /g/<code> link has none
+type Source = { kind: 'gist'; user: string | null; id: string } | { kind: 'url'; url: string };
 type Bundle = { version: string; name: string; title: string; boardGeo: boolean; fill: Record<string, string> };
 type Problem = 'link' | 'gone' | 'missing' | 'gone-or-missing' | 'format' | 'network' | 'limit';
 
@@ -27,25 +37,66 @@ class ViewerError extends Error {
   constructor(
     readonly problem: Problem,
     readonly detail = '',
+    // what the card says instead of its usual text
+    readonly body = '',
   ) {
     super(problem);
   }
 }
 
-/** The link's fragment: `#<user>/<gist id>`, or `#url=<encoded URL>` on localhost. */
-function sourceOf(hash: string): Source | null {
-  const h = hash.replace(/^#/, '');
-  const m = /^([A-Za-z0-9](?:[A-Za-z0-9-]{0,38}))\/([0-9a-fA-F]{20,64})$/.exec(h);
-  if (m) return { kind: 'gist', user: m[1], id: m[2].toLowerCase() };
-  if (h.startsWith('url=') && LOCAL.includes(location.hostname)) {
-    try {
-      const url = new URL(decodeURIComponent(h.slice(4)), location.href);
-      if (url.protocol === 'http:' || url.protocol === 'https:') return { kind: 'url', url: url.href };
-    } catch {
-      return null;
-    }
+/** The gist id a /g/<code> link holds: its base64url (no padding) decoded to hex; null when it isn't one, written canonically. */
+function idOfCode(code: string): string | null {
+  if (!/^[A-Za-z0-9_-]{14,43}$/.test(code)) return null;   // 10 to 32 bytes: gist ids are 20 or 32 hex digits
+  let bin: string;
+  try {
+    bin = atob(code.replace(/-/g, '+').replace(/_/g, '/'));
+  } catch {
+    return null;
   }
-  return null;
+  if (btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '') !== code) return null;
+  return [...bin].map((c) => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+}
+
+/** A bundle URL from localhost's own map or #url= fragment; null for anything else. */
+function localUrl(raw: string | undefined): Source | null {
+  if (!LOCAL || !raw) return null;
+  try {
+    const url = new URL(raw, location.href);
+    return url.protocol === 'http:' || url.protocol === 'https:' ? { kind: 'url', url: url.href } : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * What this address opens: /g/<code>; at /g/, an old link's `#<user>/<gist id>` (or `#url=<encoded URL>` on
+ * localhost); null when it holds no doc; 'elsewhere' for a path that is no viewer's (the not-found card).
+ */
+function sourceOf(path: string, hash: string): Source | null | 'elsewhere' {
+  if (AT_ROOT) {
+    const h = hash.replace(/^#/, '');
+    const m = /^([A-Za-z0-9](?:[A-Za-z0-9-]{0,38}))\/([0-9a-fA-F]{20,64})$/.exec(h);
+    if (m) return { kind: 'gist', user: m[1], id: m[2].toLowerCase() };
+    if (h.startsWith('url=')) {
+      try {
+        return localUrl(decodeURIComponent(h.slice(4)));
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  }
+  const m = path.startsWith(ROOT) ? /^([^/]+)\/?$/.exec(path.slice(ROOT.length)) : null;
+  if (!m) return 'elsewhere';
+  const id = idOfCode(m[1]);
+  if (!id) return null;
+  let map: Record<string, string> = {};
+  try {
+    if (LOCAL) map = JSON.parse(localStorage.getItem(LOCAL_MAP) || '{}');
+  } catch {
+    /* no map */
+  }
+  return localUrl(map[m[1]]) || { kind: 'gist', user: null, id };
 }
 
 async function get(url: string, init?: RequestInit): Promise<Response> {
@@ -64,10 +115,19 @@ async function text(r: Response): Promise<string> {
   }
 }
 
+/** When GitHub lets this network read gists again (its x-ratelimit-reset, else retry-after), as the card says it. */
+function limitText(r: Response): string {
+  const reset = Number(r.headers.get('x-ratelimit-reset')), after = Number(r.headers.get('retry-after'));
+  const at = reset > 0 ? new Date(reset * 1000) : after > 0 ? new Date(Date.now() + after * 1000) : null;
+  const when = at ? `at ${at.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'in a few minutes';
+  return `Try again ${when}. Without signing in, GitHub lets one network read 60 gists an hour.`;
+}
+
 /**
- * The gist's latest bluedoc-page.json. The API names the file's current raw URL (its revision's sha in the path), so
- * a page shared again shows at once; the gist's /raw/<file> URL can lag on GitHub's CDN for a few minutes, and is
- * used when the API's 60 requests an hour per address are spent.
+ * The gist's latest bluedoc-page.json, through GitHub's API, which names the file's current raw URL (its revision's
+ * sha in the path), so a page shared again shows at once. Over the API's 60 requests an hour per network, an old link
+ * reads the gist's /raw/<file> URL (it names the user; it can lag on GitHub's CDN for a few minutes); a /g/<code> link
+ * says when to try again.
  */
 async function bundleText(src: Source): Promise<string> {
   if (src.kind === 'url') {
@@ -78,9 +138,10 @@ async function bundleText(src: Source): Promise<string> {
   // no-cache: revalidated each time (a 304 doesn't count against the limit), so Share again shows on a reload
   const r = await get(`https://api.github.com/gists/${src.id}`, { cache: 'no-cache', headers: { Accept: 'application/vnd.github+json' } });
   if (r.status === 403 || r.status === 429) {
+    if (!src.user) throw new ViewerError('limit', '', limitText(r));
     const raw = await get(`https://gist.githubusercontent.com/${encodeURIComponent(src.user)}/${src.id}/raw/${PAGE_FILE}`, { cache: 'no-cache' });
     if (raw.status === 404) throw new ViewerError('gone-or-missing');
-    if (!raw.ok) throw new ViewerError(raw.status === 403 || raw.status === 429 ? 'limit' : 'network', `HTTP ${raw.status}`);
+    if (!raw.ok) throw new ViewerError(raw.status === 403 || raw.status === 429 ? 'limit' : 'network', `HTTP ${raw.status}`, raw.status === 403 || raw.status === 429 ? limitText(r) : '');
     return text(raw);
   }
   if (r.status === 404) throw new ViewerError('gone');
@@ -154,7 +215,7 @@ function older(a: string, b: string): boolean {
 }
 
 async function asset(name: string): Promise<string> {
-  const r = await get(new URL(name, location.href).href);
+  const r = await get(ROOT + name);
   if (!r.ok) throw new ViewerError('network', `${name}: HTTP ${r.status}`);
   return text(r);
 }
@@ -169,23 +230,23 @@ function pageHtml(template: string, fill: Record<string, string>): string {
 
 const status = document.getElementById('viewer-status') as HTMLElement;
 const COPY: Record<Problem, [string, string]> = {
-  link: ['No shared doc in this link', 'A shared doc’s link looks like bluedoc.ai/g/#user/1a2b3c…, with the part after # in full. Ask the sender to copy it again.'],
+  link: ['No shared doc in this link', 'A shared doc’s link looks like bluedoc.ai/g/ followed by 22 letters and digits. Ask the sender to copy it again, in full.'],
   gone: ['This shared doc isn’t there any more', 'Its gist was deleted, or the link has a typo. Ask the sender to share it again.'],
   missing: ['This gist isn’t a shared bluedoc doc', 'It has no bluedoc-page.json, so there’s nothing to draw here.'],
   'gone-or-missing': ['This shared doc isn’t there', 'Its gist was deleted, the link has a typo, or the gist isn’t a shared bluedoc doc.'],
   format: ['This viewer can’t draw this doc', 'Its bluedoc-page.json isn’t one this viewer knows. If the sender has a newer bluedoc, it may show here soon.'],
   network: ['Couldn’t load the shared doc', 'GitHub, which holds it, didn’t answer. Check your connection and try again.'],
-  limit: ['GitHub is busy for this address', 'GitHub limits how often one address can read gists. Try again in a few minutes.'],
+  limit: ['GitHub’s limit for this network', 'Try again in a few minutes. Without signing in, GitHub lets one network read 60 gists an hour.'],
 };
 
-function show(kind: 'loading' | Problem, detail = ''): void {
+function show(kind: 'loading' | Problem, detail = '', text = ''): void {
   status.hidden = false;
   status.dataset.state = kind;
   const [head, body] = kind === 'loading' ? ['Opening the shared doc…', ''] : COPY[kind];
   status.querySelector('h1')!.textContent = head;
   const p = status.querySelector('p')!;
-  p.textContent = body;
-  p.hidden = !body;
+  p.textContent = text || body;
+  p.hidden = !p.textContent;
   const d = status.querySelector('.detail') as HTMLElement;
   d.textContent = detail;
   d.hidden = !detail;
@@ -201,7 +262,8 @@ function note(text: string): void {
   bar.querySelector('button')!.addEventListener('click', () => (bar.hidden = true), { once: true });
 }
 
-function draw(b: Bundle, html: string): void {
+// hash: an old link's fragment, which the page's revision links keep (a /g/<code> link's path is enough)
+function draw(b: Bundle, html: string, hash: string): void {
   const fr = document.createElement('iframe');
   fr.id = 'viewer-doc';
   fr.title = b.title;
@@ -212,7 +274,7 @@ function draw(b: Bundle, html: string): void {
   if (!w || !d) throw new ViewerError('network', 'the page frame didn’t open');
   d.open();
   // after open, before the page's script runs; the frame's document takes this page's URL, query and fragment included
-  w.bluedocShare = { name: b.name, hash: location.hash };
+  w.bluedocShare = { name: b.name, hash };
   d.write(html);
   d.close();
   status.hidden = true;
@@ -243,7 +305,9 @@ async function open(): Promise<void> {
       /* framed by another site: draw here */
     }
   }
-  const src = sourceOf(location.hash);
+  const src = sourceOf(location.pathname, location.hash);
+  // not a viewer's address: 404.html's not-found card, which its head script already showed
+  if (src === 'elsewhere') return;
   if (!src) return show('link');
   show('loading');
   const tpl = asset('template.html');
@@ -251,16 +315,16 @@ async function open(): Promise<void> {
   try {
     const b = bundleOf(await bundleText(src));
     const geo = b.boardGeo ? (await asset('board-geo.js')).replace(/<\/(script)/gi, '<\\/$1') : '';
-    draw(b, pageHtml(await tpl, { ...b.fill, [GEO_SLOT]: geo }));
+    draw(b, pageHtml(await tpl, { ...b.fill, [GEO_SLOT]: geo }), AT_ROOT ? location.hash : '');
     if (b.version && older(shipped.version, b.version))
       note(`Shared from bluedoc ${b.version}; this viewer draws with ${shipped.version}, so some parts may look different until it updates.`);
   } catch (e) {
-    if (e instanceof ViewerError) show(e.problem, e.detail);
+    if (e instanceof ViewerError) show(e.problem, e.detail, e.body);
     else show('network', e instanceof Error ? e.message : '');
   }
 }
 
 (status.querySelector('.retry') as HTMLElement).addEventListener('click', () => location.reload());
-// another link pasted over this one changes the fragment only: open that one
-addEventListener('hashchange', () => location.reload());
+// at /g/, another old link pasted over this one changes the fragment only: open that one
+if (AT_ROOT) addEventListener('hashchange', () => location.reload());
 open();
