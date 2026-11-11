@@ -12,6 +12,8 @@
     "astro": "astro",
     "og": "node scripts/og/make-og.mjs",
     "clips": "node clips/run.mjs",
+    "sync-template": "node scripts/sync-template.mjs",
+    "viewer-smoke": "node scripts/viewer-smoke.mjs",
     "check": "astro check"
   },
   "dependencies": {

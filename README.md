@@ -35,6 +35,7 @@ Headings use a small markup that `src/lib/rich.ts` renders: `[words]` in the blu
 | `/revisions/` | `src/pages/revisions.astro` | `atlasRevisions`: the onion skin, how a revision works, a compare per doc type, the films where a revision lands |
 | `/features/` | `src/pages/features.astro` | `featuresPage`: the clips grouped by what the reader does |
 | `/legal/` | `src/pages/legal.astro` | `legal`: licence, privacy, credits |
+| `/g/` | `src/pages/g/index.astro` | the shared-doc viewer (below): `src/scripts/viewer.ts` and the bluedoc template in `public/g/` |
 
 Shared layout styles (hero, sections, cards, segmented pickers, the install terminal, and the Shape block that sets every corner radius) are in `src/styles/atlas.css`; colours per theme (`[data-theme='dark']`, `[data-theme='light']`), fonts and base styles in `src/styles/global.css`. Every card grid uses `.fill-grid` with `fillGrid` (`src/lib/fill-grid.ts`), so no grid ends on a half-empty row. Pixel icons are 12 × 12 maps in `src/lib/pixel-icons.ts`. `Clip.astro` looks for its files at build time: a clip with no MP4 yet shows its poster, and one with no poster either shows a card with its title, so a page builds before its clips are recorded; a `zoom` clip opens larger in the lightbox (`ClipLightbox.astro`).
 
@@ -59,6 +60,18 @@ The URL comes from `astro.config.mjs` (`site: 'https://bluedoc.ai'`, `base: '/'`
 DNS (Namecheap): four A records on `@` to `185.199.108.153`, `.109`, `.110` and `.111`, and a CNAME on `www` to `andreiverdes.github.io.`; GitHub redirects `www.bluedoc.ai` to `bluedoc.ai`.
 
 Any static host works too: upload `dist/` after `npm run build`.
+
+## Shared docs: the viewer at `/g/`
+
+bluedoc can share a doc as a secret GitHub gist (`serve.py share`, or Export → Secret gist); its link is `https://bluedoc.ai/g/#<github user>/<gist id>`. `src/scripts/viewer.ts` reads the part after `#` (which never reaches the server), gets the gist's `bluedoc-page.json` from GitHub (`api.github.com/gists/<id>`, or the gist's raw URL when the API's hourly limit is spent), checks every value in it, fills bluedoc's page template with them and draws the page in a frame. The page works as an exported HTML file does: picks, ticks and comments stay in this browser's storage, and Request changes copies Markdown for the reader to paste to their agent. Loading and every failure (no doc in the link, the gist gone, no `bluedoc-page.json`, an unknown format, no network) get a small card; a doc from a newer bluedoc than the site's template draws with a note. `/g/` is `noindex`, Disallowed in `robots.txt` and left out of the sitemap.
+
+The viewer draws every doc with the template of the latest bluedoc release, kept in `public/g/` (`template.html`, `board-geo.js`, and `version.json`, the bluedoc version they came from). **Each bluedoc release** copies them in and commits them:
+
+```sh
+npm run sync-template -- <path to the bluedoc repo>
+```
+
+`npm run viewer-smoke -- [--shots <dir>] <bluedoc-page.json>...` builds the site, serves `dist/` on 127.0.0.1 and opens each bundle in headless Chrome at `/g/#url=<the bundle>` (accepted on localhost only): the title, no page errors and no server calls, a pick kept over a reload, every screen of a design, `?diff=`, Request changes' Markdown, then each failure card, with GitHub's answers faked. `--live <user>/<gist id>` also opens a real gist through GitHub. The bundles come from bluedoc's `scripts/share.py` (`gist_files`), or from a shared doc's gist.
 
 ## What runs in the browser
 

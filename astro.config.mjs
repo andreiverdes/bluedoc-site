@@ -7,8 +7,9 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   site: 'https://bluedoc.ai',
   base: '/',
-  // Design variants under /variants/ are for review, not search: noindex, and left out of the sitemap.
-  integrations: [sitemap({ filter: (page) => !page.includes('/variants/') })],
+  // Design variants under /variants/ are for review, not search: noindex, and left out of the sitemap; so is the
+  // shared-doc viewer, /g/ (also Disallowed in robots.txt).
+  integrations: [sitemap({ filter: (page) => !page.includes('/variants/') && !new URL(page).pathname.startsWith('/g/') })],
   // One small page: inline its CSS so the first paint waits on no stylesheet request.
   build: {
     inlineStylesheets: 'always',
