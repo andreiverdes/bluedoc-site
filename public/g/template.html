@@ -400,7 +400,6 @@ html.bd-lp-open:not(.bd-lp-dock) .bp-side { background: var(--surface); box-shad
 .bp-side .bp-prog-row .t { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; line-height: 1.4; }
 .bp-side .bp-prog-row .c { font: 500 11.5px/1.6 var(--mono); color: var(--fg-subtle); white-space: nowrap; }
 .bp-side .bp-prog-row .bp-bar { margin-top: 6px; }
-.bp-side-tools { display: flex; justify-content: flex-start; margin: 6px -2px -2px; padding: 8px 0 0; border-top: 1px solid var(--line-soft); }
 /* a button: the dock's family – a pill; raised (the select keys' .bd-tbtn.bd-expb, the dock's word key), flat until
    hovered (.ghost: the dock's flat key), filled (.primary: the dock's blue Go, .ok: its green Approve) */
 .bp-btn { display: inline-flex; align-items: center; gap: 6px; height: 30px; border: 0; border-radius: 999px; padding: 0 13px 0 12px; font-size: 12.5px; font-weight: 600; color: var(--fg);
@@ -433,34 +432,83 @@ html.bd-lp-open:not(.bd-lp-dock) .bp-side { background: var(--surface); box-shad
 .bd-split > .bp-btn:not([hidden]) ~ .bp-btn:hover:not(:disabled) { background: var(--groove) left center / 2px 60% no-repeat, linear-gradient(var(--hover), var(--hover)); }
 .bd-split > .bp-btn:active:not(:disabled) { background: var(--hk-down); box-shadow: var(--shadow-hk-down); }
 .bd-split > .bp-btn:focus-visible { box-shadow: inset 0 0 0 2px var(--focus); }
-/* send to agent: dialog (Send answers and a review's send key, Request changes, Approve) */
-.bd-send { width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 64px); padding: 0; border: 0; border-radius: 16px; background: var(--surface); color: var(--fg); box-shadow: var(--shadow-3); }
+/* the send dialog (sendDialog: Approve, Request changes, Send answers and a review's send key). Its title and rev, a
+   sentence on what the agent does, what goes (the decisions as the answer card's chips, the comments as the
+   conversation's timeline, Post as), the note (the one-line field), then Copy and the primary key, the toolbar's pills */
+.bd-send { width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 64px); padding: 0; border: 0; border-radius: 16px; background: var(--surface); color: var(--fg); box-shadow: var(--shadow-3); cursor: default; }
+.bd-send[open] { display: flex; flex-direction: column; }
 .bd-send::backdrop { background: oklch(15% 0.01 264 / .36); }
-.bd-send > * { margin: 0 20px; }
-.bd-send .hd { display: flex; align-items: center; gap: 10px; margin: 0; padding: 16px 14px 4px 20px; }
-.bd-send .hd h3 { flex: 1; margin: 0; font-size: 16px; font-weight: 600; }
-.bd-send .sum { margin-top: 2px; margin-bottom: 12px; font-size: 13.5px; color: var(--fg-muted); }
-/* a review of someone else's PR: Post as, the GitHub review event, above the message */
-.bd-send .bd-postas { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; font-size: 13px; font-weight: 500; color: var(--fg-muted); }
-.bd-send .bd-postas .bd-sg { flex: 1; }
-/* several PRs: a row each, its title then its own Post as */
-.bd-send .bd-postas.many { display: grid; gap: 8px; }
-.bd-send .bd-postas.many .r { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.bd-send .bd-postas.many .t { flex: 0 1 42%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fg); font-weight: 600; }
-.bd-send textarea { display: block; box-sizing: border-box; width: calc(100% - 40px); min-height: 84px; }
-/* a dialog's message to the agent and its files: Attach under the field, the chips between */
-.bd-send .bd-msgf textarea { width: 100%; }
-.bd-send .bd-msgf > .bp-files-w { margin-top: 8px; }
-.bd-send .bd-msgf > .ft { justify-content: flex-start; padding: 6px 0 0; }
-.bd-send .bd-msgf > .ft .bp-btn { height: 28px; padding: 0 8px; font-size: 12.5px; }
-.bd-send details { margin-top: 10px; }
-.bd-send summary { cursor: pointer; font-size: 13px; font-weight: 500; color: var(--accent-fg); width: max-content; }
-.bd-send pre { margin: 8px 0 0; max-height: 220px; overflow: auto; padding: 10px 12px; border-radius: 10px; background: var(--inset); font: 12px/1.55 var(--mono); white-space: pre-wrap; }
-.bd-send .how { margin-top: 12px; font-size: 12.5px; color: var(--fg-subtle); }
-.bd-send .ft { display: flex; justify-content: flex-end; gap: 8px; margin: 0; padding: 14px 20px 18px; }
-.bd-send .ft .bp-btn { height: 38px; padding: 0 18px 0 16px; gap: 8px; font-size: 13px; }
-.bd-send .ft .bp-btn .bd-ic { width: 16px; height: 16px; }
-.bd-send .ft .bp-btn[hidden] { display: none; }
+.bd-send .hd { flex: none; display: flex; align-items: center; gap: 8px; padding: 16px 12px 2px 20px; }
+.bd-send .hd h3 { min-width: 0; margin: 0; font-size: 16px; font-weight: 600; }
+.bd-send .hd .rev { flex: none; height: 20px; padding: 0 8px; border-radius: 999px; font: 600 11.5px/20px var(--sans); color: var(--fg-muted); background: var(--inset); white-space: nowrap; }
+.bd-send .hd .x { --k: 32px; margin-left: auto; }
+.bd-send .intro { flex: none; margin: 2px 20px 14px; font-size: 13.5px; line-height: 1.5; color: var(--fg-muted); }
+/* what goes: its sections scroll together when the window is short; each box scrolls after about six rows */
+.sd-body { flex: 0 1 auto; min-height: 0; overflow: auto; }
+.sd-body:empty { display: none; }
+.sd-sec { margin: 0 20px 14px; }
+.sd-sh { display: flex; align-items: baseline; gap: 8px; margin: 0 0 6px; }
+.sd-sh h4 { margin: 0; font: 600 11px/1.4 var(--sans); letter-spacing: .07em; text-transform: uppercase; color: var(--fg-subtle); white-space: nowrap; }
+.sd-sh .c { margin-left: auto; font-size: 12px; color: var(--fg-subtle); text-align: right; }
+.sd-box { max-height: 246px; overflow: hidden auto; border-radius: 10px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+/* a decision: the question, then its answer as the answer card's chip */
+.sd-dec { display: flex; align-items: flex-start; gap: 12px; width: 100%; box-sizing: border-box; margin: 0; padding: 9px 12px; border: 0; border-top: 1px solid var(--line); background: none; font: inherit; color: inherit; text-align: left; }
+.sd-dec:first-child { border-top: 0; }
+.sd-dec .q { flex: 1; min-width: 0; font-size: 13.5px; line-height: 20px; overflow-wrap: anywhere; }
+.sd-dec .q small { display: block; font-size: 12px; line-height: 17px; color: var(--fg-subtle); }
+.sd-dec.go { cursor: pointer; }
+.sd-dec.go:hover { background: var(--hover); }
+.sd-dec.go:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--focus); }
+.sd-chip { flex: none; display: inline-flex; align-items: center; gap: 4px; max-width: 46%; height: 22px; margin-top: -1px; padding: 0 9px 0 7px; border-radius: 999px; box-sizing: border-box;
+  font: 600 12px/22px var(--sans); white-space: nowrap; color: var(--ok-fg); background: var(--ok-tint); }
+.sd-chip > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.sd-chip .bd-ic { flex: none; width: 13px; height: 13px; stroke-width: 2.4; }
+.sd-chip.rec { color: var(--fg-muted); background: var(--inset); }
+.sd-chip.rec .bd-ic { color: var(--warn-fg); stroke-width: 2; }
+.sd-chip:is(.ask, .need) { color: var(--warn-fg); background: var(--warn-tint); }
+.sd-chip.need { padding: 0 5px 0 9px; }
+/* the comments that go, as the conversation draws them: a timeline, each with what it is on */
+.sd-cm { padding: 10px 12px 12px; }
+.sd-cm .bp-msg { padding-bottom: 12px; }
+.sd-cm .bp-msg:last-child { padding-bottom: 0; }
+.sd-cm .bp-msg .mh { font-size: 13px; }
+.sd-cm .bp-msg .mb { font-size: 13.5px; }
+.sd-cm .bp-msg .mb p { margin: 0; }
+.sd-cm .ac-on { max-width: 100%; box-sizing: border-box; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; }
+.sd-cm .bp-msg:not(:last-child)::before { content: ""; position: absolute; left: 7px; top: 22px; bottom: 2px; width: 2px; border-radius: 1px; background: var(--line); }
+/* a review of someone else's PR: Post as, the GitHub review event; several PRs: a row each, its title then its own */
+.bd-postas { display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 500; color: var(--fg-muted); }
+.bd-postas .bd-sg { flex: 1; }
+.bd-postas.many { display: grid; gap: 8px; }
+.bd-postas.many .r { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.bd-postas.many .t { flex: 0 1 42%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fg); font-weight: 600; }
+/* a line that needs the reader (a plan held for an answer, stale evidence) */
+.sd-alert { display: flex; gap: 8px; align-items: flex-start; margin: 0 20px 14px; font-size: 13px; line-height: 1.45; color: var(--warn-fg); }
+.sd-alert .bd-ic { flex: none; width: 15px; height: 15px; margin-top: 1px; }
+/* the note: the answer card's one-line field, Attach inline, no send key of its own; its files a row above the text */
+.sd-note { flex: none; margin: 0 20px; }
+.sd-note .ac-line { padding-left: 14px; }
+.sd-note .ac-line.files { flex-wrap: wrap; row-gap: 6px; padding-top: 6px; }
+.sd-note .ac-line > .bp-files-w { flex: 0 0 100%; margin-left: -8px; }
+.sd-note .ac-line.files .ac-line-ta { flex: 1 1 200px; }
+.sd-note .bp-file { border-radius: 999px; background: var(--inset); }
+.sd-note .bp-file .nm { height: 24px; border-radius: 999px; }
+.sd-note .bp-file .x { border-radius: 50%; }
+.sd-note .hint { margin: 6px 2px 0; font-size: 12px; color: var(--fg-subtle); }
+.sd-note .hint kbd { margin: 0 1px; }
+/* the footer: Copy (grey) at the left, the primary key (green Approve, blue Send) at the right; held, the toolbar's
+   disabled pill */
+.bd-send .ft { flex: none; display: flex; align-items: center; gap: 8px; padding: 14px 16px 16px 20px; }
+.bd-send .ft .sp { flex: 1; }
+.bd-send .ft .bd-key[hidden] { display: none; }
+.bd-send .ft .bd-key.pri:disabled { cursor: default; filter: none; opacity: 1; color: var(--fg-subtle); background: linear-gradient(180deg, var(--hk-top), var(--hk-bot)); box-shadow: var(--shadow-hk); }
+@media (max-width: 600px) {
+  .bd-send .ft .bd-key.txt .t { display: inline; }
+  .bd-send .ft .bd-key.txt { padding: 0 16px 0 14px; }
+  .sd-dec { flex-direction: column; gap: 4px; }
+  .sd-chip { max-width: 100%; }
+}
+@media (max-width: 600px), (hover: none) { .sd-note .hint { display: none; } }
 /* the app bar's Share key (openShare): the share sheet, HorizonUI's ticket (design share-account, sheet D). No dialog box:
    the ticket floats over the dimmed page, its two halves a card each, notched where they meet at a dashed tear line.
    The top half: eyebrow, state badge and close; the doc's emoji tile, title, project · remote; Share as and what goes
@@ -768,7 +816,7 @@ td.bd-cell-mod { background: color-mix(in oklch, var(--warn-tint) 70%, transpare
 .bp-file .x:hover { background: var(--hover); color: var(--fg); }
 .bp-file .x .bd-ic { width: 13px; height: 13px; }
 .bp-files-up { font-size: 12px; color: var(--fg-subtle); }
-:is(.bp-note .f, .bd-cmp, .bd-gc .cp, .bd-msgf, .bd-cs-c .rp, .bd-cs-c .ed).drop { outline: 2px dashed var(--accent); outline-offset: 2px; }
+:is(.bp-note .f, .bd-cmp, .bd-gc .cp, .bd-cs-c .rp, .bd-cs-c .ed).drop { outline: 2px dashed var(--accent); outline-offset: 2px; }
 .bp-msg .mf { grid-column: 2; margin-top: 6px; }
 .bp-cl-body > .bp-note { margin-top: 16px; }
 /* a decision's box stays under its options when the row is closed (a click in it opens the row) */
@@ -914,11 +962,14 @@ td.bd-cell-mod { background: color-mix(in oklch, var(--warn-tint) 70%, transpare
 .bp-cl.nested .bp-cl-body { padding-left: calc(14px + var(--ind)); padding-right: 14px; }
 .bp-cl-verify { font-size: 13.5px; color: var(--fg-muted); display: flex; gap: 8px; align-items: flex-start; line-height: 1.5; }
 .bp-cl-verify .bd-ic { width: 15px; height: 15px; color: var(--ok); margin-top: 2px; }
-/* the two kinds of checklist: a decision list asks the reader (question icon, "Needs your answer", N open), a progress
-   list tracks work (its bar, and a caption saying whose ticks they are) */
+/* the two kinds of checklist: a decision list asks the reader (a findings section's header: the title, the answered
+   meter, the toolbar), a progress list tracks work (its bar, and a caption saying whose ticks they are). A nested
+   decision list and the Brief pane's keep the short header (question icon, "Needs your answer", N open) */
 .bp-cl.k-decisions { box-shadow: var(--shadow-1); }
 .bp-cl.k-decisions > .bp-cl-h > .bd-ic { color: var(--accent-fg); }
 .bp-cl.k-decisions .bp-cl-count { color: var(--accent-fg); }
+.bp-cl-h > .bd-prs:empty { display: none; }
+.bp-cl > .bd-ftb { position: static; margin-top: 0; }
 .bp-cl-ask { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 999px; font: 600 11.5px/1 var(--sans); color: var(--accent-fg); background: var(--accent-tint); white-space: nowrap; }
 .bp-cl-ask[hidden] { display: none; }
 .bp-cl-cap { margin: -4px 16px 8px; font-size: 12.5px; line-height: 1.45; color: var(--fg-subtle); }
@@ -1039,6 +1090,7 @@ td.bd-cell-mod { background: color-mix(in oklch, var(--warn-tint) 70%, transpare
 .ac-line-ta { flex: 1; min-width: 0; min-height: 20px; margin: 0 0 5px; padding: 0; border: 0; outline: none; resize: none; field-sizing: content; max-height: 160px;
   font: 13.5px/20px var(--sans); color: var(--fg); background: none; }
 .ac-line-ta::placeholder { color: var(--fg-subtle); }
+.ac-line-ta:focus-visible { box-shadow: none; }   /* the line draws the focus ring */
 .ac-att { flex: none; display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; color: var(--fg-subtle); background: none; cursor: pointer; }
 .ac-att:hover:not(:disabled) { color: var(--fg); background: var(--hover); }
 .ac-att:disabled { opacity: .4; cursor: default; }
@@ -1295,6 +1347,126 @@ img.bp-cmpr-img { cursor: zoom-in; }
 .bp-cmpr-code { flex: 1; margin: 0; padding: 12px 14px; overflow-x: auto; color: var(--fg); font: 12.5px/1.65 var(--mono); background: var(--panel); }
 .bp-cmpr-code code { background: none; padding: 0; font-size: inherit; color: inherit; overflow-wrap: normal; }
 .bp-cmpr-b + .bp-cmpr-code { border-top: 1px solid var(--line-soft); }
+/* chart: numbers drawn in HorizonUI's look (its Stat, Sparkline, ProgressBar and ProgressRing; lines, bars and the donut
+   in the same strokes, radii and tokens). A tone class (.ch-<tone>) sets --c from the theme; narrow plots follow the
+   chart's own width (a container), so a chart in a pane or on a phone reads the same */
+.bp-chart { --ch-violet: light-dark(oklch(55% 0.17 300), oklch(68% 0.15 300)); --ch-teal: light-dark(oklch(55% 0.11 172), oklch(68% 0.13 172));
+  --ch-rose: light-dark(oklch(56% 0.17 20), oklch(70% 0.15 20)); --ch-lime: light-dark(oklch(58% 0.15 128), oklch(76% 0.16 128)); --ch-cyan: light-dark(oklch(57% 0.12 210), oklch(72% 0.13 205));
+  container-type: inline-size; position: relative; margin: 0; padding: 16px 18px 14px; border-radius: 14px; background: var(--surface); box-shadow: var(--shadow-1); }
+.bp-chart.bare { padding: 0; background: none; box-shadow: none; }
+@media (max-width: 600px) { .bp-chart:not(.bare) { padding: 14px 14px 12px; } }
+.ch-accent { --c: var(--accent); } .ch-success { --c: var(--ok); } .ch-warning { --c: var(--warn); } .ch-danger { --c: var(--risk); } .ch-muted { --c: var(--todo); }
+.ch-violet { --c: var(--ch-violet); } .ch-teal { --c: var(--ch-teal); } .ch-rose { --c: var(--ch-rose); } .ch-lime { --c: var(--ch-lime); } .ch-cyan { --c: var(--ch-cyan); }
+.bp-ch-h { display: flex; flex-wrap: wrap; align-items: center; column-gap: 10px; row-gap: 6px; min-height: 24px; margin-bottom: 12px; }
+.bp-ch-h .t { font: 600 14px/1.3 var(--sans); color: var(--fg); }
+.bp-ch-h .u { font: 500 11.5px var(--mono); color: var(--fg-subtle); }
+.bp-ch-h .u:empty { display: none; }
+.bp-ch-lg { display: flex; flex-wrap: wrap; gap: 2px; margin: -2px -6px -2px auto; }
+.bp-ch-li { display: inline-flex; align-items: center; gap: 7px; height: 24px; padding: 0 8px; border: 0; border-radius: 999px; background: none; font: 12.5px/1 var(--sans); color: var(--fg-muted); cursor: pointer; }
+.bp-ch-li:hover { background: var(--hover); color: var(--fg); }
+:is(.bp-ch-li, .bp-ch-dli, .bp-ch-plot, .bp-ch-spw):focus-visible { outline: none; box-shadow: var(--focus-ring); }
+:is(.bp-ch-li, .bp-ch-tip .r, .bp-ch-dli) i { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.bp-ch-li.ln i { width: 12px; height: 3px; border-radius: 2px; }
+:is(.bp-ch-li, .bp-ch-dli)[aria-pressed="false"] { color: var(--fg-subtle); }
+:is(.bp-ch-li, .bp-ch-dli)[aria-pressed="false"] i { background: none; box-shadow: inset 0 0 0 1.5px var(--fg-subtle); }
+.bp-ch-li[aria-pressed="false"], .bp-ch-dli[aria-pressed="false"] em { text-decoration: line-through; }
+.bp-ch-cap { margin: 10px 0 0; font-size: 12.5px; line-height: 1.45; color: var(--fg-subtle); }
+.bp-ch-plot { position: relative; border-radius: 8px; }
+.bp-ch-plot > svg { display: block; width: 100%; height: auto; overflow: visible; }
+.bp-ch-plot text { font: 500 10.5px var(--mono); fill: var(--fg-subtle); font-variant-numeric: tabular-nums; }
+.bp-ch-plot text.on { fill: var(--fg); font-weight: 600; } .bp-ch-plot text.off { opacity: 0; }
+.bp-ch-plot .gl { stroke: var(--line); stroke-width: 1; shape-rendering: crispEdges; }
+.bp-ch-plot .ax { stroke: var(--line-strong); stroke-width: 1; shape-rendering: crispEdges; }
+.bp-ch-plot .xh { stroke: var(--line-strong); stroke-width: 1; }
+.bp-ch-plot .band { fill: var(--hover); }
+.bp-ch-plot .ln { fill: none; stroke: var(--c); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.bp-ch-plot .dot { fill: var(--c); }
+.bp-ch-plot .hdot { fill: var(--c); stroke: var(--surface); stroke-width: 2; }
+.bp-ch-plot g[data-x], .bp-ch-ring circle, .bp-ch-eb i::before, .bp-ch-pb :is(.h, .tr i), .bp-ch-dli { transition: opacity .12s, stroke-width .12s; }
+.bp-ch-plot .dim { opacity: .35; }
+.bp-ch-tip { position: absolute; z-index: 5; min-width: 132px; padding: 7px 10px 8px; border-radius: 9px; background: var(--tip); color: oklch(97% 0 0); box-shadow: var(--shadow-3);
+  font: 12px/16px var(--sans); white-space: nowrap; pointer-events: none; }
+.bp-ch-tip[hidden] { display: none; }
+.bp-ch-tip b { display: block; margin-bottom: 4px; font-weight: 600; }
+.bp-ch-tip .r { display: flex; align-items: center; gap: 7px; height: 19px; }
+.bp-ch-tip .r span { margin-left: auto; padding-left: 16px; font: 500 11.5px var(--mono); font-variant-numeric: tabular-nums; }
+.bp-ch-tip .r.t { margin-top: 4px; padding-top: 4px; height: 23px; border-top: 1px solid oklch(97% 0 0 / 0.16); }
+.bp-ch-tip s { text-decoration: none; color: oklch(97% 0 0 / 0.66); }
+/* stat cards: HorizonUI's Stat */
+.bp-ch-sg { position: relative; display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 14px; }
+.bp-ch-st { position: relative; display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 16px; border-radius: 14px; background: var(--surface); box-shadow: var(--shadow-1); }
+.bp-ch-sl { font: 500 11px/14px var(--mono); text-transform: uppercase; letter-spacing: .12em; color: var(--fg-subtle); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bp-ch-sv { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 8px; row-gap: 4px; }
+.bp-ch-sv b { font: 600 26px/32px var(--sans); font-variant-numeric: tabular-nums; color: var(--fg); }
+.bp-ch-sv u { text-decoration: none; font-size: 12px; line-height: 16px; color: var(--fg-muted); }
+.bp-ch-dp { display: inline-flex; align-items: center; gap: 2px; height: 20px; margin-left: auto; padding: 0 8px; border-radius: 999px; background: var(--hover); color: var(--fg-muted);
+  font: 500 11px/14px var(--sans); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bp-ch-dp svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.bp-ch-dp svg.down { transform: rotate(180deg); }
+.bp-ch-dp.ok { color: var(--ok-fg); } .bp-ch-dp.bad { color: var(--risk-fg); }
+.bp-ch-spw { border-radius: 4px; }
+.bp-ch-sp { display: block; width: 100%; height: 32px; overflow: visible; color: var(--c); }
+.bp-ch-sp :is(.sl, .end, .xh, .hr, .hd) { fill: none; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.bp-ch-sp .sl { stroke: currentColor; stroke-width: 1.5; } .bp-ch-sp .end { stroke: currentColor; stroke-width: 5; }
+.bp-ch-sp .xh { stroke: var(--line-strong); stroke-width: 1; stroke-linecap: butt; }
+.bp-ch-sp .hr { stroke: var(--surface); stroke-width: 10; } .bp-ch-sp .hd { stroke: currentColor; stroke-width: 6; }
+.bp-ch-sg > .bp-ch-tip { min-width: 0; }
+@container (max-width: 640px) {
+  .bp-ch-sg { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .bp-ch-st { padding: 12px 12px 10px; } .bp-ch-sv b { font-size: 22px; line-height: 28px; }
+}
+@container (max-width: 640px) { .bp-ch-sg.one { grid-template-columns: minmax(0, 1fr); } }
+/* ranked bars: a label column, then the bar and its value */
+.bp-ch-hb { display: flex; flex-direction: column; }
+.bp-ch-eb { display: grid; grid-template-columns: var(--lw, 128px) minmax(0, 1fr); align-items: center; gap: 12px; height: 29px; margin: 0 -8px; padding: 0 8px; border-radius: 8px;
+  font: 12.5px var(--mono); color: var(--fg-muted); }
+.bp-ch-eb > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bp-ch-eb i { display: flex; align-items: center; gap: 8px; font-style: normal; font-variant-numeric: tabular-nums; }
+.bp-ch-eb i::before { content: ""; flex: none; height: 12px; width: calc(var(--w) * 0.82); border-radius: 3px; background: color-mix(in oklch, var(--c) 75%, transparent); }
+.bp-ch-eb.on { background: var(--hover); color: var(--fg); } .bp-ch-eb.on i::before { background: var(--c); }
+.bp-ch-eb.dim i::before { opacity: .35; } .bp-ch-eb.dim :is(span, i) { color: var(--fg-subtle); }
+@container (max-width: 520px) {
+  .bp-ch-lg { flex-basis: 100%; margin: 0 0 0 -8px; }
+  .bp-ch-eb { grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 16px 7px; row-gap: 5px; height: auto; padding: 2px 8px 5px; }
+  .bp-ch-eb i { display: contents; } .bp-ch-eb i::before { grid-column: 1 / -1; grid-row: 2; height: 7px; width: var(--w); }
+}
+/* donut: HorizonUI's ProgressRing look, the total in the middle, a two-column legend of counts and shares */
+.bp-ch-dn { display: flex; align-items: center; gap: 56px; }
+.bp-ch-ring { position: relative; flex: none; width: 184px; height: 184px; }
+.bp-ch-ring svg { display: block; width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
+.bp-ch-ring circle { fill: none; stroke: var(--c); stroke-width: 20; }
+.bp-ch-ring circle.on { stroke-width: 26; } .bp-ch-ring circle.dim { opacity: .35; } .bp-ch-ring circle.trk { stroke: var(--selected); }
+.bp-ch-ring .c { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; pointer-events: none; }
+.bp-ch-ring .c b { font: 600 26px/30px var(--sans); font-variant-numeric: tabular-nums; color: var(--fg); }
+.bp-ch-ring .c span { font-size: 12px; line-height: 16px; color: var(--fg-subtle); }
+.bp-ch-dl { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(var(--rows), auto); grid-auto-flow: column; column-gap: 28px; }
+.bp-ch-dli { display: flex; align-items: center; gap: 9px; min-width: 0; height: 33px; margin: 0 -8px; padding: 0 8px; border: 0; border-radius: 8px; background: none; color: var(--fg);
+  font: 13px var(--sans); text-align: left; white-space: nowrap; box-shadow: inset 0 -1px 0 var(--line-soft); cursor: pointer; }
+.bp-ch-dli em { min-width: 0; font-style: normal; overflow: hidden; text-overflow: ellipsis; }
+.bp-ch-dli span { margin-left: auto; font: 500 11.5px var(--mono); color: var(--fg-subtle); font-variant-numeric: tabular-nums; }
+.bp-ch-dli.on { background: var(--hover); box-shadow: none; } .bp-ch-dli.on span { color: var(--fg); }
+.bp-ch-dli.dim { opacity: .45; }
+@container (max-width: 560px) {
+  .bp-ch-dn { flex-direction: column; gap: 14px; } .bp-ch-ring { width: 132px; height: 132px; }
+  .bp-ch-dl { align-self: stretch; column-gap: 14px; } .bp-ch-dli { height: 28px; gap: 7px; font-size: 12.5px; } .bp-ch-dli span { font-size: 11px; }
+}
+/* progress rows: HorizonUI's ProgressBar per row */
+.bp-ch-pr { display: flex; flex-direction: column; gap: 16px; }
+.bp-ch-pb { position: relative; display: flex; flex-direction: column; gap: 7px; margin: -6px -8px; padding: 6px 8px; border-radius: 8px; }
+.bp-ch-pb .h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; font-size: 13px; line-height: 16px; }
+.bp-ch-pb .l { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fg-muted); }
+.bp-ch-pb .v { font: 500 12px var(--mono); color: var(--fg); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bp-ch-pb .v s { margin-left: 8px; text-decoration: none; color: var(--fg-subtle); }
+.bp-ch-pb .v s.ok { color: var(--ok-fg); } .bp-ch-pb .v s.wn { color: var(--warn-fg); } .bp-ch-pb .v s.bad { color: var(--risk-fg); }
+.bp-ch-pb .tr { height: 6px; border-radius: 999px; background: var(--selected); overflow: hidden; }
+.bp-ch-pb .tr i { display: block; width: var(--w); height: 100%; border-radius: 999px; background: var(--c); }
+.bp-ch-pb.on { background: var(--hover); } .bp-ch-pb.on .l { color: var(--fg); }
+.bp-ch-pb.dim .tr i { opacity: .4; } .bp-ch-pb.dim .h { opacity: .6; }
+@media (prefers-reduced-motion: reduce) { .bp-chart * { transition: none !important; } }
+@media print {
+  .bp-chart { break-inside: avoid; } .bp-ch-tip { display: none !important; }
+  .bp-chart, .bp-chart * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
 /* md text (md(), every md field: class bd-md) beyond paragraphs and flat lists: headings sized under the section and
    block titles, nested and task lists, quotes, rules, and tables and code blocks in the table and code blocks' look */
 .bd-md .bd-mh { display: block; margin: 16px 0 6px; font-family: var(--sans); font-weight: 600; line-height: 1.35; letter-spacing: 0; text-transform: none; color: var(--fg); }
@@ -1505,20 +1677,21 @@ html.bd-tray-on .bp-toast { bottom: 84px; }
 .bd-revtb .bd-twinsg button { height: calc(var(--k, 38px) - 6px); padding: 0 14px; border-radius: 999px; font-size: 13px; }
 .bd-revtb .bd-twinsg .bd-ic { width: 16px; height: 16px; }
 .bd-key.txt { display: inline-flex; align-items: center; width: auto; gap: 8px; padding: 0 16px 0 14px; font-size: 13px; font-weight: 600; white-space: nowrap; }
-.bd-key.txt:not(.go, .approve, .present, .send.has) { color: var(--fg); background: linear-gradient(180deg, var(--hk-top), var(--hk-bot)); box-shadow: var(--shadow-hk); }
-.bd-key.txt:not(.go, .approve, .present, .send.has):hover { background: linear-gradient(var(--hover), var(--hover)), linear-gradient(180deg, var(--hk-top), var(--hk-bot)); }
-.bd-key.txt:not(.go, .approve, .present, .send.has):active:not(:disabled) { background: var(--hk-down); box-shadow: var(--shadow-hk-down); }
-.bd-key.txt:not(.go, .approve, .present, .send.has):focus-visible { box-shadow: var(--shadow-hk), var(--focus-ring); }
+.bd-key.txt:not(.go, .ok, .approve, .present, .send.has) { color: var(--fg); background: linear-gradient(180deg, var(--hk-top), var(--hk-bot)); box-shadow: var(--shadow-hk); }
+.bd-key.txt:not(.go, .ok, .approve, .present, .send.has):hover { background: linear-gradient(var(--hover), var(--hover)), linear-gradient(180deg, var(--hk-top), var(--hk-bot)); }
+.bd-key.txt:not(.go, .ok, .approve, .present, .send.has):active:not(:disabled) { background: var(--hk-down); box-shadow: var(--shadow-hk-down); }
+.bd-key.txt:not(.go, .ok, .approve, .present, .send.has):focus-visible { box-shadow: var(--shadow-hk), var(--focus-ring); }
 .bd-key.txt .bd-ic { width: 16px; height: 16px; }
 .bd-key.go.txt { padding: 0 16px; }
 .bd-key:disabled:not(.go) { opacity: .45; cursor: default; }
 @media (max-width: 600px) { .bd-revtb .lbl { padding: 0 2px 0 4px; } .bd-revtb .lbl .x, .bd-revtb .lbl .bd-ic, .bd-key.txt:not(.go) .t { display: none; } .bd-key.txt:not(.go) { padding: 0 10px; } .bd-key.go.txt { padding: 0 12px; } }
 /* the tray's last key: Approve (green fill; once approved a settled green), a presentation's Present (green fill) or the
-   send key (green fill, with its count of picks, ticks and comments not sent yet, when there is something to send) */
-.bd-key:is(.approve, .send.has, .present) { color: #fff; background: var(--ok-solid) linear-gradient(180deg, color-mix(in oklch, var(--ok-solid), white 9%), var(--ok-solid)); box-shadow: var(--shadow-fill); }
-.bd-key:is(.approve, .send.has, .present):hover { color: #fff; filter: brightness(.95); background: var(--ok-solid) linear-gradient(180deg, color-mix(in oklch, var(--ok-solid), white 9%), var(--ok-solid)); }
-.bd-key:is(.approve, .send.has, .present):active:not(:disabled) { filter: brightness(.9); box-shadow: var(--shadow-fill); background: var(--ok-solid); }
-.bd-key:is(.approve, .send.has, .present):focus-visible { box-shadow: var(--shadow-fill), var(--focus-ring); }
+   send key (green fill, with its count of picks, ticks and comments not sent yet, when there is something to send); the
+   approve dialog's primary key (.ok) */
+.bd-key:is(.approve, .ok, .send.has, .present) { color: #fff; background: var(--ok-solid) linear-gradient(180deg, color-mix(in oklch, var(--ok-solid), white 9%), var(--ok-solid)); box-shadow: var(--shadow-fill); }
+.bd-key:is(.approve, .ok, .send.has, .present):hover { color: #fff; filter: brightness(.95); background: var(--ok-solid) linear-gradient(180deg, color-mix(in oklch, var(--ok-solid), white 9%), var(--ok-solid)); }
+.bd-key:is(.approve, .ok, .send.has, .present):active:not(:disabled) { filter: brightness(.9); box-shadow: var(--shadow-fill); background: var(--ok-solid); }
+.bd-key:is(.approve, .ok, .send.has, .present):focus-visible { box-shadow: var(--shadow-fill), var(--focus-ring); }
 .bd-key.approve.done:disabled { opacity: 1; cursor: default; filter: none; transform: none; color: var(--ok-fg); background: var(--ok-tint); box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--ok) 38%, transparent); }
 .bd-key.approve .bd-ic { stroke-width: 2.1; }
 .bd-key.send.has { padding-right: calc(var(--k, 38px) * .2); }
@@ -1945,44 +2118,6 @@ html[data-v-cmt] .bd-cs-c:is(.on, .edit) { box-shadow: 0 0 0 1.5px var(--accent)
   html.bd-sp-open .bd-shell { padding-bottom: calc(var(--sp-sheet-h) + 90px); }
 }
 
-/* Request changes dialog: count, preview, Copy and Send */
-.bd-chgs[open] { display: flex; flex-direction: column; }
-.bd-chgs[open] > * { flex: none; }
-.bd-chgs .cnt { margin-top: -4px; margin-bottom: 12px; font-size: 13.5px; }
-.bd-chgs .cnt .old { color: var(--warn-fg); }
-.bd-chgs details { margin-top: 10px; min-height: 0; }
-.bd-chgs details[open] { flex: 0 1 auto; display: flex; flex-direction: column; }
-.bd-chgs pre { max-height: 260px; }
-.bd-chgs .ft .sp { flex: 1; }
-.bd-chgs .ft .bp-btn:disabled { opacity: .5; cursor: default; }
-/* Approve dialog: note, what goes with it, the decisions, Copy and Approve */
-.bd-approve[open] { display: flex; flex-direction: column; }
-.bd-approve[open] > * { flex: none; }
-.bd-ap-sum { list-style: none; padding: 0; margin-top: 12px; display: grid; gap: 6px; font-size: 13.5px; color: var(--fg-muted); }
-.bd-ap-sum[hidden] { display: none; }
-.bd-ap-sum li { display: flex; gap: 8px; align-items: flex-start; line-height: 1.45; }
-.bd-ap-sum .bd-ic { width: 15px; height: 15px; margin-top: 1px; color: var(--fg-subtle); }
-.bd-ap-sum li.warn .bd-ic { color: var(--warn); }
-/* a plan with a question unanswered: Approve is held and this says why */
-.bd-ap-sum li.risk { color: var(--risk-fg); } .bd-ap-sum li.risk .bd-ic { color: var(--risk); }
-.bd-ap-dec { margin-top: 14px; min-height: 0; }
-.bd-approve[open] > .bd-ap-dec { flex: 0 1 auto; display: flex; flex-direction: column; }
-.bd-ap-dec[hidden] { display: none !important; }
-.bd-ap-dec h4 { margin: 0 0 4px; font: 600 11px/1.4 var(--sans); letter-spacing: .07em; text-transform: uppercase; color: var(--fg-subtle); }
-.bd-ap-dec ul { list-style: none; margin: 0; padding: 0 10px; overflow: auto; border-radius: 10px; background: var(--inset); max-height: 240px; }
-.bd-ap-dec li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 12px; padding: 8px 0; font-size: 13.5px; line-height: 1.45; }
-.bd-ap-dec li + li { border-top: 1px solid var(--line); }
-.bd-ap-dec .t { flex: 1 1 200px; min-width: 0; }
-.bd-ap-dec .pk { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 5px; font-weight: 600; color: var(--accent-fg); }
-.bd-ap-dec .pk .bd-ic { width: 13px; height: 13px; stroke-width: 2.4; }
-.bd-ap-dec .pk .rec { font-weight: 400; color: var(--fg-subtle); }
-.bd-ap-dec .pk.none { font-weight: 500; color: var(--fg-subtle); }
-.bd-ap-dec .pk.none .bd-ic { fill: currentColor; stroke: none; color: var(--warn); }
-/* on a plan: a button that closes the dialog and opens the question */
-.bd-ap-dec button.pk.none { padding: 2px 6px; margin: -2px -6px; border: 0; border-radius: 6px; background: none; font: inherit; font-weight: 600; color: var(--warn-fg); cursor: pointer; }
-.bd-ap-dec button.pk.none:hover { background: var(--hover); }
-.bd-ap-dec button.pk.none > .bd-ic:last-child { fill: none; stroke: currentColor; stroke-width: 2; color: inherit; }
-.bd-approve .ft .bp-btn:disabled { opacity: .6; cursor: default; }
 @media print { .bd-anntb, .bd-ann-layer, .bd-ann-hov, .bd-ann-cap, .bd-selc, .bd-tip, .bd-sp, .bd-cmp, .bd-home { display: none !important; } html.bd-tray-on .bd-shell, :root.bd-sp-dock .bd-shell { padding: 0; } }
 
 /* code review: diff block (HorizonUI DiffReview, ChangeTable, CodeBlock syntax tokens) */
@@ -2175,8 +2310,8 @@ html[data-v-cmt] .bd-cs-c:is(.on, .edit) { box-shadow: 0 0 0 1.5px var(--accent)
   .bp-sec.fv-on.bd-anim > :not(h2, .bd-prhd) { animation: bd-fold-in .24s var(--ease) both; }
   .bp-sec.fv-on.bd-fold.bd-anim > :not(h2, .bd-prhd) { animation: bd-fold-out .18s ease-out both; }
   .bp-sec.fv-merged > :is(.fv-c, .fv-d), .bp-sec.fv-cl > :is(.fv-d, .fv-m), .bp-sec.fv-diff > :is(.fv-c, .fv-m) { display: none; }
-  /* what the filter hides: a finding (its excerpt in Merged, its card in Diff), a Merged group left empty */
-  .bp-sec.fv-on .fv-out { display: none; }
+  /* what the filter hides: a question (a finding's excerpt in Merged, its card in Diff), a Merged group left empty */
+  :is(.bp-sec.fv-on, .bp-cl) .fv-out { display: none; }
   /* a closed finding is its head */
   :is(.bp-cl-item.fd, .bd-mrow):not(.open) > :not(.bp-cl-row) { display: none; }
 }
@@ -5050,6 +5185,7 @@ const RENDER = {
   files: b => renderFiles(b),
   media: b => renderMedia(b),
   compare: b => renderCompare(b),
+  chart: b => renderChart(b),
   board: b => IS_LISTING ? h('div', { class: 'bd-board-ph' }, ic('frame'), h('span', {}, 'The shots of this section are on the platform pages.')) : renderBoard(b),
   listing: b => renderListing(b),
 };
@@ -5357,6 +5493,339 @@ function renderCompare(b) {
     b.title && h('div', { class: 'bp-cmpr-t' }, ic('split'), h('h3', { html: inline(b.title) })),
     h('div', { class: 'bp-cmpr-g' }, side(b.before, 'before'), h('span', { class: 'bp-cmpr-ar', 'aria-hidden': 'true' }, h('b', {}, ic('arrowr'))), side(b.after, 'after')));
 }
+/* ---------- charts ---------- */
+// A chart block (kind stat|line|bar|hbar|donut|progress), drawn in the page from the doc's numbers in HorizonUI's look:
+// SVG for lines, bars and the ring, HTML for stat cards, ranked bars and progress rows, in theme tones only (.ch-<tone>
+// sets --c). Hover, or focus and the arrow keys, shows a point's values in a tooltip; the legend hides and shows a
+// series or a part (the reader's, never kept). Lines and bars draw at the plot's width and again when it changes. A
+// visually hidden table holds every number for screen readers; the Markdown export and compare view read the same.
+const CH_KINDS = ['stat', 'line', 'bar', 'hbar', 'donut', 'progress'];
+const CH_TONES = ['accent', 'success', 'warning', 'danger', 'violet', 'teal', 'rose', 'lime', 'cyan', 'muted'];
+const CH_SERIES = ['accent', 'success', 'warning', 'violet'], CH_PARTS = ['violet', 'teal', 'accent', 'rose', 'lime', 'warning', 'cyan', 'muted'];
+let chSeq = 0;
+const chTone = (t, i, order) => 'ch-' + (CH_TONES.includes(t) ? t : order[i % order.length]);
+const chSlug = s => String(s ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 's';
+const chNum = v => typeof v === 'number' && isFinite(v) ? v : 0;
+const chDec = vs => Math.min(3, Math.max(0, ...vs.map(v => (/\.(\d+)$/.exec(String(v)) || ['', ''])[1].length)));
+const chFmt = (v, d = chDec([v])) => chNum(v).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+// a value with its unit: a unit of 3 characters or fewer follows it (430 ms, 1.2%); a longer one stays in the heading
+const chU = (s, u) => !u || u.length > 3 || /\s/.test(u) ? s : u === '%' ? s + '%' : `${s} ${u}`;
+const chCap = u => u && (u.length > 3 || /\s/.test(u)) ? u[0].toUpperCase() + u.slice(1) : 'Value';
+const chPct = (v, t) => { const p = t > 0 ? v / t * 100 : 0; return p > 0 && p < 1 ? '<1%' : Math.round(p) + '%'; };
+// one value's count with its unit, whatever its length (35 docs, 1.2%): a ranked bar's or a part's tooltip
+const chCount = (v, u) => !u ? chFmt(v) : u === '%' ? chFmt(v) + '%' : `${chFmt(v)} ${u}`;
+const r1 = v => Math.round(v * 10) / 10;
+function chTick(v) { const a = Math.abs(v), f = (x, s) => +x.toFixed(1) + s; return a >= 1e9 ? f(v / 1e9, 'B') : a >= 1e6 ? f(v / 1e6, 'M') : a >= 1e3 ? f(v / 1e3, 'k') : String(+v.toFixed(2)); }
+// a value axis over lo..hi in about n steps of 1, 1.5, 2, 2.5, 3, 4, 5, 6 or 8 × 10^k, from a tick at or under lo
+function chScale(lo, hi, n = 3) {
+  if (!(hi > lo)) hi = lo + 1;
+  const raw = (hi - lo) / n, p = 10 ** Math.floor(Math.log10(raw));
+  const step = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10].map(m => m * p).find(s => s >= raw * (1 - 1e-9));
+  const a = Math.floor(lo / step + 1e-9) * step, b = Math.ceil(hi / step - 1e-9) * step, ticks = [];
+  for (let v = a; v <= b + step / 2; v += step) ticks.push(+v.toPrecision(12));
+  return { lo: a, hi: b, ticks };
+}
+// a bar's outline from its top left: rt the top corners' radius, rb the bottom's
+function barPath(x, y, w, hh, rt, rb) {
+  rt = Math.min(rt, w / 2, hh); rb = Math.min(rb, w / 2, Math.max(0, hh - rt));
+  const R = r1, X = R(x), Y = R(y), X2 = R(x + w), Y2 = R(y + hh);
+  return `M${X} ${R(y + hh - rb)}V${R(y + rt)}Q${X} ${Y} ${R(x + rt)} ${Y}H${R(x + w - rt)}Q${X2} ${Y} ${X2} ${R(y + rt)}V${R(y + hh - rb)}Q${X2} ${Y2} ${R(x + w - rb)} ${Y2}H${R(x + rb)}Q${X} ${Y2} ${X} ${R(y + hh - rb)}Z`;
+}
+// the block's numbers, read defensively (an earlier revision may hold anything): x labels, series with their id, decimals
+// and tone, items, stat cards
+function chartData(b) {
+  const kind = b.kind, list = k => (Array.isArray(b[k]) ? b[k] : []).filter(o => o && typeof o === 'object');
+  const series = list('series').map((s, i) => {
+    const vals = (Array.isArray(s.values) ? s.values : []).map(chNum);
+    return { id: String(s.id || chSlug(s.label)), label: String(s.label ?? ''), vals, dec: chDec(vals), tone: chTone(s.tone, i, CH_SERIES), area: kind === 'line' && s.area === true };
+  });
+  const items = list('items').map((it, i) => ({ i, label: String(it.label ?? ''), v: chNum(it.value), max: chNum(it.max), unit: typeof it.unit === 'string' ? it.unit : null,
+    note: it.note == null ? null : String(it.note), tone: it.tone }));
+  return { kind, x: Array.isArray(b.x) ? b.x.map(String) : [], series, items, stats: list('stats'), unit: typeof b.unit === 'string' ? b.unit : '' };
+}
+// the chart as a table of text: its columns and a row per x label, part or card (the hidden table, Markdown, compare)
+function chartRows(b) {
+  const d = chartData(b), u = d.unit;
+  if (d.kind === 'line' || d.kind === 'bar') return { cols: ['', ...d.series.map(s => s.label)], rows: d.x.map((xl, i) => [xl, ...d.series.map(s => chU(chFmt(s.vals[i] ?? 0, s.dec), u))]) };
+  if (d.kind === 'stat') return { cols: ['', 'Value', 'Change'], rows: d.stats.map(st => [String(st.label ?? ''), `${chFmt(st.value)}${typeof st.unit === 'string' && st.unit ? ' ' + st.unit : ''}`, String(st.delta ?? '')]) };
+  if (d.kind === 'progress') return { cols: ['', 'Value', 'Of'], rows: d.items.map(it => { const dec = chDec([it.v, it.max]), un = it.unit ?? u; return [it.label, chFmt(it.v, dec), chFmt(it.max, dec) + (un ? ' ' + un : '')]; }) };
+  const total = d.items.reduce((a, it) => a + it.v, 0);
+  return { cols: ['', chCap(u), 'Share'], rows: d.items.map(it => [it.label, chU(chFmt(it.v), u), chPct(it.v, total)]) };
+}
+// a tooltip in box (positioned): a title, rows {tone, label, value} and a last {t: true} total row; its left edge 14 px
+// right of x and its top at y, or where that would leave the box (or alt.force) its right edge at alt.x and its top at
+// alt.y (default: 14 px left of x, at y)
+function chTip(box) {
+  const tip = h('div', { class: 'bp-ch-tip', role: 'status', 'aria-live': 'polite', hidden: true });
+  box.append(tip);
+  return {
+    show(title, rows, x, y, alt = {}) {
+      setKids(tip, title && h('b', {}, title), rows.map(r => h('div', { class: 'r' + (r.t ? ' t' : '') + (r.tone ? ' ' + r.tone : '') }, r.t ? h('s', {}, r.label) : [h('i'), r.label], h('span', {}, r.value))));
+      tip.hidden = false;
+      const tw = tip.offsetWidth, th = tip.offsetHeight, W = box.clientWidth, flip = alt.force || x + 14 + tw > W;
+      tip.style.left = Math.max(0, Math.min(W - tw, flip ? (alt.x ?? x - 14) - tw : x + 14)) + 'px';
+      tip.style.top = Math.max(0, Math.min(flip ? alt.y ?? y : y, box.clientHeight - th)) + 'px';
+    },
+    hide() { tip.hidden = true; },
+  };
+}
+// what a plot's tooltip points at: the target the pointer is over (at(e), -1 for none), or with the plot focused the
+// arrow keys, Home and End (count() targets) and Esc; show(i) draws it, show(-1) clears it
+function chNav(el, count, at, show) {
+  let cur = -1;
+  const set = i => { if (i !== cur) { cur = i; show(i); } };
+  el.addEventListener('pointermove', e => set(at(e)));
+  el.addEventListener('pointerdown', e => set(at(e)));
+  el.addEventListener('pointerleave', e => { if (e.pointerType !== 'touch') set(-1); });
+  el.addEventListener('focus', () => { if (cur < 0 && el.matches(':focus-visible')) set(0); });
+  el.addEventListener('focusout', e => { if (!el.contains(e.relatedTarget)) set(-1); });
+  el.addEventListener('keydown', e => {
+    const n = count(), k = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+    if (k && n) { e.preventDefault(); set(cur < 0 ? (k > 0 ? 0 : n - 1) : Math.max(0, Math.min(n - 1, cur + k))); }
+    else if ((e.key === 'Home' || e.key === 'End') && n) { e.preventDefault(); set(e.key === 'Home' ? 0 : n - 1); }
+    else if (e.key === 'Escape' && cur >= 0) { e.stopPropagation(); set(-1); }
+  });
+  return { redraw() { const i = cur; cur = -1; if (i >= 0) set(Math.min(i, count() - 1)); } };
+}
+const chPlot = (title, extra) => h('div', { class: 'bp-ch-plot' + (extra ? ' ' + extra : ''), tabindex: '0', role: 'group', 'aria-label': `${plainText(title) || 'Chart'}: arrow keys step through the values` });
+// line and bar: the value axis with its gridlines, the x labels (every k-th where they would touch), lines (and the
+// area under those with `area`) or bars side by side (stacked with `stacked`, or where side by side they would be under
+// 8 px wide: a phone); the hovered x gets a crosshair and dots, or a band behind its bars, its label in bold
+function chXY(b, d, head) {
+  const kind = d.kind, n = d.x.length, S = d.series, off = new Set(), uid = 'bdch' + ++chSeq, plot = chPlot(b.title), tip = chTip(plot);
+  const svg = sv('svg', { 'aria-hidden': 'true' });
+  plot.prepend(svg);
+  if (S.length > 1) head.append(h('div', { class: 'bp-ch-lg' }, S.map(s => h('button', { type: 'button', class: `bp-ch-li ${s.tone}${kind === 'line' ? ' ln' : ''}`, 'aria-pressed': 'true', 'data-series': s.id,
+    title: `Show or hide ${s.label}`, onclick: e => { const was = off.has(s.id); if (was) off.delete(s.id); else off.add(s.id); e.currentTarget.setAttribute('aria-pressed', String(was)); draw(true); } }, h('i'), s.label))));
+  let g = null;
+  const stop = (o, a) => sv('stop', { offset: o, style: 'stop-color:var(--c)', 'stop-opacity': a });
+  function draw(force) {
+    const W = Math.round(plot.clientWidth);
+    if (!W || (g && W === g.W && !force)) return;
+    const H = W < 520 ? 210 : 236, base = H - 24, top = 8, vis = S.filter(s => !off.has(s.id)), k = vis.length;
+    const stacked = kind === 'bar' && k > 1 && (b.stacked === true || ((W - 40) / Math.max(1, n) * .56 - 4 * (k - 1)) / k < 8);
+    let lo = 0, hi = 0;
+    for (let i = 0; i < n; i++) {
+      if (stacked) hi = Math.max(hi, vis.reduce((a, s) => a + Math.max(0, s.vals[i] || 0), 0));
+      else for (const s of vis) { lo = Math.min(lo, s.vals[i] || 0); hi = Math.max(hi, s.vals[i] || 0); }
+    }
+    const sc = chScale(lo, hi), L = Math.max(36, Math.ceil(14 + 6.4 * Math.max(...sc.ticks.map(t => chTick(t).length))));
+    const yOf = v => top + (base - top) * (1 - (v - sc.lo) / (sc.hi - sc.lo)), yz = yOf(Math.max(sc.lo, 0));
+    const x0 = L + 14, x1 = W - 10, slot = (W - L) / Math.max(1, n);
+    const xs = d.x.map((_, i) => kind === 'line' ? (n > 1 ? x0 + (x1 - x0) * i / (n - 1) : (x0 + x1) / 2) : L + slot * (i + .5));
+    const defs = sv('defs', {}), kids = [defs];
+    for (const t of sc.ticks) { const y = Math.round(yOf(t)) + .5; kids.push(sv('line', { class: t === 0 ? 'ax' : 'gl', x1: L, x2: W, y1: y, y2: y }), sv('text', { x: L - 8, y: y + 3.5, 'text-anchor': 'end' }, chTick(t))); }
+    const lw = Math.max(0, ...d.x.map(s => s.length)) * 6.4 + 12, every = Math.max(1, Math.ceil(lw / (kind === 'line' ? (n > 1 ? (x1 - x0) / (n - 1) : W) : slot)));
+    const labels = d.x.map((t, i) => i % every ? null : sv('text', { x: r1(xs[i]), y: H - 6, 'text-anchor': 'middle' }, t));
+    const under = sv('g', {}), over = sv('g', {}), groups = [];
+    kids.push(...labels.filter(Boolean), under);
+    let gw = 0;
+    if (kind === 'line') {
+      const pts = s => xs.map((x, i) => `${r1(x)} ${r1(yOf(s.vals[i] || 0))}`);
+      for (const s of vis.filter(s => s.area)) {
+        defs.append(sv('linearGradient', { id: `${uid}-a-${s.id}`, class: s.tone, x1: 0, y1: 0, x2: 0, y2: 1 }, stop(0, .28), stop(1, 0)));
+        kids.push(sv('path', { class: 'area', d: `M${pts(s).join(' L')} L${r1(xs[n - 1])} ${r1(yz)} L${r1(xs[0])} ${r1(yz)} Z`, fill: `url(#${uid}-a-${s.id})` }));
+      }
+      for (const s of vis) groups.push(sv('g', { class: s.tone, 'data-series': s.id }, sv('path', { class: 'ln', d: 'M' + pts(s).join(' L') }),
+        sv('circle', { class: 'dot', cx: r1(xs[n - 1]), cy: r1(yOf(s.vals[n - 1] || 0)), r: 2.5 })));
+    } else {
+      for (const s of vis) defs.append(sv('linearGradient', { id: `${uid}-b-${s.id}`, class: s.tone, x1: 0, y1: 0, x2: 0, y2: 1 }, stop(0, 1), stop(1, .62)));
+      const bw = stacked ? Math.min(32, slot * .5) : Math.max(2, Math.min(22, (slot * .56 - 4 * (k - 1)) / Math.max(1, k)));
+      gw = stacked ? bw : k * bw + 4 * (k - 1);
+      for (let i = 0; i < n; i++) {
+        const gr = sv('g', { 'data-x': i }), left = xs[i] - gw / 2, last = vis.reduce((a, s, j) => (s.vals[i] || 0) > 0 ? j : a, -1);
+        let cum = 0;
+        vis.forEach((s, j) => {
+          const v = s.vals[i] || 0, fill = `url(#${uid}-b-${s.id})`;
+          if (stacked) {
+            if (v <= 0) return;
+            const y0 = yOf(cum) - (cum > 0 ? 2 : 0), y1 = yOf(cum + v);
+            cum += v;
+            if (y0 - y1 > .5) gr.append(sv('path', { 'data-series': s.id, d: barPath(left, y1, bw, y0 - y1, j === last ? 4 : 2, 2), fill }));
+          } else if (v) {
+            const ya = Math.min(yOf(v), yz), yb = Math.max(yOf(v), yz);
+            gr.append(sv('path', { 'data-series': s.id, d: barPath(left + j * (bw + 4), ya, bw, Math.max(.5, yb - ya), v > 0 ? 4 : 2, v > 0 ? 2 : 4), fill }));
+          }
+        });
+        groups.push(gr);
+      }
+    }
+    kids.push(...groups, over);
+    setKids(svg, kids);
+    for (const [a, v] of [['viewBox', `0 0 ${W} ${H}`], ['width', W], ['height', H]]) svg.setAttribute(a, v);
+    g = { W, H, base, top, xs, yOf, vis, labels, lw, under, over, groups, gw, L, x0, x1, slot };
+    nav.redraw();
+  }
+  function show(i) {
+    if (!g) return;
+    g.under.replaceChildren(); g.over.replaceChildren();
+    g.labels.forEach(t => t && t.classList.remove('on', 'off'));
+    g.groups.forEach(x => x.classList.remove('dim'));
+    if (i < 0 || i >= n) { tip.hide(); return; }
+    const x = g.xs[i];
+    if (g.labels[i]) g.labels[i].classList.add('on');
+    else {
+      g.labels.forEach((t, j) => t && Math.abs(g.xs[j] - x) < g.lw && t.classList.add('off'));
+      g.over.append(sv('text', { class: 'on', x: r1(x), y: g.H - 6, 'text-anchor': 'middle' }, d.x[i]));
+    }
+    let tx = x, ty, alt;
+    if (kind === 'line') {
+      g.under.append(sv('line', { class: 'xh', x1: Math.round(x) + .5, x2: Math.round(x) + .5, y1: g.top - 4, y2: g.base }));
+      for (const s of g.vis) g.over.append(sv('circle', { class: 'hdot ' + s.tone, cx: r1(x), cy: r1(g.yOf(s.vals[i] || 0)), r: 4 }));
+      ty = Math.min(g.base, ...g.vis.map(s => g.yOf(s.vals[i] || 0))) + 8;
+    } else {
+      const bw = Math.min(g.slot - 6, g.gw + 44);
+      g.under.append(sv('rect', { class: 'band', x: r1(x - bw / 2), y: 4, width: r1(bw), height: g.base - 4, rx: 8 }));
+      g.groups.forEach((gr, j) => gr.classList.toggle('dim', j !== i));
+      tx = x + bw / 2 - 10; ty = Math.min(g.base, ...g.vis.map(s => g.yOf(s.vals[i] || 0))) + 2; alt = { x: x - bw / 2 - 4 };
+    }
+    const rows = g.vis.map(s => ({ tone: s.tone, label: s.label, value: chU(chFmt(s.vals[i] || 0, s.dec), d.unit) }));
+    if (kind === 'bar' && g.vis.length > 1) rows.push({ t: true, label: 'Total', value: chU(chFmt(g.vis.reduce((a, s) => a + (s.vals[i] || 0), 0), Math.max(...g.vis.map(s => s.dec))), d.unit) });
+    tip.show(d.x[i], rows, tx, ty, alt);
+  }
+  const at = e => {
+    if (!g) return -1;
+    const px = e.clientX - svg.getBoundingClientRect().left;
+    if (px < g.L - 6) return -1;
+    const i = kind === 'line' ? Math.round((px - g.x0) / ((g.x1 - g.x0) / Math.max(1, n - 1))) : Math.floor((px - g.L) / g.slot);
+    return Math.max(0, Math.min(n - 1, i));
+  };
+  const nav = chNav(plot, () => n, at, show);
+  if ('ResizeObserver' in window) new ResizeObserver(() => draw()).observe(plot); else requestAnimationFrame(() => draw());
+  return plot;
+}
+// stat cards: HorizonUI's Stat, a value, its unit, the change in a pill (green when it went the good way, red when not)
+// and a sparkline whose points show in a tooltip
+function chStats(d) {
+  const grid = h('div', { class: 'bp-ch-sg' + (d.stats.length === 1 ? ' one' : ''), style: `--n:${d.stats.length}` });
+  d.stats.forEach((st, si) => {
+    const unit = typeof st.unit === 'string' ? st.unit : '', delta = st.delta == null ? '' : String(st.delta).trim();
+    const trend = ['up', 'down', 'flat'].includes(st.trend) ? st.trend : /^\+/.test(delta) ? 'up' : /^[-−–]/.test(delta) ? 'down' : 'flat';
+    const mood = trend === 'flat' ? 'flat' : trend === (st.good === 'down' ? 'down' : 'up') ? 'ok' : 'bad';
+    const shown = trend === 'flat' ? delta : delta.replace(/^[+\-−–]\s*/, ''), label = String(st.label ?? '');
+    const card = h('div', { class: 'bp-ch-st', 'data-stat': si }, h('div', { class: 'bp-ch-sl', title: label }, label),
+      h('div', { class: 'bp-ch-sv' }, h('b', {}, chFmt(st.value)), unit && h('u', {}, unit),
+        delta && h('span', { class: 'bp-ch-dp ' + mood, title: `${{ up: 'Up', down: 'Down', flat: 'Change' }[trend]}: ${shown}` },
+          trend !== 'flat' && sv('svg', { viewBox: '0 0 24 24', 'aria-hidden': 'true', class: trend }, sv('path', { d: 'M12 19V5M5 12l7-7 7 7' })), shown)));
+    const sp = (Array.isArray(st.spark) ? st.spark : []).map(chNum);
+    if (sp.length >= 2) {
+      const lo = Math.min(...sp), hi = Math.max(...sp), m = sp.length - 1, X = i => 3 + 154 * i / m, Y = v => hi === lo ? 16 : 29 - 26 * (v - lo) / (hi - lo);
+      const line = sp.map((v, i) => `${r1(X(i))} ${r1(Y(v))}`).join(' L'), id = 'bdch' + ++chSeq, hov = sv('g', {}), dec = chDec(sp);
+      const wrap = h('div', { class: 'bp-ch-spw', tabindex: '0', role: 'group', 'aria-label': `${label}: arrow keys step through the trend` },
+        sv('svg', { class: 'bp-ch-sp ' + (mood === 'bad' ? 'ch-danger' : 'ch-success'), viewBox: '0 0 160 32', preserveAspectRatio: 'none', 'aria-hidden': 'true' },
+          sv('defs', {}, sv('linearGradient', { id, x1: 0, y1: 0, x2: 0, y2: 1 }, sv('stop', { offset: 0, 'stop-color': 'currentColor', 'stop-opacity': .28 }), sv('stop', { offset: 1, 'stop-color': 'currentColor', 'stop-opacity': 0 }))),
+          sv('path', { d: `M${line} L157 32 L3 32 Z`, fill: `url(#${id})` }), sv('path', { class: 'sl', d: 'M' + line }),
+          sv('path', { class: 'end', d: `M${r1(X(m))} ${r1(Y(sp[m]))}h0` }), hov));
+      const tip = chTip(grid), tone = mood === 'bad' ? 'ch-danger' : 'ch-success';
+      const show = i => {
+        hov.replaceChildren();
+        if (i < 0) { tip.hide(); return; }
+        const x = r1(X(i)), y = r1(Y(sp[i]));
+        hov.append(sv('path', { class: 'xh', d: `M${x} -6V32` }), sv('path', { class: 'hr', d: `M${x} ${y}h0` }), sv('path', { class: 'hd', d: `M${x} ${y}h0` }));
+        tip.show(d.x.length === sp.length ? d.x[i] : '', [{ tone, label, value: chU(chFmt(sp[i], dec), unit) }], card.offsetLeft + wrap.offsetLeft + X(i) / 160 * wrap.clientWidth, card.offsetTop + wrap.offsetTop - 8);
+      };
+      chNav(wrap, () => sp.length, e => { const r = wrap.getBoundingClientRect(); return r.width ? Math.max(0, Math.min(m, Math.round(((e.clientX - r.left) / r.width * 160 - 3) / 154 * m))) : -1; }, show);
+      card.append(wrap);
+    }
+    grid.append(card);
+  });
+  return grid;
+}
+// ranked bars: one row per item, biggest first, its value at the bar's end; the hovered row lit with its share
+function chRanked(b, d) {
+  const rows = d.items.slice().sort((a, c) => c.v - a.v || a.i - c.i), max = Math.max(0, ...rows.map(r => r.v)) || 1, total = rows.reduce((a, r) => a + r.v, 0);
+  const lw = Math.min(200, Math.max(64, Math.ceil(Math.max(0, ...rows.map(r => r.label.length)) * 7.6 + 4)));
+  const plot = chPlot(b.title, 'bp-ch-hb'), tip = chTip(plot);
+  plot.style.setProperty('--lw', lw + 'px');
+  const els = rows.map((r, j) => h('div', { class: 'bp-ch-eb ' + chTone(r.tone, 0, ['accent']), 'data-item': j },
+    h('span', { title: r.label }, r.label), h('i', { style: `--w:${r1(r.v / max * 100)}%` }, chU(chFmt(r.v), d.unit))));
+  plot.append(...els);
+  chNav(plot, () => rows.length, e => { const el = e.target.closest('.bp-ch-eb'); return el ? +el.dataset.item : -1; }, j => {
+    els.forEach((el, k) => { el.classList.toggle('on', k === j); el.classList.toggle('dim', j >= 0 && k !== j); });
+    if (j < 0) { tip.hide(); return; }
+    const el = els[j], bar = el.querySelector('i'), r = rows[j], end = bar.offsetLeft + bar.offsetWidth * r.v / max * .82 + 16 + chU(chFmt(r.v), d.unit).length * 7.5;
+    tip.show(r.label, [{ tone: chTone(r.tone, 0, ['accent']), label: 'Count', value: chCount(r.v, d.unit) }, { t: true, label: 'Share', value: chPct(r.v, total) }],
+      end, el.offsetTop - 6, { x: Math.min(plot.clientWidth, end + 8), y: el.offsetTop + el.offsetHeight + 2 });
+  });
+  return plot;
+}
+// donut: HorizonUI's ProgressRing look, parts biggest first round the ring from the top, the total in the middle; its
+// legend (two columns, each part's count and share) hides and shows a part, and the shares follow
+function chDonut(b, d, aside) {
+  const parts = d.items.slice().sort((a, c) => c.v - a.v || a.i - c.i).map((p, j) => ({ ...p, tone: chTone(p.tone, j, CH_PARTS) }));
+  const off = new Set(), R = 79, C = 2 * Math.PI * R, ring = sv('svg', { viewBox: '0 0 184 184', 'aria-hidden': 'true' });
+  const tb = h('b'), wrap = h('div', { class: 'bp-ch-ring' }, ring, h('div', { class: 'c' }, tb, h('span', {}, d.unit || 'total')));
+  const legend = h('div', { class: 'bp-ch-dl', style: `--rows:${Math.ceil(parts.length / 2)}` });
+  const plot = chPlot(b.title, 'bp-ch-dn'), tip = chTip(plot);
+  plot.prepend(wrap, legend);
+  let geo = [], total = 0;
+  function draw() {
+    const vis = parts.filter((p, j) => !off.has(j) && p.v > 0), gap = vis.length > 1 ? 2 : 0;
+    total = vis.reduce((a, p) => a + p.v, 0);
+    let pos = 0;
+    geo = parts.map((p, j) => {
+      if (off.has(j) || !(p.v > 0)) return null;
+      const len = p.v / total * C, c = sv('circle', { class: p.tone, 'data-part': j, cx: 92, cy: 92, r: R, 'stroke-dasharray': `${r1(Math.max(.5, len - gap))} ${r1(C)}`, 'stroke-dashoffset': r1(-pos) });
+      pos += len;
+      return { c, mid: pos - len / 2 };
+    });
+    setKids(ring, vis.length ? geo.map(x => x && x.c) : sv('circle', { class: 'trk', cx: 92, cy: 92, r: R }));
+    const dec = chDec(parts.map(p => p.v));
+    tb.textContent = chFmt(total, dec);
+    if (aside) aside.textContent = d.unit ? `${chFmt(total, dec)} ${d.unit}` : '';
+    setKids(legend, parts.map((p, j) => h('button', { type: 'button', class: 'bp-ch-dli ' + p.tone, 'data-part': j, 'aria-pressed': String(!off.has(j)), title: `Show or hide ${p.label}`,
+      onclick: () => { if (off.has(j)) off.delete(j); else off.add(j); draw(); legend.children[j].focus(); } },
+      h('i'), h('em', {}, p.label), h('span', {}, `${chFmt(p.v, dec)} · ${off.has(j) ? '–' : chPct(p.v, total)}`))));
+    nav.redraw();
+  }
+  const nav = chNav(plot, () => parts.length, e => { const el = e.target.closest('[data-part]'); return el ? +el.dataset.part : -1; }, j => {
+    geo.forEach((x, k) => x && (x.c.classList.toggle('on', k === j), x.c.classList.toggle('dim', j >= 0 && k !== j)));
+    [...legend.children].forEach((el, k) => { el.classList.toggle('on', k === j); el.classList.toggle('dim', j >= 0 && k !== j); });
+    if (j < 0) { tip.hide(); return; }
+    const p = parts[j], s = wrap.clientWidth / 184, a = geo[j] ? geo[j].mid / C * 2 * Math.PI - Math.PI / 2 : 0, row = legend.children[j];
+    const [x, y] = geo[j] ? [wrap.offsetLeft + (92 + Math.cos(a) * R) * s, wrap.offsetTop + (92 + Math.sin(a) * R) * s - 20] : [row.offsetLeft + row.offsetWidth - 24, row.offsetTop];
+    tip.show(p.label, [{ tone: p.tone, label: 'Count', value: chCount(p.v, d.unit) }, { t: true, label: 'Share', value: off.has(j) ? 'hidden' : chPct(p.v, total) }], x, y,
+      { x: x - 10, force: !!geo[j] && Math.cos(a) > 0 });
+  });
+  draw();
+  return plot;
+}
+// progress rows: HorizonUI's ProgressBar per item, `value of max` and the share done (Done in green at the whole,
+// else the item's note in its tone)
+function chProgress(b, d) {
+  const plot = chPlot(b.title, 'bp-ch-pr'), tip = chTip(plot);
+  const rows = d.items.map(it => {
+    const done = it.v >= it.max && it.max > 0, tone = CH_TONES.includes(it.tone) ? 'ch-' + it.tone : done ? 'ch-success' : 'ch-accent';
+    const dec = chDec([it.v, it.max]), unit = it.unit ?? d.unit, pct = it.max > 0 ? Math.min(100, it.v / it.max * 100) : 0;
+    const note = it.note ?? (done ? 'Done' : chPct(it.v, it.max)), mood = it.note != null || done ? { 'ch-success': 'ok', 'ch-warning': 'wn', 'ch-danger': 'bad' }[tone] : '';
+    const of = `${chFmt(it.v, dec)} of ${chFmt(it.max, dec)}${unit ? ' ' + unit : ''}`;
+    return { it, tone, dec, pct, of, el: h('div', { class: 'bp-ch-pb ' + tone, 'data-item': it.i },
+      h('div', { class: 'h' }, h('span', { class: 'l', title: it.label }, it.label), h('span', { class: 'v' }, of, h('s', { class: mood || null }, note))),
+      h('div', { class: 'tr' }, h('i', { style: `--w:${r1(pct)}%` }))) };
+  });
+  plot.append(...rows.map(r => r.el));
+  chNav(plot, () => rows.length, e => { const el = e.target.closest('.bp-ch-pb'); return el ? rows.findIndex(r => r.el === el) : -1; }, j => {
+    rows.forEach((r, k) => { r.el.classList.toggle('on', k === j); r.el.classList.toggle('dim', j >= 0 && k !== j); });
+    if (j < 0) { tip.hide(); return; }
+    const r = rows[j];
+    tip.show(r.it.label, [{ tone: r.tone, label: 'Ready', value: r.of }, { tone: 'ch-muted', label: 'To go', value: chFmt(Math.max(0, r.it.max - r.it.v), r.dec) }, { t: true, label: 'Complete', value: chPct(r.it.v, r.it.max) }],
+      Math.min(plot.clientWidth - 40, r.el.offsetLeft + r.el.offsetWidth * r.pct / 100), r.el.offsetTop + r.el.offsetHeight - 6);
+  });
+  return plot;
+}
+function renderChart(b) {
+  const d = chartData(b), kind = d.kind;
+  if (!CH_KINDS.includes(kind)) return h('div', { class: 'bp-callout risk' }, ic('octagon'), h('span', { class: 'lbl' }, 'Unknown chart'), h('div', {}, `Kind "${kind}" is none of ${CH_KINDS.join(', ')}.`));
+  const sub = typeof b.sub === 'string' && b.sub ? b.sub : null;
+  const aside = h('span', { class: 'u', html: sub ? inline(sub) : null }, sub ? null : d.unit);
+  const head = h('div', { class: 'bp-ch-h' }, h('span', { class: 't', html: inline(b.title || '') }), aside);
+  const body = kind === 'line' || kind === 'bar' ? chXY(b, d, head) : kind === 'stat' ? chStats(d) : kind === 'hbar' ? chRanked(b, d) : kind === 'donut' ? chDonut(b, d, sub ? null : aside) : chProgress(b, d);
+  const t = chartRows(b);
+  return h('figure', { class: 'bp-chart' + (kind === 'stat' ? ' bare' : ''), 'data-kind': kind, 'aria-label': plainText(b.title) || 'Chart' }, head, body,
+    b.caption && h('figcaption', { class: 'bp-ch-cap', html: inline(b.caption) }),
+    h('table', { class: 'bp-sr' }, h('thead', {}, h('tr', {}, t.cols.map(c => h('th', { scope: 'col' }, c)))),
+      h('tbody', {}, t.rows.map(r => h('tr', {}, r.map((c, i) => i ? h('td', {}, c) : h('th', { scope: 'row' }, c)))))));
+}
 // after the whole page is drawn: file chips with no row to go to, and step chips' numbers
 function linkPlanBlocks() {
   for (const c of main.querySelectorAll('.bp-fchip[data-path]')) {
@@ -5484,6 +5953,8 @@ const isNewMsg = m => m.who === 'agent' && !RO && !!SEEN_REV && SEEN_REV !== CUR
 // the agent that opened the page: the model family `serve.py open --to` gave (Claude, Codex…), else Agent; the
 // Markdown and the page's conversations both name it so
 const agentName = () => REPLY.to || 'Agent';
+// the same in a sentence: its name, else "the agent" ("The agent" to start one)
+const agentWho = cap => REPLY.to || (cap ? 'The agent' : 'the agent');
 const aboutOf = m => okAbout(m.about) && m.about ? m.about : null;
 function convo(mine, theirs) {
   const upto = OLD ? revOrd(VIEW.rev) : Infinity;
@@ -5852,7 +6323,7 @@ function renderChecklist(b, parent) {
     };
     head.addEventListener('click', () => {
       // a question opens or closes whole, answered or not; opening a finding is where the reader is
-      if (card) { if (fd && !entryItem.open) holdFinding(entryItem); entryItem.setOpen(!entryItem.open); if (fd) paintFindings(); return; }
+      if (card) { const fv = entryItem.fv; if (!entryItem.open) holdFinding(entryItem); entryItem.setOpen(!entryItem.open); if (fv) paintFindings(); return; }
       if (li.classList.contains('empty')) { cb.click(); return; }   // nothing to show: the row ticks
       entryItem.setOpen(!li.classList.contains('open'));
     });
@@ -5894,24 +6365,27 @@ function renderChecklist(b, parent) {
     expandBtn.hidden = !all.length;
   };
   list.addEventListener('click', e => { if (e.target.closest('.bp-cl-head')) paintExpand(); });
-  // a findings section's own checklist has no header: the section's toolbar holds its actions and the filter its counts
+  // a findings section's own checklist has no header: the section's toolbar holds its actions and the filter its counts.
+  // A decision list's header is a findings section's (questionView); a nested one's and the Brief pane's keep this one
   const inFindings = FINDING_CIDS.has(cid) && !parent;
+  const asks = kind === 'decisions' && !parent && !inFindings && !IS_DESIGN;
   // Accept recommended (N): the open decisions in this checklist and the ones nested in it (paintAccept);
   // not on earlier revisions, in compare view or on a shared page
-  const acceptBtn = !OLD && !BASE && !VIEW_ONLY && !inFindings ? h('button', { type: 'button', class: 'bp-btn ghost', hidden: true, title: 'Pick the starred option on every open decision in this checklist',
+  const acceptBtn = !OLD && !BASE && !VIEW_ONLY && !inFindings && !asks ? h('button', { type: 'button', class: 'bp-btn ghost', hidden: true, title: 'Pick the starred option on every open decision in this checklist',
     onclick: () => acceptRecs(checklistScope(entry)) }) : null;
-  const ask = kind === 'decisions' && !VIEW_ONLY ? h('span', { class: 'bp-cl-ask' }, 'Needs your answer') : null;
+  const ask = kind === 'decisions' && !asks && !VIEW_ONLY ? h('span', { class: 'bp-cl-ask' }, 'Needs your answer') : null;
   const cap = kind === 'progress' && !parent && !VIEW_ONLY ? h('p', { class: 'bp-cl-cap' }, PICKS_WITH_CHANGES
     ? `The agent marks these as the work lands. Your ticks stay on this page${APPROVABLE ? ' and don\'t change the approval' : ''}.`
     : 'Your own tracker: ticks are saved for you and go with Send answers.') : null;
+  const entry = { b, items, root, list, count, bar, sideRow: null, parent, paintExpand, acceptBtn, kind };
   if (inFindings) root.append(list);
+  else if (asks) { const v = questionView(entry); root.append(v.head, v.bar, list); }
   else root.append(h('div', { class: 'bp-cl-h' },
     ic(kind === 'decisions' ? 'help' : 'list'), h(parent ? 'h4' : 'h3', {}, b.title || 'Checklist'), ask, count,
     h('span', { class: 'tools' }, acceptBtn, h('span', { class: 'bd-split' }, expandBtn,
       !parent && h('button', { type: 'button', class: 'bp-btn ghost', onclick: () => copyText(checklistMd(entry), 'Copied checklist as Markdown') }, ic('copy'), 'Copy'),
       !parent && !VIEW_ONLY && h('button', { type: 'button', class: 'bp-btn ghost', onclick: () => { if (!confirm('Reset this checklist?')) return; resetChecklist(entry); } }, ic('reset'), 'Reset')))),
     ...[cap, kind !== 'decisions' && bar, list].filter(Boolean));
-  const entry = { b, items, root, list, count, bar, sideRow: null, parent, paintExpand, acceptBtn, kind };
   function update() {
     const n = items.filter(passing).length, open = items.length - items.filter(x => x.cb.checked).length, recheck = items.filter(x => x.stale && x.cb.checked).length;
     if (kind === 'decisions') { count.textContent = open ? `${open} open` : 'All answered'; if (ask) ask.hidden = !open; }
@@ -6033,7 +6507,7 @@ function optionRows(x, compact) {
   };
   const pick = r => {
     if (VIEW_ONLY) return;
-    if (x.fd) holdFinding(x);   // the finding the reader answers stays where it is until they move on
+    holdFinding(x);   // the question the reader answers stays where it is until they move on
     if (r.o.cust) { if (x.custom) x.setCustom(''); else if (r.input.value.trim()) x.setCustom(r.input.value); else r.input.focus(); return; }
     if (r.o.more) { x.setMore(!x.more); if (x.more) focusField(r); return; }
     const cur = idsOf(x.choice), on = !cur.includes(r.o.id);
@@ -6046,7 +6520,7 @@ function optionRows(x, compact) {
     if (r.o.more) continue;
     if (r.input) {
       r.hd.addEventListener('click', e => { if (e.target !== r.input) r.input.focus(); });
-      r.input.addEventListener('input', () => { if (x.fd) holdFinding(x); x.setCustom(r.input.value); });
+      r.input.addEventListener('input', () => { holdFinding(x); x.setCustom(r.input.value); });
       // page keys (modes, n/p) must not fire while typing; Enter and Esc leave the field (its words are the answer)
       r.input.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter' && !e.shiftKey || e.key === 'Escape') { e.preventDefault(); r.input.blur(); } });
     } else r.hd.addEventListener('click', () => r.ob ? setOpen(r, r.ob.hidden) : pick(r));
@@ -6128,7 +6602,7 @@ function lineField(x, about, { placeholder = 'Reply…', hint = '', cls = 'ac-in
     if (hintEl) hintEl.lastChild.textContent = typeof hint === 'function' ? hint() : hint;
     paintFt();
   } };
-  ta.addEventListener('input', () => { if (x.fd) holdFinding(x); draft = true; paintFt(); });
+  ta.addEventListener('input', () => { holdFinding(x); draft = true; paintFt(); });
   ta.addEventListener('keydown', e => {
     e.stopPropagation();   // page keys (modes, n/p, canvas) must not fire while typing
     if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); save(); }
@@ -6184,7 +6658,7 @@ const noteMd = (x, indent) => !x.notePending ? '' : x.drafts().map((d, i) => [d.
 // (Checklist shows). A finding the filter hides shows every finding (All)
 function openItem(x) {
   const v = fviewOf(x.li);
-  if (v && !fvShows(x)) setFindingsFilter(v, 'all');
+  if (x.fv && !fvShows(x)) setFindingsFilter(x.fv, 'all');
   const row = itemRow(x);
   if (row === x.li) revealFindings(x.li);
   if (v && v.el.classList.contains('bd-fold')) v.fold(false, false);   // no motion: the caller scrolls to the row next
@@ -6193,7 +6667,7 @@ function openItem(x) {
     if (owner && !owner.li.classList.contains('empty')) owner.setOpen(true);
   }
   if (!x.fd) for (const m of x.mviews || []) m.paintOpen(true);
-  if (x.fd) holdFinding(x);
+  holdFinding(x);
   CHECKLISTS.forEach(c => c.paintExpand());
   paintFindings();
   return row;
@@ -6283,7 +6757,7 @@ function noteBox(x, compact) {
     ta.placeholder = ph();
     paintFt();
   } };
-  ta.addEventListener('input', () => { if (x.fd) holdFinding(x); fit(); draft = true; saved.hidden = true; paintFt(); });
+  ta.addEventListener('input', () => { holdFinding(x); fit(); draft = true; saved.hidden = true; paintFt(); });
   ta.addEventListener('keydown', e => {
     e.stopPropagation();   // page keys (modes, n/p, canvas) must not fire while typing
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); if (draft) save(); }
@@ -6404,7 +6878,7 @@ const SEND_AS = {
   local: ['listchecks', 'Apply decisions', 'Apply your decisions', 'The agent fixes the findings you marked to fix in your working tree, files the tickets, drops the declines and reports back.'],
   threads: ['reply', 'Reply and fix', 'Reply and fix on your PR', 'The agent fixes the findings you marked to fix on your branch, then replies on each thread and resolves the fixed ones.'],
   post: ['pr', 'Post review', 'Post review to the PR', 'The agent posts one GitHub review on the PR, with a comment per finding you marked Post.'],
-}[REVIEW_OF] || ['send', 'Send answers', 'Send your answers to the agent', ''];
+}[REVIEW_OF] || ['send', 'Send answers', 'Send your answers', ''];
 // a post review (someone else's PR, or your own you asked a review of): the GitHub review event each PR posts as (the
 // send dialog's Post as, one per PR), the payload's reviewEvents. Its PRs are its pr-<n> sections; without any, the page is one
 const POST_AS = [['COMMENT', 'Comment'], ['REQUEST_CHANGES', 'Request changes'], ['APPROVE', 'Approve']];
@@ -6422,18 +6896,13 @@ function answersMd() {
     : 'Post as:\n' + POST_PRS.map(p => `- ${p.title}: ${postLabel(postAs[p.id])}`).join('\n');
   return md.slice(0, i) + how + '\n\n' + md.slice(i);
 }
-function replyCounts() {
-  const all = Object.values(ITEMS), dec = all.filter(x => x.choices);
-  return { decisions: dec.length, decided: dec.filter(x => x.choice || x.custom).length, steps: all.length - dec.length,
-    ticked: all.filter(x => !x.choices && x.cb.checked).length, notes: all.filter(x => x.notePending).length,
-    // the items with a pick, tick or comment Send hasn't sent yet (a review's comments: Request changes)
-    unsent: all.filter(x => !NOTES_WITH_CHANGES && x.notePending || x.answerPending).length };
-}
+// the items with a pick, tick or comment Send hasn't sent yet (a review's comments: Request changes)
+const unsentCount = () => Object.values(ITEMS).filter(x => !NOTES_WITH_CHANGES && x.notePending || x.answerPending).length;
 function paintSend() {
   ARC.paint();   // a tick may finish the doc: All done · Archive it?
   if (approveDlg && approveDlg.open) approveDlg._paint();
   if (!sendBtn) return;
-  const n = replyCounts().unsent;
+  const n = unsentCount();
   sendBtn.classList.toggle('has', n > 0);
   sendBtn._n.hidden = !n; sendBtn._n.textContent = String(n);
   sendBtn.setAttribute('aria-label', n ? `${SEND_AS[1]}: ${n} not sent` : SEND_AS[1]);
@@ -6441,56 +6910,147 @@ function paintSend() {
   sendBtn._tip = n ? `${n} ${what[n === 1 ? 0 : 1]} not sent yet` : `Nothing new to send: ${NOTES_WITH_CHANGES ? 'pick an answer' : 'pick, tick or comment on an item'}`;
   if (sendDlg && sendDlg.open) sendDlg._paint();
 }
+/* The send dialog: one for every send, Approve, Request changes, Send answers and a review's send key. The title and the
+   rev, a sentence on what the agent does (`intro`), what goes (`body`: sdSec sections and sdAlert lines), the note,
+   then Copy (grey, at the left) and the primary key (o.tone: `ok` green, `go` blue). The note is the answer card's
+   one-line field: the text, the round Attach key, its files a row above the text; it has no send key of its own: the
+   primary sends and ⌘/Ctrl+Enter presses it. Copy's tooltip says what it gives. A page no agent is connected to (an -o
+   file, a page whose ping failed) has no send: the primary copies (o.copyLabel) and Copy hides. Esc and a press beside
+   it close it; it holds the focus while open (showModal).
+   o: {cls, title, tone, icon, label, copyLabel, placeholder(), noteLabel, note, noteFiles, onNote(text), onFiles(files),
+   connected(), send(), copyOut() (the primary when not connected), copy() (the grey key)} */
+function sendDialog(o) {
+  const id = 'bd-sd-' + o.cls;
+  const ta = h('textarea', { class: 'ac-line-ta', rows: 1, maxlength: 8192, 'aria-label': o.noteLabel });
+  ta.value = o.note || '';
+  // the note's files are kept as they change, like its text; a removed one's copy goes at once
+  const fd = fileDraft(() => { if (o.onFiles) o.onFiles(fd.files); fd.commit(); paintNote(); }, { compact: true });
+  fd.load(o.noteFiles || []);
+  fd.btn.className = 'ac-att'; fd.btn.replaceChildren(ic('clip'));
+  fd.btn.setAttribute('aria-label', 'Attach'); fd.btn.title = 'Attach files: the agent gets a copy of each, by its path';
+  const line = h('div', { class: 'ac-line' }, fd.list, ta, fd.btn);
+  fd.hook(line, ta);
+  // a press on the field's padding (not its keys or chips) puts the caret in the text
+  line.addEventListener('mousedown', e => { if (e.target !== ta && !e.target.closest('button')) { e.preventDefault(); ta.focus(); } });
+  const paintNote = () => { line.classList.toggle('dirty', !!ta.value.trim()); line.classList.toggle('files', !fd.list.hidden); };
+  ta.addEventListener('input', () => { if (o.onNote) o.onNote(ta.value); paintNote(); });
+  ta.addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); if (!pri.disabled) pri.click(); } });
+  const intro = h('p', { class: 'intro', id: id + '-d' }), body = h('div', { class: 'sd-body' });
+  const copy = h('button', { type: 'button', class: 'bd-key txt cp', title: 'Copy the same text, to paste into a chat', onclick: () => o.copy() }, ic('copy'), h('span', { class: 't' }, 'Copy'));
+  const pri = h('button', { type: 'button', class: 'bd-key txt pri ' + o.tone, onclick: () => o.connected() ? o.send() : o.copyOut() });
+  const dlg = h('dialog', { class: 'bd-send ' + o.cls, 'aria-labelledby': id, 'aria-describedby': id + '-d' },
+    h('div', { class: 'hd' }, h('h3', { id }, o.title), CUR.rev && h('span', { class: 'rev' }, 'rev ' + CUR.rev),
+      h('button', { type: 'button', class: 'bd-key x', 'aria-label': 'Close', title: 'Close (Esc)', onclick: () => dlg.close() }, ic('x'))),
+    intro, body,
+    h('div', { class: 'sd-note' }, line, h('p', { class: 'hint' }, 'Goes with it. ', kbd(MAC ? '⌘' : 'Ctrl'), kbd('↵'), ' sends.'), fd.input),
+    h('div', { class: 'ft' }, copy, h('span', { class: 'sp' }), pri));
+  document.body.append(dlg);
+  // a press on the backdrop closes it (its margins are the dialog's own box: those don't)
+  dlg.addEventListener('click', e => {
+    const r = dlg.getBoundingClientRect();
+    if (e.target === dlg && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom)) dlg.close();
+  });
+  const S = { dlg, ta, fd, intro, body, pri,
+    // the keys: held (the primary off, `why` its tooltip); not connected, the primary copies and Copy goes
+    paint({ held = false, why = '' } = {}) {
+      const on = o.connected();
+      copy.hidden = !on;
+      pri.replaceChildren(ic(on ? o.icon : 'copy'), h('span', { class: 't' }, on ? o.label : o.copyLabel));
+      pri.disabled = held;
+      pri.title = held ? why : on ? `Sends it to ${agentWho()}` : 'This page isn\'t connected to an agent: copy it, then paste it into the chat';
+      ta.placeholder = o.placeholder();
+      paintNote();
+    },
+    // the note went: the field is empty again (its files' copies stay: the agent reads them)
+    clear() { ta.value = ''; fd.load([]); paintNote(); },
+    show() { dlg.showModal(); ta.focus(); } };
+  dlg._S = S;
+  return S;
+}
+// a section of what goes: its name and count, the counts in words at its right, then its box
+const sdSec = (name, n, says, box) => h('div', { class: 'sd-sec', 'data-sec': name.split(/[ ,]/)[0].toLowerCase() },
+  h('div', { class: 'sd-sh' }, h('h4', {}, n == null ? name : `${name} · ${n}`), says && h('span', { class: 'c' }, says)), box);
+const sdAlert = text => h('p', { class: 'sd-alert' }, ic('alert'), h('span', {}, text));
+// where a review's finding sits: its PR's number (its section pr-<n>)
+const prOf = x => (/^pr-(\d+)$/.exec(x.li.closest('section.bp-sec')?.id || '') || [])[1];
+const itemText = x => (prOf(x) ? `#${prOf(x)} · ` : '') + plainText(x.it.text);
+// A decision as it goes: the question, then its answer as the answer card's chip: ✓ the pick (Other: its words), Tell
+// me more or a request for a new option (amber), or no pick: on an approval ★ the recommendation the agent uses (grey),
+// on a plan held for an answer Answer it › (amber: the row is a key that opens the question, `answer`), else No pick. The
+// second line: the recommendation a pick differs from, the pick it changed from (the approved one, or the author's), or
+// what no pick means
+function sdDec(x, { approve = false, answer = null } = {}) {
+  const ids = idsOf(x.choice), picked = ids.length > 0 || !!x.custom, rec = recLabels(x);
+  const label = [...ids.map(id => choiceLabel(x, id)), ...(x.custom ? ['Other: ' + cutLine(x.custom, 120)] : [])].join(', ');
+  const was = picked && x.pickChanged ? (APPROVABLE ? (planState().picks || {})[`${x.cid}/${x.it.id}`] : x.it.choice) : null;
+  const sub = x.more ? ''
+    : picked ? (idsOf(was).length ? `Changed from ${idsOf(was).map(id => choiceLabel(x, id)).join(', ')}`
+      : rec && ids.length && !x.custom && pickKey(x.choice) !== pickKey(recIds(x)) ? `Recommended: ${rec}` : '')
+    : approve && !answer ? (rec ? `No pick: ${agentWho()} uses its recommendation` : '') : rec ? `Recommended: ${rec}` : '';
+  const chip = x.more ? h('span', { class: 'sd-chip ask' }, ic('help'), h('span', {}, MORE_LABEL))
+    : x.request ? h('span', { class: 'sd-chip ask', title: label }, ic('help'), h('span', {}, label))
+    : picked ? h('span', { class: 'sd-chip', title: label }, ic('tick'), h('span', {}, label))
+    : answer ? h('span', { class: 'sd-chip need' }, h('span', {}, 'Answer it'), ic('chev'))
+    : approve && rec ? h('span', { class: 'sd-chip rec', title: rec }, ic('star'), h('span', {}, rec))
+    : h('span', { class: 'sd-chip rec' }, h('span', {}, 'No pick'));
+  const q = h('span', { class: 'q' }, h('span', { html: (prOf(x) ? `#${prOf(x)} · ` : '') + inline(x.it.text) }), sub && h('small', {}, sub));
+  return answer && !picked && !x.more ? h('button', { type: 'button', class: 'sd-dec go', 'data-item': `${x.cid}/${x.it.id}`, title: 'Answer it', onclick: () => answer(x) }, q, chip)
+    : h('div', { class: 'sd-dec', 'data-item': `${x.cid}/${x.it.id}` }, q, chip);
+}
+// a progress item as it goes: ✓ Done, or Not done
+const sdStep = x => h('div', { class: 'sd-dec', 'data-item': `${x.cid}/${x.it.id}` }, h('span', { class: 'q', html: inline(x.it.text) }),
+  passing(x) ? h('span', { class: 'sd-chip' }, ic('tick'), h('span', {}, 'Done')) : h('span', { class: 'sd-chip rec' }, h('span', {}, 'Not done')));
+// the decisions' counts in words: "5 picked · 1 Tell me more · 1 left to Claude"
+function decSays(xs, none) {
+  const more = xs.filter(x => x.more).length, picked = xs.filter(x => !x.more && (idsOf(x.choice).length || x.custom)).length, left = xs.length - more - picked;
+  return [picked && `${picked} picked`, more && `${more} ${MORE_LABEL}`, left && `${left} ${none}`].filter(Boolean).join(' · ');
+}
+// The comments that go, as the conversation draws them: a timeline, each message led by what it is on ({kind, on, md,
+// files}): the page's (MARKUP.goes) and those saved in items' fields (itemComments)
+function sdComments(cs) {
+  return h('div', { class: 'sd-box' }, h('div', { class: 'sd-cm' }, h('ol', { class: 'bp-msgs', 'aria-label': 'Comments' }, cs.map(c => {
+    const mb = h('div', { class: 'mb bd-md', html: md(c.md || '') }), on = h('span', { class: 'ac-on' }, c.on);
+    (mb.firstElementChild && mb.firstElementChild.tagName === 'P' ? mb.firstElementChild : mb).prepend(on);
+    return h('li', { class: 'bp-msg you' }, h('span', { class: 'av', 'aria-hidden': 'true' }, 'Y'),
+      h('div', { class: 'mh' }, h('b', { class: 'who' }, 'You'), h('span', { class: 'rv' }, c.kind)), mb,
+      c.files.length > 0 && h('div', { class: 'mf' }, fileChips(c.files)));
+  }))));
+}
+// the comments saved in items' fields that go with a send: each on its item (and the answer, when it is about one)
+const itemComments = xs => xs.filter(x => x.notePending).flatMap(x => x.drafts().map(d => ({ kind: x.fd ? 'finding' : x.choices ? 'question' : 'item',
+  on: 'On ' + cutLine(itemText(x), 56) + (d.about ? ' › ' + aboutLabel(x, d.about) : ''), md: d.md.trim(), files: d.files })));
 function openSend() {
   if (!sendDlg) {
-    const msg = h('textarea', { class: 'bp-note-ta', rows: 3, placeholder: 'Anything else for the agent? (optional)' });
-    msg.value = store.get(MSG_KEY) || '';
-    msg.addEventListener('input', () => { if (msg.value.trim()) store.set(MSG_KEY, msg.value); else store.del(MSG_KEY); pre.textContent = answersMd(); });
-    msg.addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); doSend(); } });
-    // its files are kept as they change, like its text; a removed one's copy goes at once
-    const fd = fileDraft(() => {
-      const fs = fd.files;
-      if (fs.length) store.set(MSG_FILES_KEY, JSON.stringify(filesJson(fs).files)); else store.del(MSG_FILES_KEY);
-      fd.commit(); pre.textContent = answersMd();
-    });
-    fd.load(msgFiles());
-    const field = h('div', { class: 'bd-msgf' }, msg, fd.list, h('div', { class: 'ft' }, fd.btn), fd.input);
-    fd.hook(field, msg);
-    const summary = h('p', { class: 'sum' });
-    const how = h('p', { class: 'how' });
-    const pre = h('pre', {});
+    // the message is stored as it changes (`__message`, its files `__message-files`), and stays after a send
+    const S = sendDialog({ cls: 'bd-sendans', title: SEND_AS[2], tone: 'go', icon: SEND_AS[0], label: REVIEW_OF ? SEND_AS[1] : 'Send', copyLabel: 'Copy',
+      placeholder: () => `Anything else for ${agentWho()}? (optional)`, noteLabel: 'Message to the agent', note: store.get(MSG_KEY) || '', noteFiles: msgFiles(),
+      onNote: v => { if (v.trim()) store.set(MSG_KEY, v); else store.del(MSG_KEY); },
+      onFiles: fs => { if (fs.length) store.set(MSG_FILES_KEY, JSON.stringify(filesJson(fs).files)); else store.del(MSG_FILES_KEY); },
+      connected: () => !!REPLY.url, send: () => doSend(), copyOut: () => doSend(),
+      copy: () => { copyText(answersMd(), 'Copied: paste it into the chat with the agent'); sendDlg.close(); } });
+    sendDlg = S.dlg;
     // Post as: as GitHub's Submit review asks, one per PR: Request changes on one, Approve another
     const segs = POST_PRS.map(p => h('div', { class: 'bd-sg', role: 'radiogroup', 'aria-label': POST_PRS.length > 1 ? `Post ${p.title} as` : 'Post as', 'data-pr': p.id || '' },
       POST_AS.map(([v, l]) => h('button', { type: 'button', role: 'radio', 'data-v': v, onclick: () => { postAs[p.id || ''] = v; sendDlg._paint(); } }, l))));
-    const postBox = !segs.length ? null : segs.length === 1 ? h('div', { class: 'bd-postas' }, h('span', {}, 'Post as'), segs[0])
-      : h('div', { class: 'bd-postas many' }, h('span', { class: 'h' }, 'Post as, per PR'),
-        POST_PRS.map((p, i) => h('div', { class: 'r' }, h('span', { class: 't', title: p.title }, p.title), segs[i])));
-    const send = h('button', { type: 'button', class: 'bp-btn primary', onclick: () => doSend() }, ic('send'), 'Send');
-    const copy = h('button', { type: 'button', class: 'bp-btn', onclick: () => { copyText(answersMd(), 'Copied: paste it into the chat with the agent'); sendDlg.close(); } }, ic('copy'), 'Copy');
-    sendDlg = h('dialog', { class: 'bd-send', 'aria-labelledby': 'bd-send-h' },
-      h('div', { class: 'hd' }, h('h3', { id: 'bd-send-h' }, SEND_AS[2]), h('button', { type: 'button', class: 'bd-ibtn', 'aria-label': 'Close', onclick: () => sendDlg.close() }, ic('x'))),
-      summary, postBox, field, h('details', {}, h('summary', {}, 'Preview'), pre), how, h('div', { class: 'ft' }, copy, send));
-    document.body.append(sendDlg);
-    sendDlg.addEventListener('click', e => { if (e.target === sendDlg) sendDlg.close(); });
+    const postSec = !segs.length ? null : segs.length === 1 ? sdSec('Post as', null, '', h('div', { class: 'bd-postas' }, segs[0]))
+      : sdSec('Post as, per PR', null, '', h('div', { class: 'bd-postas many' }, POST_PRS.map((p, i) => h('div', { class: 'r' }, h('span', { class: 't', title: p.title }, p.title), segs[i]))));
     sendDlg._paint = () => {
-      const c = replyCounts();
-      const parts = [];
-      if (c.decisions) parts.push(`${c.decided} of ${c.decisions} decision${c.decisions === 1 ? '' : 's'} made`);
-      if (c.steps) parts.push(`${c.ticked} of ${c.steps} step${c.steps === 1 ? '' : 's'} ticked`);
-      if (!NOTES_WITH_CHANGES) parts.push(`${c.notes} comment${c.notes === 1 ? '' : 's'}`);
-      else if (c.notes) parts.push(`${c.notes} comment${c.notes === 1 ? '' : 's'} on findings ${c.notes === 1 ? 'goes' : 'go'} with Request changes`);
-      summary.textContent = [SEND_AS[3], parts.join(' · ')].filter(Boolean).join(' ');
+      const all = Object.values(ITEMS), dec = all.filter(x => x.choices), steps = all.filter(x => !x.choices);
+      // a review's send key carries the picks and ticks: its comments on findings wait for Request changes
+      const notes = NOTES_WITH_CHANGES ? [] : itemComments(all), later = NOTES_WITH_CHANGES ? all.filter(x => x.notePending).length : 0;
+      S.intro.textContent = (SEND_AS[3] ? SEND_AS[3].replace(/^The agent/, agentWho(true)) : `${agentWho(true)} acts on your picks, ticks and comments.`)
+        + (later ? ` ${later} comment${later === 1 ? '' : 's'} on findings ${later === 1 ? 'goes' : 'go'} with Request changes.` : '');
+      setKids(S.body,
+        dec.length > 0 && sdSec(DOC_TYPE === 'review' ? 'Findings' : 'Decisions', dec.length, decSays(dec, 'no pick'), h('div', { class: 'sd-box' }, dec.map(x => sdDec(x)))),
+        steps.length > 0 && sdSec('Steps', steps.length, `${steps.filter(passing).length} done`, h('div', { class: 'sd-box' }, steps.map(sdStep))),
+        notes.length > 0 && sdSec('Comments', notes.length, '', sdComments(notes)),
+        postSec);
       segs.forEach(g => g.querySelectorAll('button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.v === postAs[g.dataset.pr]))));
-      send.hidden = !REPLY.url;
-      copy.classList.toggle('primary', !REPLY.url);
-      how.textContent = REPLY.url ? `Send delivers this to ${REPLY.to || 'the agent that opened this page'}. Copy gives you the same text to paste.`
-        : 'This page isn\'t connected to an agent. Copy the text and paste it into the chat. (Pages opened through serve.py can send directly.)';
-      pre.textContent = answersMd();
+      S.paint();
     };
   }
   sendDlg._paint();
-  sendDlg.showModal();
-  sendDlg.querySelector('textarea').focus();
+  sendDlg._S.show();
 }
 async function doSend() {
   if (!REPLY.url) { copyText(answersMd(), 'Copied: paste it into the chat with the agent'); sendDlg && sendDlg.close(); return; }
@@ -6588,14 +7148,8 @@ if (CHECKLISTS.length) {
     };
     return row;
   });
-  // Copy progress and Reset: the reader's ticks, which a shared page has none of (VIEW_ONLY)
-  tocWrap.append(h('div', { class: 'bd-rail-sec' }, h('h4', { class: 'bd-rail-h' }, 'Tracker'), h('div', { class: 'bp-prog' }, rows,
-    !VIEW_ONLY && h('div', { class: 'bp-side-tools' }, h('span', { class: 'bd-split' },
-      h('button', { type: 'button', class: 'bp-btn ghost', onclick: () => copyText(allChecklistsMd(), 'Copied progress as Markdown') }, ic('copy'), 'Copy progress'),
-      h('button', { type: 'button', class: 'bp-btn ghost', onclick: () => {
-        if (!confirm('Reset all checklists in this document?')) return;
-        CHECKLISTS.filter(c => !c.parent).forEach(resetChecklist);
-      } }, ic('reset'), 'Reset'))))));
+  // each list's own header holds its Copy and Reset
+  tocWrap.append(h('div', { class: 'bd-rail-sec' }, h('h4', { class: 'bd-rail-h' }, 'Tracker'), h('div', { class: 'bp-prog' }, rows)));
   CHECKLISTS.forEach(c => c.update());
 }
 Object.values(DIFFS).forEach(initDiff);
@@ -7098,28 +7652,30 @@ const shortRef = r => /^[0-9a-f]{12,40}$/i.test(r) ? r.slice(0, 7) : r;
 const MROWS = [];   // Merged's finding rows { x, row, tick, opts, note, thread, ok, open, paintOpen(on), paintDet(on) }, repainted by syncDiffs
 const MORE_LINES = 8;   // Show more lines: lines added either side of an excerpt
 const FINDING_CIDS = new Set();   // every findings section's checklists (nested ones too), known before they draw
-/* The filter: Open (a finding with no answer, a Need more details not sent, or a reply from the agent the reader
-   hasn't answered; a progress finding not done), Done (the rest) or All. Each findings section has its own, for its
-   every view, kept per doc and section in reader state (`__findings-filter:<section id>`); a first visit opens on
-   Open. The finding the reader is on (FHELD: the one they last opened, picked in or wrote in) stays shown when it
-   leaves its filter, until they move on to another. A list ends with what the filter hides, and Show (All). In Diff, a
-   hidden finding's card goes; its code stays. */
+/* The filter: Open (a question with no answer, a Need more details not sent, or a reply from the agent the reader
+   hasn't answered; a progress item not done), Done (the rest) or All. Each findings section and each decision list
+   (questionView) has its own, for its every view, kept per doc and list in reader state (`__findings-filter:<section
+   or list id>`); a first visit opens on Open. The question the reader is on (FHELD: the one they last opened, picked
+   in or wrote in) stays shown when it leaves its filter, until they move on to another. A list ends with what the
+   filter hides, and Show (All). In Diff, a hidden finding's card goes; its code stays. */
 const FFILTERS = [['all', 'All'], ['open', 'Open'], ['done', 'Done']];
 const ffilterKey = v => `bp:${docId}:__findings-filter:${v.el.id}`;
+const QVIEWS = [];   // every toolbar with the filter: the findings sections' (FVIEWS) and the decision lists'
 let FHELD = null;
 const findingOpen = x => x.choices ? !(x.choice || x.custom) || x.more === 'on' || awaitsReader(x) : !passing(x);
-const fvShows = x => { const v = fviewOf(x.li), f = v ? v.filter : 'all'; return f === 'all' || x === FHELD || (f === 'open') === findingOpen(x); };
+const fvShows = x => { const f = x.fv ? x.fv.filter : 'all'; return f === 'all' || x === FHELD || (f === 'open') === findingOpen(x); };
 // Request changes, Approve or Send answers closes every answered question left open (a decision or a finding, on any
 // doc); one still waiting for the reader (no answer, Need more details, an agent reply unanswered) stays open
 function collapseAnswered() {
   for (const x of CHECKLISTS.flatMap(c => c.items))
     if (x.choices && x.li.classList.contains('open') && (x.choice || x.custom) && x.more !== 'on' && !awaitsReader(x)) x.setOpen(false);
 }
-function holdFinding(x) { if (FHELD !== x) { FHELD = x; paintFindings(); } }
+// a question in a list with the filter (a finding, a decision list's)
+function holdFinding(x) { if (x.card && x.fv && FHELD !== x) { FHELD = x; paintFindings(); } }
 function setFindingsFilter(v, f) { v.filter = f; FHELD = null; store.set(ffilterKey(v), f); paintFindings(); }
-// every findings section's toolbar, list and cards, the Tracker's findings rows and the ask chip, from the items
+// every toolbar, list and card with the filter, the Tracker's findings rows and the ask chip, from the items
 function paintFindings() {
-  FVIEWS.forEach(v => v.paint());
+  QVIEWS.forEach(v => v.paint());
   for (const c of CHECKLISTS) if (c.sideRow && c.items.some(x => x.fd)) c.sideRow();
   paintAsk();
 }
@@ -7156,43 +7712,101 @@ function expandFindings(v) {
   }
   paintFindings();
 }
-function findingsView(sec, el, wraps) {
-  const { cls, diffs, cids } = findingScope(sec), blocks = sec.blocks || [];
-  if (!diffs.length) return;
-  cls.forEach(i => wraps[i].classList.add('fv-c'));
-  diffs.forEach(i => wraps[i].classList.add('fv-d'));
-  const scope = CHECKLISTS.filter(c => cids.has(c.b.id)), items = scope.flatMap(c => c.items), tops = scope.filter(c => !c.parent);
-  const ds = diffs.map(i => DIFFS[blocks[i].id]).filter(Boolean);
-  for (const x of items) if (x.fd && findingOpen(x)) x.setOpen(true);
-  const mv = mergedView(scope, ds);
-  wraps[Math.min(...cls, ...diffs)].before(mv);
-  // the toolbar: the filter, Accept recommended (the section's open decisions; not on earlier revisions or in compare
-  // view), Expand all, ⋯ (Copy, Reset) and the view
-  const fbtns = FFILTERS.map(([f, l]) => h('button', { type: 'button', 'data-f': f, onclick: () => setFindingsFilter(v, f) }, l, ' ', h('b')));
-  const acc = !OLD && !BASE && !VIEW_ONLY ? h('button', { type: 'button', class: 'bp-btn ghost', hidden: true, title: 'Pick the starred option on every open decision in these findings', onclick: () => acceptRecs(scope) }) : null;
-  const expand = h('button', { type: 'button', class: 'bp-btn ghost', onclick: () => expandFindings(v) });
+// The toolbar of a list of questions, a findings section's or a decision list's (one component): the filter (All · Open ·
+// Done, with counts), Accept recommended (the list's open decisions; not on earlier revisions, in compare view or on a
+// shared page), Expand all, ⋯ (Copy, and Reset but on a shared page) and, given, `views`. With it the answered meter
+// and the status for the title row (v.meter, v.status), and what the filter hides at the end of each top list
+// (v.notes). `scope`: the checklists, nested ones too; `noun`: what the toolbar's words call an item
+const hiddenNote = (tag, xs) => { const n = h(tag, { class: 'pv-hidden', hidden: true }); n._xs = xs; return n; };
+function questionBar(v, scope, noun, views) {
+  const tops = scope.filter(c => !c.parent), items = v.items = scope.flatMap(c => c.items);
+  for (const x of items) x.fv = v;
+  v.noun = noun;
+  v.fbtns = FFILTERS.map(([f, l]) => h('button', { type: 'button', 'data-f': f, onclick: () => setFindingsFilter(v, f) }, l, ' ', h('b')));
+  v.acc = !OLD && !BASE && !VIEW_ONLY ? h('button', { type: 'button', class: 'bp-btn ghost', hidden: true, title: `Pick the starred option on every open decision in these ${noun}s`, onclick: () => acceptRecs(scope) }) : null;
+  v.expand = h('button', { type: 'button', class: 'bp-btn ghost', onclick: () => expandFindings(v) });
   const act = (icon, label, run) => h('button', { type: 'button', role: 'menuitem', tabindex: '-1', onclick: () => { pop.close(true); run(); } }, ic(icon), h('span', { class: 'l' }, label));
-  // ⋯: Copy, and Reset but on a shared page (VIEW_ONLY: no answers to reset)
-  const acts = [act('copy', 'Copy', () => copyText(tops.map(c => checklistMd(c)).join('\n'), 'Copied the findings as Markdown')),
-    !VIEW_ONLY && act('reset', 'Reset', () => { if (confirm('Reset your answers to these findings?')) tops.forEach(resetChecklist); })].filter(Boolean);
+  const acts = [act('copy', 'Copy', () => copyText(tops.map(c => checklistMd(c)).join('\n'), `Copied the ${noun}s as Markdown`)),
+    !VIEW_ONLY && act('reset', 'Reset', () => { if (confirm(`Reset your answers to these ${noun}s?`)) tops.forEach(resetChecklist); })].filter(Boolean);
   const menu = h('div', { class: 'bd-selm act float', role: 'menu', 'aria-label': 'More', tabindex: '-1', hidden: true }, acts);
   const moreBtn = h('button', { type: 'button', class: 'bp-btn ghost icon', 'aria-haspopup': 'menu', 'aria-expanded': 'false', 'aria-label': VIEW_ONLY ? 'More: Copy' : 'More: Copy, Reset', title: 'More',
     onclick: () => menu.hidden ? pop.open(0) : pop.close(true) }, ic('more'));
   const moreW = h('div', { class: 'bd-exp' }, moreBtn, menu);
   const pop = menuPop(moreW, moreBtn, menu, () => acts, { float: true });
+  v.bar = h('div', { class: 'bd-ftb' }, h('div', { class: 'bd-fvseg bd-ffilt', role: 'group', 'aria-label': `Show ${noun}s` }, v.fbtns), h('span', { class: 'sp' }), v.acc, v.expand, moreW, views);
+  // what the filter hides, at the end of each list: "2 findings you answered are hidden · Show"
+  v.notes = tops.map(c => { const n = hiddenNote('li', checklistScope(c).flatMap(s => s.items)); c.list.append(n); return n; });
+  v.meter = h('span', { class: 'bd-prm' }, h('span', { class: 'bd-meter' }, h('i')), h('span', { class: 'c' }));
+  v.status = h('span', { class: 'bd-prs' });
+  const f = store.get(ffilterKey(v));
+  v.filter = FFILTERS.some(x => x[0] === f) ? f : 'open';
+  if (!QVIEWS.length) addEventListener('resize', () => QVIEWS.forEach(q => q.measure()));
+  QVIEWS.push(v);
+  if (fvSizes) fvSizes.observe(v.bar);
+}
+// the toolbar's part of a repaint: the meter and status, the filter's counts and what it shows, Accept, Expand all
+function paintQuestions(v) {
+  const { items, noun } = v, n = items.filter(x => x.cb.checked).length, fresh = items.filter(x => x.fresh).length, done = items.length > 0 && n === items.length;
+  v.meter.lastChild.textContent = `${n} of ${items.length}`;
+  v.meter.firstChild.firstChild.style.width = (items.length ? n / items.length * 100 : 0) + '%';
+  v.meter.firstChild.classList.toggle('full', done);
+  v.status.className = 'bd-prs' + (fresh ? ' new' : done ? ' ok' : '');
+  v.status.replaceChildren(...(fresh ? [h('i'), `${fresh} ${fresh === 1 ? 'reply' : 'replies'}`] : done ? ['Answered'] : []));
+  const open = items.filter(findingOpen).length, count = { open, done: items.length - open, all: items.length };
+  for (const b of v.fbtns) { b.setAttribute('aria-pressed', String(b.dataset.f === v.filter)); b.lastChild.textContent = String(count[b.dataset.f]); }
+  for (const x of items) {
+    const out = !fvShows(x);
+    x.li.classList.toggle('fv-out', out);
+    for (const r of x.mrows || []) (r.parentElement.classList.contains('bd-mx') ? r.parentElement : r).classList.toggle('fv-out', out);
+  }
+  for (const note of v.notes) {
+    const k = note._xs.filter(x => !fvShows(x)).length;
+    note.hidden = !k || v.filter === 'all';
+    if (!note.hidden) note.replaceChildren(ic(v.filter === 'open' ? 'tick' : 'help'),
+      h('span', {}, v.filter === 'open' ? `${k} ${noun}${k === 1 ? '' : 's'} you answered ${k === 1 ? 'is' : 'are'} hidden · ` : `${k} open ${noun}${k === 1 ? ' is' : 's are'} hidden · `),
+      h('button', { type: 'button', class: 'bp-btn ghost', onclick: () => setFindingsFilter(v, 'all') }, 'Show'));
+  }
+  const acc = v.acc;
+  if (acc) { const k = openRecs(v.scope).length; acc.hidden = !k; if (k) acc.replaceChildren(ic('checks'), h('span', {}, h('span', { class: 'l' }, 'Accept recommended '), `(${k})`)); }
+  const xs = fvOpenable(v), all = xs.length > 0 && xs.every(fvIsOpen);
+  v.expand.hidden = !xs.length;
+  v.expand.replaceChildren(ic(all ? 'up' : 'down'), h('span', { class: 'l' }, all ? 'Collapse all' : 'Expand all'));
+  v.expand.title = all ? `Close every ${noun} shown` : `Open every ${noun} shown`;
+  const fit = v.bar.textContent + (acc && acc.hidden);
+  if (fit !== v.fit) { v.fit = fit; if (v.el.isConnected) v.measure(); }   // the toolbar's words changed: does it still fit one row?
+}
+// A decision list's header is a findings section's, in the list's card: the title row (the title, the answered meter
+// and a status: replies waiting, Answered), then the same toolbar, without the views
+function questionView(c) {
+  const v = { el: c.root, scope: checklistScope(c) };
+  questionBar(v, v.scope, 'question');
+  v.head = h('div', { class: 'bp-cl-h' }, h('h3', {}, c.b.title || 'Checklist'), v.meter, v.status);
+  v.paint = () => paintQuestions(v);
+  v.measure = () => fitBar(v.bar);
+  return v;
+}
+function findingsView(sec, el, wraps) {
+  const { cls, diffs, cids } = findingScope(sec), blocks = sec.blocks || [];
+  if (!diffs.length) return;
+  cls.forEach(i => wraps[i].classList.add('fv-c'));
+  diffs.forEach(i => wraps[i].classList.add('fv-d'));
+  const scope = CHECKLISTS.filter(c => cids.has(c.b.id)), items = scope.flatMap(c => c.items);
+  const ds = diffs.map(i => DIFFS[blocks[i].id]).filter(Boolean);
+  for (const x of items) if (x.fd && findingOpen(x)) x.setOpen(true);
+  const mv = mergedView(scope, ds);
+  wraps[Math.min(...cls, ...diffs)].before(mv);
+  // the toolbar (questionBar) with the views; Merged's list ends with what the filter hides too
   const vbtn = (view, icon, label) => h('button', { type: 'button', 'data-v': view, title: label, onclick: e => pickFindings(view, e.currentTarget) }, ic(icon), h('span', { class: 'l' }, label));
   const seg = h('div', { class: 'bd-fvseg', role: 'group', 'aria-label': 'Show the findings as' },
     vbtn('checklist', 'list', 'Checklist'), vbtn('diff', 'pr', 'Diff'), vbtn('merged', 'layers', 'Merged'));
-  const bar = h('div', { class: 'bd-ftb' }, h('div', { class: 'bd-fvseg bd-ffilt', role: 'group', 'aria-label': 'Show findings' }, fbtns), h('span', { class: 'sp' }), acc, expand, moreW, seg);
-  // what the filter hides, at the end of each list (Checklist, Merged): "2 findings you answered are hidden · Show"
-  const hiddenNote = (tag, xs) => { const n = h(tag, { class: 'pv-hidden', hidden: true }); n._xs = xs; return n; };
-  const notes = [...tops.map(c => { const n = hiddenNote('li', checklistScope(c).flatMap(s => s.items)); c.list.append(n); return n; }), hiddenNote('div', items)];
-  mv.append(notes.at(-1));
+  const v = { el, scope, seg, mv, view: null };
+  questionBar(v, scope, 'finding', seg);
+  const bar = v.bar, mnote = hiddenNote('div', items);
+  v.notes.push(mnote); mv.append(mnote);
   // the header: the chevron (under the number) and the meter in the title row, then the sizes and the branches
   const h2 = el.querySelector(':scope > h2');
   const chev = h('button', { type: 'button', class: 'bd-prchev', 'aria-expanded': 'true', 'aria-label': 'Fold this section', onclick: e => { e.stopPropagation(); v.fold(!el.classList.contains('bd-fold')); } }, ic('chev'));
-  const meter = h('span', { class: 'bd-prm' }, h('span', { class: 'bd-meter' }, h('i')), h('span', { class: 'c' })), status = h('span', { class: 'bd-prs' });
-  h2.prepend(chev); h2.append(meter, status);
+  h2.prepend(chev); h2.append(v.meter, v.status);
   h2.addEventListener('click', e => { if (!/\bbd-ann-m-/.test(root.className) && !e.target.closest('a, button') && !String(getSelection())) v.fold(!el.classList.contains('bd-fold')); });
   const sizes = new Map();
   for (const x of items) if (x.it.state) { const k = String(x.it.state), s = sizes.get(k) || { n: 0, kind: x.it.stateKind || 'warn' }; s.n++; sizes.set(k, s); }
@@ -7208,28 +7822,15 @@ function findingsView(sec, el, wraps) {
   h2.after(head);
   head.after(bar);
   el.classList.add('fv-on');
-  const v = { el, h2, chips, bar, seg, mv, items, view: null, set: view => {
+  Object.assign(v, { h2, chips, set: view => {
     if (v.view === view) return;
     v.view = view;
     el.classList.toggle('fv-merged', view === 'merged'); el.classList.toggle('fv-cl', view === 'checklist'); el.classList.toggle('fv-diff', view === 'diff');
     for (const b of seg.children) b.setAttribute('aria-pressed', String(b.dataset.v === view));
     if (view === 'diff') diffs.forEach(i => paneShown(DIFFS[blocks[i].id]));
   }, paint: () => {
-    const n = items.filter(x => x.cb.checked).length, fresh = items.filter(x => x.fresh).length, done = items.length > 0 && n === items.length;
-    meter.lastChild.textContent = `${n} of ${items.length}`;
-    meter.firstChild.firstChild.style.width = (items.length ? n / items.length * 100 : 0) + '%';
-    meter.firstChild.classList.toggle('full', done);
-    status.className = 'bd-prs' + (fresh ? ' new' : done ? ' ok' : '');
-    status.replaceChildren(...(fresh ? [h('i'), `${fresh} ${fresh === 1 ? 'reply' : 'replies'}`] : done ? ['Answered'] : []));
-    // the filter's counts, and what it shows: the findings in Checklist, their excerpts in Merged (a group left empty
-    // goes), their cards in Diff
-    const open = items.filter(findingOpen).length, count = { open, done: items.length - open, all: items.length };
-    for (const b of fbtns) { b.setAttribute('aria-pressed', String(b.dataset.f === v.filter)); b.lastChild.textContent = String(count[b.dataset.f]); }
-    for (const x of items) {
-      const out = !fvShows(x);
-      x.li.classList.toggle('fv-out', out);
-      for (const r of x.mrows || []) (r.parentElement.classList.contains('bd-mx') ? r.parentElement : r).classList.toggle('fv-out', out);
-    }
+    paintQuestions(v);
+    // what the filter hides beyond the lists: a Merged group left empty, a card in Diff
     for (const g of mv.querySelectorAll(':scope > .bd-mg')) {
       const parts = g.querySelectorAll(':scope > .bd-mx, :scope > .bd-mrow');
       g.classList.toggle('fv-out', parts.length > 0 && [...parts].every(p => p.classList.contains('fv-out')));
@@ -7238,36 +7839,18 @@ function findingsView(sec, el, wraps) {
       for (const m of d.mirrors) m.card.closest('.bd-cmw')?.classList.toggle('fv-out', !fvShows(m.src));
       if (d.fnav) d.fnav.paint();
     }
-    for (const note of notes) {
-      const k = note._xs.filter(x => !fvShows(x)).length;
-      note.hidden = !k || v.filter === 'all';
-      if (!note.hidden) note.replaceChildren(ic(v.filter === 'open' ? 'tick' : 'help'),
-        h('span', {}, v.filter === 'open' ? `${k} finding${k === 1 ? '' : 's'} you answered ${k === 1 ? 'is' : 'are'} hidden · ` : `${k} open finding${k === 1 ? ' is' : 's are'} hidden · `),
-        h('button', { type: 'button', class: 'bp-btn ghost', onclick: () => setFindingsFilter(v, 'all') }, 'Show'));
-    }
-    if (acc) { const k = openRecs(scope).length; acc.hidden = !k; if (k) acc.replaceChildren(ic('checks'), h('span', {}, h('span', { class: 'l' }, 'Accept recommended '), `(${k})`)); }
-    const xs = fvOpenable(v), all = xs.length > 0 && xs.every(fvIsOpen);
-    expand.hidden = !xs.length;
-    expand.replaceChildren(ic(all ? 'up' : 'down'), h('span', { class: 'l' }, all ? 'Collapse all' : 'Expand all'));
-    expand.title = all ? 'Close every finding shown' : 'Open every finding shown';
-    const fit = bar.textContent + (acc && acc.hidden);
-    if (fit !== v.fit) { v.fit = fit; if (el.isConnected) fvMeasure(v); }   // the toolbar's words changed: does it still fit one row?
-  }, fold: (on, anim = true) => {
+  }, measure: () => fvMeasure(v), fold: (on, anim = true) => {
     foldMotion(el, el, anim, () => {
       el.classList.toggle('bd-fold', on);
       chev.setAttribute('aria-expanded', String(!on)); chev.setAttribute('aria-label', on ? 'Open this section' : 'Fold this section');
     });
-  } };
-  // its own view and filter, as the reader left them here; a view never picked here follows the last one picked
-  const saved = store.get(fviewKey(v)), last = store.get(FVIEW_KEY), f = store.get(ffilterKey(v));
+  } });
+  // its own view, as the reader left it here; a view never picked here follows the last one picked
+  const saved = store.get(fviewKey(v)), last = store.get(FVIEW_KEY);
   v.set(FVIEW_NAMES.includes(saved) ? saved : FVIEW_NAMES.includes(last) ? last : 'merged');
-  v.filter = FFILTERS.some(x => x[0] === f) ? f : 'open';
-  if (!FVIEWS.length) {
-    addEventListener('scroll', paintStuck, { passive: true });
-    addEventListener('resize', () => FVIEWS.forEach(fvMeasure));
-  }
+  if (!FVIEWS.length) addEventListener('scroll', paintStuck, { passive: true });
   FVIEWS.push(v);
-  if (fvSizes) [h2, chips, bar].forEach(e => fvSizes.observe(e));
+  if (fvSizes) [h2, chips].forEach(e => fvSizes.observe(e));
 }
 // a section's fold, eased: `apply` flips it; `box` then runs from its old height to its new one, clipped, while
 // `mark` carries .bd-anim, which keeps the parts folding away drawn (fading out, or in) until it lands. A fold
@@ -7284,18 +7867,23 @@ function foldMotion(box, mark, anim, apply) {
   const a = box.bdFold = box.animate({ height: [from + 'px', to + 'px'] }, { duration: Math.round(Math.min(420, 200 + Math.abs(to - from) / 12)), easing: 'cubic-bezier(0.23, 1, 0.32, 1)' });
   a.onfinish = a.oncancel = () => { if (box.bdFold === a || !box.bdFold) { box.bdFold = null; mark.classList.remove('bd-anim'); box.classList.remove('bd-anim-box'); } };
 }
-// where the parts stick: the title row's height (--fv-t), the sizes' while they stick (--fv-c: they scroll away now)
-// and the toolbar's (--fvbar-h), once it fits: too wide for one row, its views, then its actions, drop their words
-function fvMeasure(v) {
-  const s = v.el.style, b = v.bar, wraps = () => b.lastElementChild.offsetTop > b.firstElementChild.offsetTop + 4;
+// a toolbar too wide for one row: its views, then its actions, drop their words
+function fitBar(b) {
+  const wraps = () => b.lastElementChild.offsetTop > b.firstElementChild.offsetTop + 4;
   b.classList.remove('tight', 'tighter');
   if (wraps()) b.classList.add('tight');
   if (wraps()) b.classList.add('tighter');
+}
+// where the parts stick: the title row's height (--fv-t), the sizes' while they stick (--fv-c: they scroll away now)
+// and the toolbar's (--fvbar-h), once it fits
+function fvMeasure(v) {
+  const s = v.el.style;
+  fitBar(v.bar);
   s.setProperty('--fv-t', v.h2.offsetHeight + 'px');
   s.setProperty('--fv-c', (getComputedStyle(v.chips).position === 'sticky' ? v.chips.offsetHeight : 0) + 'px');
-  s.setProperty('--fvbar-h', b.offsetHeight + 'px');
+  s.setProperty('--fvbar-h', v.bar.offsetHeight + 'px');
 }
-const fvSizes = 'ResizeObserver' in window ? new ResizeObserver(() => FVIEWS.forEach(fvMeasure)) : null;
+const fvSizes = 'ResizeObserver' in window ? new ResizeObserver(() => QVIEWS.forEach(v => v.measure())) : null;
 // a toolbar stuck under the header gets a bottom edge
 let stuckRaf = 0;
 const fvStuck = v => { const t = parseFloat(getComputedStyle(v.bar).top) || 0, r = v.bar.getBoundingClientRect(); return r.height > 0 && Math.abs(r.top - t) < 1 && v.el.getBoundingClientRect().top < t - 1; };
@@ -8627,6 +9215,7 @@ function docMarkdown(doc) {
     files: (b, head) => join(head(b.title || 'Changed files'), (b.items || []).map(f => `- ${ACTION[f.action] || one(f.action)} ${f.from ? `${path(f.from)} → ` : ''}${path(f.path)}${f.why ? ': ' + one(f.why) : ''}`).join('\n')),
     media: b => join(src(b.src, b.alt), b.caption && one(b.caption)),
     compare: (b, head) => join(head(b.title), side(b.before, 'Before'), side(b.after, 'After')),
+    chart: (b, head) => { const t = chartRows(b), row = r => `| ${r.map(cell).join(' | ')} |`; return join(head(b.title), [row(t.cols), `|${t.cols.map(() => '---').join('|')}|`, ...t.rows.map(row)].join('\n'), b.caption && one(b.caption)); },
     board: (b, head) => {
       const abs = b.artboards || [], title = id => (abs.find(a => a.id === id) || { title: id }).title;
       return join(head(b.title || 'Board'), abs.map(a => item(`- **${one(a.title)}** · ` + [a.device || (a.w && a.h ? `${a.w}×${a.h}` : ''), a.fidelity, a.variantOf && `variant of ${one(title(a.variantOf))}`, a.url]
@@ -12524,6 +13113,7 @@ function blockText(b) {
       s.md, (s.files || []).length && 'Files: ' + s.files.join(', ')].filter(Boolean).join('\n'))].filter(Boolean).join('\n');
     case 'files': return [b.title, ...(b.items || []).map(f => `${(FILE_ACTION[f.action] || FILE_ACTION.edit)[0]} ${f.path}${f.from ? ` (from ${f.from})` : ''}${f.why ? `: ${f.why}` : ''}`)].filter(Boolean).join('\n');
     case 'media': return [b.caption, b.alt, b.src].filter(Boolean).join('\n');
+    case 'chart': { const t = chartRows(b); return [b.title, ...t.rows.map(r => `${r[0]}: ${r.slice(1).filter(Boolean).join(' · ')}`), b.caption].filter(Boolean).join('\n'); }
     case 'compare': { const side = (s, d) => s ? [s.label || d, s.md, s.code, s.src].filter(Boolean).join('\n') : ''; return [b.title, side(b.before, 'Before'), side(b.after, 'After')].filter(Boolean).join('\n\n'); }
     case 'board': return [b.title, ...boardAbs(b).map(a => `- ${a.title || a.id} (${a.device || `${a.w} × ${a.h}`}, ${a.fidelity || ''})`)].filter(Boolean).join('\n');
     case 'listing': return [(b.app || {}).name, (b.platforms || []).join(', '), (b.locales || []).join(', ')].filter(Boolean).join('\n');
@@ -12533,7 +13123,7 @@ function blockText(b) {
 const mediaLabel = b => { const t = plain(b.caption || b.alt).replace(/\s+/g, ' ').trim(); return t.length > 48 ? t.slice(0, 47).trimEnd() + '…' : t || 'Media'; };
 const blockLabel = b => ({ text: 'Text', callout: b.title || `${(b.kind || 'note')[0].toUpperCase()}${(b.kind || 'note').slice(1)} callout`, table: 'Table',
   code: b.title || 'Code', terms: 'Terms', cards: 'Cards', checklist: b.title || 'Checklist', canvas: b.title || 'Drawing', diff: b.title || 'Code change',
-  steps: b.title || 'Steps', files: b.title || 'Files', media: b.type === 'media' ? mediaLabel(b) : '', compare: b.title || 'Compare', board: b.title || 'Board', listing: 'Store listing' }[b.type] || b.type);
+  steps: b.title || 'Steps', files: b.title || 'Files', media: b.type === 'media' ? mediaLabel(b) : '', compare: b.title || 'Compare', chart: b.title || 'Chart', board: b.title || 'Board', listing: 'Store listing' }[b.type] || b.type);
 
 const CHG = [];   // every marked change, in page order once sorted
 const CHG_WORD = { add: 'New', mod: 'Changed', del: 'Removed' };
@@ -12606,6 +13196,7 @@ function compareBlocks(ob, nb, secElm) {
     else if (b.type === 'table') compareTable(o, b, el);
     else if (b.type === 'canvas') el.append(chgBox(compareCanvas(o, b)));
     else if (b.type === 'diff') el.append(chgBox(compareDiff(o, b)));
+    else if (b.type === 'chart') el.append(chgBox(compareChart(o, b)));
     else el.append(chgBox([['Text', wordDiff(blockText(o), blockText(b))]]));
     el.prepend(chgHead('mod', blockLabel(b), summary));
     // a list or table whose rows carry their own marks counts as those rows, not once more
@@ -12733,6 +13324,48 @@ function compareTable(o, n, el) {
     markChg(tr, 'mod', 'Row ' + plain(b[0]));
   }
   if (rows.length) el.append(chgBox(rows));
+}
+// a chart's What changed: its fields, then each series (by id), part or stat card (by label) that is new, removed or
+// changed; a series with the values that moved at their x labels (12, then how many more)
+function compareChart(o, n) {
+  const A = chartData(o), B = chartData(n), u = B.unit;
+  const rows = fieldRows([['Title', o.title, n.title], ['Kind', o.kind, n.kind], ['Unit', o.unit, n.unit], ['Beside the title', o.sub, n.sub],
+    ['Caption', o.caption, n.caption], ['X labels', A.x, B.x], ['Stacked', o.stacked ? 'yes' : 'no', n.stacked ? 'yes' : 'no']]);
+  const num = (v, un = u) => chU(chFmt(v), un);
+  const moved = (a, b, un) => a == null ? INS(num(b, un)) : b == null ? DEL(num(a, un)) : `${DEL(num(a, un))} ${INS(num(b, un))}`;
+  const some = list => (list.length > 12 ? [...list.slice(0, 12), esc(`${list.length - 12} more`)] : list).join(', ');
+  const was = new Map(A.series.map(s => [s.id, s]));
+  for (const s of B.series) {
+    const w = was.get(s.id);
+    was.delete(s.id);
+    if (!w) { rows.push(['New series', `${esc(s.label)}: ${INS(s.vals.map(v => num(v)).join(', '))}`]); continue; }
+    const ch = B.x.map((xl, i) => { const j = A.x.indexOf(xl), a = j < 0 ? null : w.vals[j] ?? null, b = s.vals[i] ?? null; return a === b ? null : `${esc(xl)} ${moved(a, b)}`; }).filter(Boolean);
+    if (w.label !== s.label) ch.unshift(wordDiff(w.label, s.label));
+    if (ch.length) rows.push([s.label, some(ch)]);
+  }
+  for (const w of was.values()) rows.push(['Removed series', `${esc(w.label)}: ${DEL(w.vals.map(v => num(v)).join(', '))}`]);
+  const byLabel = xs => new Map(xs.map(x => [String(x.label ?? ''), x]));
+  const old = byLabel(A.items);
+  for (const it of B.items) {
+    const w = old.get(it.label), un = it.unit ?? u;
+    old.delete(it.label);
+    if (!w) { rows.push(['New', `${esc(it.label)}: ${INS(num(it.v, un))}`]); continue; }
+    const ch = [w.v !== it.v && moved(w.v, it.v, un), w.max !== it.max && `of ${moved(w.max, it.max, un)}`, (w.note ?? '') !== (it.note ?? '') && wordDiff(w.note ?? '', it.note ?? '')].filter(Boolean);
+    if (ch.length) rows.push([it.label, ch.join(', ')]);
+  }
+  for (const w of old.values()) rows.push(['Removed', `${esc(w.label)}: ${DEL(num(w.v, w.unit ?? A.unit))}`]);
+  const cards = byLabel(A.stats);
+  for (const st of B.stats) {
+    const lb = String(st.label ?? ''), w = cards.get(lb);
+    cards.delete(lb);
+    if (!w) { rows.push(['New card', `${esc(lb)}: ${INS(num(st.value, st.unit))}`]); continue; }
+    const ch = [chNum(w.value) !== chNum(st.value) && moved(chNum(w.value), chNum(st.value), st.unit),
+      String(w.delta ?? '') !== String(st.delta ?? '') && `change ${wordDiff(String(w.delta ?? ''), String(st.delta ?? ''))}`, canon(w.spark) !== canon(st.spark) && 'trend line'].filter(Boolean);
+    if (ch.length) rows.push([lb, ch.join(', ')]);
+  }
+  for (const w of cards.values()) rows.push(['Removed card', `${esc(String(w.label ?? ''))}: ${DEL(num(w.value, w.unit))}`]);
+  if (!rows.length) rows.push(['Look', esc('Tones or shading')]);
+  return rows;
 }
 function compareCanvas(o, n) {
   const walk = (scope, pre, nodes, edges, flows) => {
@@ -13166,54 +13799,35 @@ function openApprove() {
   if (planState().state === 'approved' || Object.values(ITEMS).some(x => x.more || x.request)) return;
   MARKUP.flush();
   if (!approveDlg) {
-    const note = h('textarea', { class: 'bp-note-ta', rows: 2, placeholder: 'A note for the agent (optional)', 'aria-label': 'Note with the approval' });
-    note.addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); doApprove(); } });
-    // the note's files: a removed one's copy goes at once
-    const fd = fileDraft(() => fd.commit());
-    const field = h('div', { class: 'bd-msgf' }, note, fd.list, h('div', { class: 'ft' }, fd.btn), fd.input);
-    fd.hook(field, note);
-    const sum = h('ul', { class: 'bd-ap-sum' }), decs = h('ul', {}), decBox = h('div', { class: 'bd-ap-dec' }, h('h4', {}, 'Decisions'), decs), how = h('p', { class: 'how' });
-    const copy = h('button', { type: 'button', class: 'bp-btn', onclick: () => copyText(approvePayload(note.value, fd.files).markdown, 'Copied: paste it into the chat with the agent') }, ic('copy'), 'Copy');
-    const ok = h('button', { type: 'button', class: 'bp-btn ok', onclick: () => doApprove() }, ic('tick'), 'Approve');
-    approveDlg = h('dialog', { class: 'bd-send bd-approve', 'aria-labelledby': 'bd-ap-h' },
-      h('div', { class: 'hd' }, h('h3', { id: 'bd-ap-h' }, `Approve this ${AP_NOUN}${revWord}`), h('button', { type: 'button', class: 'bd-ibtn', 'aria-label': 'Close', onclick: () => approveDlg.close() }, ic('x'))),
-      h('p', { class: 'sum' }, IS_DESIGN ? 'The agent builds the design as drawn, every screen at this revision, with the decisions below.' : 'The agent goes ahead with the plan as written and the decisions below.'), field, sum, decBox, how, h('div', { class: 'ft' }, copy, ok));
-    document.body.append(approveDlg);
-    approveDlg.addEventListener('click', e => { if (e.target === approveDlg) approveDlg.close(); });
-    Object.assign(approveDlg, { _note: note, _files: fd, _ok: ok });
+    const S = sendDialog({ cls: 'bd-approve', title: `Approve this ${AP_NOUN}`, tone: 'ok', icon: 'check', label: 'Approve', copyLabel: 'Copy approval',
+      placeholder: () => `A note for ${agentWho()} (optional)`, noteLabel: 'Note with the approval',
+      connected: () => !!REPLY.approve, send: () => doApprove(), copyOut: () => doApprove(),
+      copy: () => copyText(approvePayload(S.ta.value, S.fd.files).markdown, 'Copied: paste it into the chat with the agent') });
+    approveDlg = S.dlg;
+    // a plan's unanswered question: the dialog closes and the question opens
+    const answer = x => { approveDlg.close(); const row = openItem(x); row.scrollIntoView({ behavior: REDUCE ? 'auto' : 'smooth', block: 'center' }); flash(row); };
     approveDlg._paint = () => {
-      const pend = MARKUP.approvalNotes().annotations.length, dec = Object.values(ITEMS).filter(x => x.choices), open = dec.filter(x => !idsOf(x.choice).length && !x.custom).length;
-      // a plan waits for every answer: Approve stays off and says why
-      const held = IS_PLAN && open > 0;
-      ok.disabled = held;
-      ok.title = held ? `${open} question${open === 1 ? ' has' : 's have'} no answer yet` : '';
-      const line = (icon, cls, text) => h('li', { class: cls }, ic(icon), h('span', {}, text));
-      sum.replaceChildren(...[
-        pend && line('msg', '', pend === 1 ? '1 pending comment goes with it as a note' : `${pend} pending comments go with it as notes`),
-        held && line('alert', 'risk', `You can't approve yet: ${open} question${open === 1 ? ' has' : 's have'} no answer. A plan is approved with every question answered: pick one for each below, or use Accept recommended on its list.`),
-        open && !held && line('alert', 'warn', `${open} open question${open === 1 ? ' has' : 's have'} no pick; the agent will use its recommendation`),
-        staleOwners().length && line('alert', 'warn', `${staleOwners().length} check${staleOwners().length === 1 ? ' has' : 's have'} stale evidence: the code changed since ${staleOwners().length === 1 ? 'it' : 'they'} ran. The approval asks the agent to re-run ${staleOwners().length === 1 ? 'it' : 'them'}`),
-      ].filter(Boolean));
-      sum.hidden = !sum.childElementCount;
-      decBox.hidden = !dec.length;
-      decs.replaceChildren(...dec.map(x => {
-        const rec = recLabels(x);
-        return h('li', {}, h('span', { class: 't', html: inline(x.it.text) }),
-          x.choice || x.custom ? h('span', { class: 'pk' }, ic('tick'), okLabel(x), x.choice && !x.custom && rec && pickKey(x.choice) !== pickKey(recIds(x)) && h('span', { class: 'rec' }, `recommended: ${rec}`))
-            : IS_PLAN ? h('button', { type: 'button', class: 'pk none go', title: 'Answer it', onclick: () => { approveDlg.close(); const row = openItem(x); row.scrollIntoView({ behavior: REDUCE ? 'auto' : 'smooth', block: 'center' }); flash(row); } }, rec ? [ic('star'), `No pick · ${rec}`] : 'No pick', ic('chev'))
-            : h('span', { class: 'pk none' }, rec ? [ic('star'), `No pick · ${rec}`] : 'No pick'));
-      }));
-      how.textContent = REPLY.approve ? `Approve sends this to ${REPLY.to || 'the agent that opened this page'}. Copy gives you the same text to paste.`
-        : 'This page isn\'t connected to an agent. Approve copies the approval for you to paste into the chat. (Pages opened through serve.py send it directly.)';
+      const all = Object.values(ITEMS), dec = all.filter(x => x.choices), open = dec.filter(x => !idsOf(x.choice).length && !x.custom).length;
+      // a plan waits for every answer: Approve is held and says why; elsewhere no pick leaves it to the agent
+      const held = IS_PLAN && open > 0, cs = [...MARKUP.goes(), ...itemComments(all)], stale = staleOwners().length;
+      const at = CUR.rev ? ` at rev ${CUR.rev}` : '', wd = dec.length ? ', with these decisions' : '';
+      S.intro.textContent = IS_SITE ? `${agentWho(true)} applies every page as drawn${at} to the site's source${wd}.`
+        : IS_DESIGN ? `${agentWho(true)} builds every screen as drawn${at}${wd}.` : `${agentWho(true)} builds the plan as written${wd}.`;
+      setKids(S.body,
+        dec.length > 0 && sdSec('Decisions', dec.length, decSays(dec, held ? 'unanswered' : `left to ${agentWho()}`),
+          h('div', { class: 'sd-box' }, dec.map(x => sdDec(x, { approve: true, answer: held ? answer : null })))),
+        held && sdAlert(`${open === 1 ? 'One question has' : `${open} questions have`} no answer. A plan is approved with every question answered.`),
+        cs.length > 0 && sdSec('Comments', cs.length, 'they go as notes', sdComments(cs)),
+        stale > 0 && sdAlert(`${stale} check${stale === 1 ? ' has' : 's have'} stale evidence: the code changed since ${stale === 1 ? 'it' : 'they'} ran. The approval asks ${agentWho()} to re-run ${stale === 1 ? 'it' : 'them'}.`));
+      S.paint({ held, why: `${open} question${open === 1 ? ' has' : 's have'} no answer yet` });
     };
   }
   approveDlg._paint();
-  approveDlg.showModal();
-  approveDlg._note.focus();
+  approveDlg._S.show();
 }
 async function doApprove() {
   if (IS_PLAN && Object.values(ITEMS).some(x => x.choices && !idsOf(x.choice).length && !x.custom)) return;   // the dialog says why
-  const dlg = approveDlg, p = approvePayload(dlg ? dlg._note.value : '', dlg ? dlg._files.files : []);
+  const S = approveDlg && approveDlg._S, dlg = approveDlg, p = approvePayload(S ? S.ta.value : '', S ? S.fd.files : []);
   const done = () => {
     const pick = a => idsOf(a.choice).length ? a.choice : a.recommend;
     const picks = Object.fromEntries(p.answers.filter(a => idsOf(pick(a)).length).map(a => [`${a.checklist}/${a.item}`, pick(a)]));
@@ -13221,11 +13835,11 @@ async function doApprove() {
     store.set(PLAN_KEY, JSON.stringify({ rev: p.rev, state: 'approved', at: p.at, picks }));
     MARKUP.markSent(p.annotations.map(a => a.id), p.at);
     Object.values(ITEMS).forEach(x => x.markSent()); MARKUP.paint();
-    if (dlg) { dlg._note.value = ''; dlg._files.load([]); dlg.close(); }   // the files went with it: their copies stay
+    if (S) { S.clear(); dlg.close(); }   // the files went with it: their copies stay
     paintPlan();
   };
   if (!REPLY.approve) { copyText(p.markdown, 'Approved and copied: paste it into the chat with the agent'); done(); return; }
-  if (dlg) dlg._ok.disabled = true;
+  if (S) S.pri.disabled = true;
   try {
     await postReply(REPLY.approve, p);
     done();
@@ -13234,7 +13848,7 @@ async function doApprove() {
     // the doc (or a design's screen) changed after this page loaded: approving it would cover what the reader hasn't seen
     if (e.reload) { if (dlg) dlg.close(); toast(`This ${AP_NOUN} changed since you opened it. Reload to read the current version, then approve.`, { label: 'Reload', ms: 60000, run: () => location.reload() }); return; }
     copyText(p.markdown, replyFailed(e));
-  } finally { if (dlg && dlg.open) dlg._paint(); else if (dlg) dlg._ok.disabled = false; }
+  } finally { if (dlg && dlg.open) dlg._paint(); else if (S) S.pri.disabled = false; }
 }
 // after a plan's, design's or website's Request changes, the header says so for this revision
 function changesSent(p) { if (APPROVABLE) { store.set(PLAN_KEY, JSON.stringify({ rev: p.rev, state: 'changes', at: p.at })); paintPlan(); } }
@@ -13427,8 +14041,10 @@ const MARKUP = (() => {
     const bx = b => `x ${b.x}, y ${b.y}, ${b.w} × ${b.h} px`;
     return [`   Where: on the board at ${bx(w.board)}` + (w.on.length ? '; ' + w.on.map(o => `on \`artboard:${o.artboard}\` at ${bx(o)}`).join('; ') : '; beside the screens')];
   };
-  // general comments first, under General; then the page comments, numbered
-  function changesMd(items = pending()) {
+  // the Request changes dialog's note and its files (openDlg sets it): under the title, as an approval's note is
+  let chgNote = () => ({ note: '', files: [] });
+  // the note, then the general comments first, under General; then the page comments, numbered
+  function changesMd(items = pending(), n = chgNote()) {
     const gen = items.filter(isGeneral), pg = items.filter(a => !isGeneral(a) && !isDraft(a)), dr = items.filter(isDraft), parts = [];
     if (gen.length) parts.push('## General\n\n' + gen.map(a => `- (${a.id}) ` + (followUp(a) ? msgMd(a, '', '  ') : noteText(a).split('\n').join('\n  ') + filesMd(noteFiles(a), '  ') + replyMd(`ann:${a.id}`, annReplies(a), '  ', a.id))).join('\n'));
     if (gen.length && pg.length) parts.push('## On the page');
@@ -13450,16 +14066,24 @@ const MARKUP = (() => {
     const stale = staleEvidenceMd().trimEnd();
     if (stale) parts.push(stale);
     const body = parts.join('\n\n');
-    return `# Change requests: ${DOC.title || docId}${CUR.rev ? ` (rev ${CUR.rev})` : ''}, ${new Date().toISOString().slice(0, 10)}\n\n` + body + '\n' + replyCmdsMd(body);
+    const noteMdx = (n.note + filesMd(n.files, '')).trim();
+    return `# Change requests: ${DOC.title || docId}${CUR.rev ? ` (rev ${CUR.rev})` : ''}, ${new Date().toISOString().slice(0, 10)}\n\n` + (noteMdx ? noteMdx + '\n\n' : '') + body + '\n' + replyCmdsMd(body);
   }
-  // `message` repeats the general comments for agents that read only it. The decision picks of a plan, design,
-  // presentation, website or listing go along as `answers`; elsewhere `answers` holds the "Need more details" items
-  // and, on a review, the findings with a comment (itemsPending)
+  // `message` repeats the general comments for agents that read only it; `note` and `noteFiles` are the dialog's note
+  // (when there is one). The decision picks of a plan, design, presentation, website or listing go along as `answers`;
+  // elsewhere `answers` holds the "Need more details" items and, on a review, the findings with a comment (itemsPending)
   function payload() {
-    const items = pending(), answers = PICKS_WITH_CHANGES ? answerItems() : answerItems(itemsPending());
+    const items = pending(), answers = PICKS_WITH_CHANGES ? answerItems() : answerItems(itemsPending()), n = chgNote();
     return { kind: 'changes', doc: docId, rev: CUR.rev, title: DOC.title || '', path: location.pathname, at: new Date().toISOString(),
-      message: items.filter(isGeneral).map(noteText).join('\n\n'), annotations: items.map(pub), ...(answers.length ? { answers } : {}), markdown: changesMd(items) };
+      message: items.filter(isGeneral).map(noteText).join('\n\n'), ...(n.note ? { note: n.note } : {}), ...(n.files.length ? { noteFiles: filesJson(n.files).files } : {}),
+      annotations: items.map(pub), ...(answers.length ? { answers } : {}), markdown: changesMd(items, n) };
   }
+  // what goes, as the send dialogs list it: each pending comment ({kind, on, md, files}), general ones first; one made on
+  // an earlier revision says which
+  const shortOn = a => cut(String(a.target && (a.target.label || a.target.key) || '').split(' › ').slice(-2).join(' › '), 60);
+  const goes = () => { const items = pending(); return [...items.filter(isGeneral), ...items.filter(a => !isGeneral(a))].map(a => ({
+    kind: (followUp(a) ? 'follow-up' : TYPE_WORD[a.type] || a.type) + (a.rev != null && String(a.rev) !== String(CUR.rev) ? ` · rev ${a.rev}` : ''),
+    on: isGeneral(a) ? 'Whole doc' : 'On ' + shortOn(a), md: noteText(a), files: noteFiles(a) })); };
   // the pending comments that go with a plan's approval, as notes: general ones first
   function approvalNotes() {
     const items = pending(), ord = [...items.filter(isGeneral), ...items.filter(a => !isGeneral(a))];
@@ -13468,7 +14092,7 @@ const MARKUP = (() => {
       return [headMd(a, i), ex && `   > ${ex}`, ...siteMd(a.target), ...whereMd(a), ...(BOARD && BOARD.pinMd ? BOARD.pinMd(a) : []), '   ' + msgMd(a, 'Note', '   ')].filter(Boolean).join('\n');
     }).join('\n\n') + (s => s && '\n' + s.trimEnd())(replyCmdsMd(ord.map(a => replyMd(`ann:${a.id}`, [], '', a.id)).join(''))) };
   }
-  const api = { all: () => JSON.parse(JSON.stringify(list)), payload, approvalNotes, annotate: () => null, setMode: () => false, paint: () => {}, flush: () => {}, markSent: () => {},
+  const api = { all: () => JSON.parse(JSON.stringify(list)), payload, approvalNotes, goes, annotate: () => null, setMode: () => false, paint: () => {}, flush: () => {}, markSent: () => {},
     comments: () => ({ open: false, available: false }), pinFrame: () => null, addFrame: () => null, relayout: () => {}, openIfWaiting: () => {}, cancelDraft: () => false };
   // an earlier revision (also compared against another) is read-only; a compare view showing the current one comments
   // as the page does
@@ -14854,40 +15478,33 @@ const MARKUP = (() => {
   };
   cap.addEventListener('pointerup', endInk); cap.addEventListener('pointercancel', endInk);
 
-  /* the dialog: the count, the Markdown that goes, Copy and Send (the comments themselves are in the sidebar) */
+  /* the dialog (sendDialog): the comments that go (edited in the Comments panel) and the picks, a note, Copy and Send */
   function openDlg() {
     endEdit(true); finishDraft(true); finishGeneral(true);
     if (!pending().length && !itemsPending().length) return;
     if (!dlg) {
-      const pre = h('pre', {}), cnt = h('p', { class: 'cnt' }), how = h('p', { class: 'how' });
-      const copy = h('button', { type: 'button', class: 'bp-btn', onclick: () => { copyText(changesMd(), 'Copied: paste it into the chat with the agent'); dlg.close(); } }, ic('copy'), 'Copy');
-      const send = h('button', { type: 'button', class: 'bp-btn primary', onclick: () => sendChanges() }, ic('send'), 'Send');
-      dlg = h('dialog', { class: 'bd-send bd-chgs', 'aria-labelledby': 'bd-chgs-h' },
-        h('div', { class: 'hd' }, h('h3', { id: 'bd-chgs-h' }, PICKS_WITH_CHANGES ? `Request changes to this ${AP_NOUN}` : 'Request changes to this doc'), h('button', { type: 'button', class: 'bd-ibtn', 'aria-label': 'Close', onclick: () => dlg.close() }, ic('x'))),
-        h('p', { class: 'sum' }, PICKS_WITH_CHANGES ? `Change requests ask the agent to revise the ${AP_NOUN}. Your decision picks and comments on items go with them.`
-          : NOTES_WITH_CHANGES ? `Change requests ask the agent to edit the document. Your comments on findings and Tell me more requests go with them; your picks go with ${SEND_AS[1]}.`
-          : 'Change requests ask the agent to edit the document. Tell me more requests go with them; your other decisions and comments on items go with Send answers.'),
-        cnt, h('details', { open: true }, h('summary', {}, 'Preview'), pre), how, h('div', { class: 'ft' }, copy, send));
-      document.body.append(dlg);
-      dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+      const S = sendDialog({ cls: 'bd-chgs', title: 'Request changes', tone: 'go', icon: 'send', label: 'Send', copyLabel: 'Copy',
+        placeholder: () => `A note for ${agentWho()} (optional)`, noteLabel: 'Note with the change request',
+        connected: () => !!REPLY.changes, send: () => sendChanges(), copyOut: () => sendChanges(),
+        copy: () => { copyText(changesMd(), 'Copied: paste it into the chat with the agent'); dlg.close(); } });
+      dlg = S.dlg;
+      chgNote = () => ({ note: S.ta.value.trim(), files: S.fd.files });
       dlg._paint = () => {
-        const open = pending(), old = open.filter(a => a.rev !== CUR.rev).length, gn = open.filter(isGeneral).length, xs = itemsPending();
-        // a comment on a Tell me more item goes with that request: it counts once, as the request
-        const nn = xs.filter(x => NOTES_WITH_CHANGES && x.notePending && x.more !== 'on').length, nm = xs.filter(x => x.more === 'on' || x.requestPending).length, np = xs.filter(x => PICKS_WITH_CHANGES && x.pickPending && !x.requestPending).length;
-        const what = [open.length && `${open.length} pending comment${open.length === 1 ? '' : 's'}${gn ? `, ${gn} general` : ''}`,
-          nn && `${nn} comment${nn === 1 ? '' : 's'} on ${PICKS_WITH_CHANGES ? 'items' : 'findings'}`, nm && `${nm} question${nm === 1 ? '' : 's'} asking for more`,
-          np && `${np} pick${np === 1 ? '' : 's'} ${APPROVABLE ? 'changed since approval' : 'changed'}`].filter(Boolean).join(', ');
-        cnt.replaceChildren(h('b', {}, what), open.length + nn + nm + np === 1 ? ' goes with this request' : ' go with this request',
-          ...(old ? [' (', h('span', { class: 'old' }, `${old} made on an earlier revision`), ')'] : []), open.length ? '. Edit or delete them in the Comments sidebar.' : '.');
-        send.hidden = !REPLY.changes; send.disabled = copy.disabled = !open.length && !xs.length;
-        copy.classList.toggle('primary', !REPLY.changes);
-        how.textContent = REPLY.changes ? `Send delivers this to ${REPLY.to || 'the agent that opened this page'}. Copy gives you the same text to paste.`
-          : 'This page isn\'t connected to an agent. Copy the text and paste it into the chat. (Pages opened through serve.py can send directly.)';
-        pre.textContent = changesMd();
+        // what goes besides the comments: on a plan, design, presentation, website or listing every decision and item
+        // comment; elsewhere the items asking for more and (a review) the findings' comments (itemsPending)
+        const xs = itemsPending(), its = PICKS_WITH_CHANGES ? Object.values(ITEMS) : xs;
+        const cs = [...goes(), ...itemComments(its)], picks = its.filter(x => x.choices && (PICKS_WITH_CHANGES || x.more === 'on' || x.requestPending));
+        S.intro.textContent = PICKS_WITH_CHANGES ? `${agentWho(true)} revises the ${AP_NOUN} from your comments and picks${APPROVABLE ? ', then asks again' : ''}.`
+          : NOTES_WITH_CHANGES ? `${agentWho(true)} answers your comments on the findings and makes the changes they ask for. Your picks go with ${SEND_AS[1]}.`
+          : `${agentWho(true)} edits the doc from your comments${picks.length ? ' and tells you more where you asked' : ''}.` + (CHECKLISTS.length ? ` Your other answers go with ${SEND_AS[1]}.` : '');
+        setKids(S.body,
+          cs.length > 0 && sdSec('Comments', cs.length, pending().length ? 'edit them in Comments' : '', sdComments(cs)),
+          picks.length > 0 && sdSec('Picks', picks.length, decSays(picks, 'no pick'), h('div', { class: 'sd-box' }, picks.map(x => sdDec(x)))));
+        S.paint({ held: !pending().length && !xs.length, why: 'Nothing to send' });
       };
     }
     dlg._paint();
-    dlg.showModal();
+    dlg._S.show();
   }
   async function sendChanges() {
     const xs = itemsPending(), p = payload();
@@ -14898,7 +15515,7 @@ const MARKUP = (() => {
       markSent(p.annotations.map(x => x.id), p.at);
       // a review's Request changes sends its findings' comments, not their picks (the send key's)
       (PICKS_WITH_CHANGES ? Object.values(ITEMS) : xs).forEach(x => x.markSent(DOC_TYPE === 'review' ? 'note' : undefined)); paint();
-      if (dlg) dlg.close();
+      if (dlg) { dlg._S.clear(); dlg.close(); }
       changesSent(p);
       toast(`Change request sent to ${REPLY.to || 'the agent'}`);
     } catch (e) {
@@ -16045,9 +16662,10 @@ window.BP = {
     if (FVIEW_NAMES.includes(view)) v.seg.querySelector(`[data-v="${view}"]`).click();
     return v.view;
   },
-  // a findings section's filter, 'open', 'done' or 'all' (null: not one); with f, picks it as its toolbar would
+  // a findings section's or a decision list's (`cl-<id>`) filter, 'open', 'done' or 'all' (null: not one); with f,
+  // picks it as its toolbar would
   findingsFilter: (sectionId, f) => {
-    const v = FVIEWS.find(v => v.el.id === sectionId); if (!v) return null;
+    const v = QVIEWS.find(v => v.el.id === sectionId); if (!v) return null;
     if (FFILTERS.some(x => x[0] === f)) setFindingsFilter(v, f);
     return v.filter;
   },
