@@ -9,7 +9,8 @@
 // keeps this page's URL (so /g/<code>?rev= and ?diff= reach it) while its own #anchors stay in the frame.
 // window.bluedocShare tells the template it is a shared page: no server, revision links in the top window, and
 // view-only (its VIEW_ONLY): no dock, picks, ticks or comments, and nothing in bluedoc.ai's localStorage but its view
-// prefs (theme, panel open and width). An old link's fragment never leaves the browser: nothing here sends or logs it.
+// prefs (theme, panel open and width). The sharer's answers, when the bundle carries them (__BLUEDOC_ANSWERS__), show
+// read-only as theirs. An old link's fragment never leaves the browser: nothing here sends or logs it.
 //
 // The gist is anyone's: every value it fills is checked before it goes in the page (bundleOf). On localhost only,
 // /g/#url=<encoded URL of a bluedoc-page.json> loads a bundle from anywhere, and /g/<code> resolves through the map
@@ -22,6 +23,8 @@ const GEO_SLOT = '/*__BOARD_GEO__*/';
 // what the page reads as JSON from <script type="application/json"> blocks; the server-only ones are always null here
 const JSON_SLOTS = ['__BLUEDOC_DOC__', '__BLUEDOC_HISTORY__', '__BLUEDOC_SCREENS__', '__BLUEDOC_LISTING__', '__BLUEDOC_PINS__'];
 const NULL_SLOTS = ['__BLUEDOC_STATE__', '__BLUEDOC_LIVE__', '__BLUEDOC_SNAPS__'];
+// the sharer's answers (bluedoc's share.py answers_slot): {by, at, rev, state}, checked by answersOf; null without
+const ANSWERS_SLOT = '__BLUEDOC_ANSWERS__';
 const LOCAL = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
 const LOCAL_MAP = 'bluedoc-viewer:local';
 const ROOT = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}g/`;
@@ -164,10 +167,74 @@ async function bundleText(src: Source): Promise<string> {
 
 const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);
 
+// what answersOf takes: the slot's JSON text, the state's entries, a string that isn't an image's data, the images' data
+// in all (share.py's IMAGES_MAX, 1.5 MB, is 2 MB as base64), and how deep a value's JSON goes
+const ANSWERS_MAX = 3_000_000;
+const ANSWERS_KEYS = 2000;
+const ANSWER_TEXT_MAX = 100_000;
+const ANSWER_IMAGES_MAX = 2_100_000;
+const ANSWER_DEPTH = 12;
+const DATA_IMAGE = /^data:image\/(png|jpeg|gif|webp);base64,[A-Za-z0-9+/=]+$/;
+// names that would load or point at something (only src goes, and only as an image's data: URI); a Set, as the
+// names it is asked about are the gist's, __proto__ too
+const LOADS = new Set(['href', 'url', 'path', 'file', 'poster', 'srcset', 'srcdoc', 'background', 'raw_url']);
+
+/**
+ * The answers slot as the page gets it: the sharer's answers re-serialized ({by, at, rev, state} and nothing else, every
+ * '<', '>' and '&' escaped), or 'null' when there are none or any part is wrong, which drops them all and still draws
+ * the doc. by is a GitHub login, at a string, rev a string or null; state maps a reader-state key to a string, which
+ * may hold JSON (a thread, an annotation, attached files): there a src must be an image's data: URI (png, jpeg, gif,
+ * webp), no other name that loads may appear, numbers are finite, and nothing nests deeper than ANSWER_DEPTH. Every
+ * other string is at most ANSWER_TEXT_MAX long, the images' data ANSWER_IMAGES_MAX in all, the slot ANSWERS_MAX.
+ */
+function answersOf(v: unknown): string {
+  if (v === undefined || v === 'null') return 'null';
+  if (typeof v !== 'string' || v.length > ANSWERS_MAX || v.includes('<')) return 'null';
+  let x: unknown;
+  try {
+    x = JSON.parse(v);
+  } catch {
+    return 'null';
+  }
+  const str = (s: unknown, max = 200): s is string => typeof s === 'string' && s.length <= max;
+  if (!isObj(x) || !str(x.by) || !/^[A-Za-z0-9][A-Za-z0-9-]{0,38}$/.test(x.by) || !str(x.at, 40) || !(x.rev === null || str(x.rev))) return 'null';
+  const state = x.state;
+  if (!isObj(state)) return 'null';
+  const entries = Object.entries(state);
+  if (!entries.length || entries.length > ANSWERS_KEYS) return 'null';
+  let images = 0;
+  const ok = (y: unknown, depth: number, key = ''): boolean => {
+    if (depth > ANSWER_DEPTH) return false;
+    if (typeof y === 'string') {
+      if (key === 'src') return DATA_IMAGE.test(y) && (images += y.length) <= ANSWER_IMAGES_MAX;
+      return y.length <= ANSWER_TEXT_MAX;
+    }
+    if (key === 'src') return false;
+    if (y === null || typeof y === 'boolean') return true;
+    if (typeof y === 'number') return Number.isFinite(y);
+    if (Array.isArray(y)) return y.length <= ANSWERS_KEYS && y.every((e) => ok(e, depth + 1));
+    return isObj(y) && Object.entries(y).every(([k, e]) => k.length <= 200 && !LOADS.has(k) && ok(e, depth + 1, k));
+  };
+  for (const [k, val] of entries) {
+    if (!/^[\w.:-]{1,300}$/.test(k) || typeof val !== 'string') return 'null';
+    if (/^\s*[[{]/.test(val)) {
+      let y: unknown;
+      try {
+        y = JSON.parse(val);
+      } catch {
+        return 'null';
+      }
+      if (!ok(y, 0)) return 'null';
+    } else if (val.length > ANSWER_TEXT_MAX) return 'null';
+  }
+  return JSON.stringify({ by: x.by, at: x.at, rev: x.rev, state }).replace(/[<>&\u2028\u2029]/g, (c) => `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`);
+}
+
 /**
  * The bundle, its fill checked: a JSON slot must parse, and to an object or null (a JSON string can't end its
  * <script> block, as build.py escapes every '<' as \u003c, so one with '<' is refused); the title holds no '<'. The
- * server-only slots are null whatever the gist says, so the page never looks for a server.
+ * server-only slots are null whatever the gist says, so the page never looks for a server. The sharer's answers go
+ * through answersOf: wrong ones are dropped, not refused (null, as in a bundle from before they existed).
  */
 function bundleOf(raw: string): Bundle {
   let b: unknown;
@@ -197,6 +264,7 @@ function bundleOf(raw: string): Bundle {
   if (typeof title !== 'string' || title.includes('<')) throw new ViewerError('format', '__BLUEDOC_TITLE__');
   fill.__BLUEDOC_TITLE__ = title;
   for (const k of NULL_SLOTS) fill[k] = 'null';
+  fill[ANSWERS_SLOT] = answersOf(f[ANSWERS_SLOT]);
   const name = typeof b.name === 'string' && /^[^/\\\u0000-\u001f]{1,200}$/.test(b.name) ? b.name : 'doc';
   return {
     version: typeof b.version === 'string' ? b.version.slice(0, 40) : '',

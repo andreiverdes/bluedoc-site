@@ -7,9 +7,13 @@
 // prefs), and ?diff= compares and Done comes back to /g/<code>. Then the cards and the old links
 // (/g/#<user>/<id>, /g/#url=), with GitHub's answers faked through the DevTools protocol (a gist gone, one without
 // bluedoc-page.json, the API's rate limit with its reset time, a file the API truncates), so nothing reaches GitHub,
-// and the not-found card on another unknown path. --shots <dir> saves screenshots at 1280 and 390 px wide;
-// --live <code> or --live <user>/<gist id> (repeatable) also opens a real gist through GitHub and prints the card.
-//   npm run viewer-smoke -- [--no-build] [--shots <dir>] [--live <code>]... <bluedoc-page.json>...
+// and the not-found card on another unknown path. The sharer's answers (the __BLUEDOC_ANSWERS__ slot), on the first
+// bundle's doc: a pick, a tick and a message with an image show as theirs; a bundle without the slot draws with none;
+// a slot with a URL to load, a huge string, wrong types or a raw '<' is dropped and the doc still draws.
+// --template <bluedoc checkout> serves its template.html and board-geo.js at /g/ in place of public/g/'s (a template
+// before the answers slot can't show them: those checks are skipped). --shots <dir> saves screenshots at 1280 and
+// 390 px wide; --live <code> or --live <user>/<gist id> (repeatable) also opens a real gist through GitHub.
+//   npm run viewer-smoke -- [--no-build] [--template <bluedoc checkout>] [--shots <dir>] [--live <code>]... <bluedoc-page.json>...
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFileSync, existsSync, mkdirSync, writeFileSync, statSync } from 'node:fs';
@@ -30,11 +34,12 @@ const opt = (name) => {
 const noBuild = args.includes('--no-build');
 if (noBuild) args.splice(args.indexOf('--no-build'), 1);
 const shots = opt('--shots');
+const templateFrom = opt('--template');
 const live = [];
 for (let v; (v = opt('--live')); ) live.push(v);
 const bundles = args.map((p) => resolve(p));
 if (!bundles.length) {
-  console.error('usage: npm run viewer-smoke -- [--no-build] [--shots <dir>] [--live <code> | <user>/<id>]... <bluedoc-page.json>...');
+  console.error('usage: npm run viewer-smoke -- [--no-build] [--template <bluedoc checkout>] [--shots <dir>] [--live <code> | <user>/<id>]... <bluedoc-page.json>...');
   process.exit(2);
 }
 if (shots) mkdirSync(shots, { recursive: true });
@@ -53,11 +58,61 @@ const first = JSON.parse(readFileSync(bundles[0], 'utf8'));
 extra.set('/__smoke/format.json', JSON.stringify({ ...first, bluedoc: 'share/9' }));
 extra.set('/__smoke/newer.json', JSON.stringify({ ...first, version: '99.0.0' }));
 extra.set('/__smoke/hostile.json', JSON.stringify({ ...first, fill: { ...first.fill, __BLUEDOC_TITLE__: '</title><script>parent.__pwned = 1</script>' } }));
+
+// the sharer's answers on the first bundle's doc (share.py answers_slot's shape): a pick on its first open question, a
+// tick on its first progress item, a message with an image and a file that wasn't shared; and the slots to drop
+const firstDoc = JSON.parse(first.fill.__BLUEDOC_DOC__);
+const itemsOf = (doc) => (doc.sections || []).flatMap((s) => (s.blocks || []).flatMap((b) => (b.type === 'checklist' && b.items || []).map((it) => [b.id, it])));
+const ask = itemsOf(firstDoc).find(([, it]) => Array.isArray(it.choices) && it.choices.length > 1 && !it.choice);
+const tickable = itemsOf(firstDoc).find(([, it]) => !Array.isArray(it.choices) && !it.done);
+const PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+const script = (x) => JSON.stringify(x).replace(/</g, '\\u003c');
+const withAnswers = (slot) => {
+  const fill = { ...first.fill };
+  if (slot === undefined) delete fill.__BLUEDOC_ANSWERS__;
+  else fill.__BLUEDOC_ANSWERS__ = slot;
+  return JSON.stringify({ ...first, fill });
+};
+const answers = ask && tickable ? (() => {
+  const at = '2026-11-18T10:00:00+00:00';
+  const thread = (files) => JSON.stringify([{ md: 'Shared from <acme> & co', rev: first.rev, at, files }]);
+  const slot = (state, x = {}) => ({ by: 'acme-dev', at, rev: first.rev, state, ...x });
+  const good = { [`${ask[0]}:${ask[1].id}`]: `=${ask[1].choices[1].id}`, [`${tickable[0]}:${tickable[1].id}`]: '1',
+    [`${ask[0]}:${ask[1].id}:thread`]: thread([{ name: 'cart.png', size: 70, src: PNG }, { name: 'terms.pdf', size: 8 }]) };
+  return {
+    ask: [ask[0], ask[1].id, ask[1].choices[1].id], tick: [tickable[0], tickable[1].id],
+    good: script(slot(good)),
+    dropped: {
+      'http-src': script(slot({ ...good, [`${ask[0]}:${ask[1].id}:thread`]: thread([{ name: 'cart.png', size: 70, src: 'http://127.0.0.1:1/evil.png' }]) })),
+      'href': script(slot({ ...good, '__ann:c1': JSON.stringify({ id: 'c1', type: 'pin', note: 'x', href: 'https://127.0.0.1:1/x' }) })),
+      'huge-string': script(slot({ ...good, [`${ask[0]}:${ask[1].id}:note`]: 'x'.repeat(150_000) })),
+      'wrong-by': script(slot(good, { by: 42 })),
+      'number-value': script(slot({ ...good, [`${tickable[0]}:${tickable[1].id}`]: 1 })),
+      'array-state': script(slot([good])),
+      'not-a-string': slot(good),
+      'raw-script': JSON.stringify(slot({ ...good, __message: '</script><script>parent.__pwned = 1</script>' })),
+    },
+  };
+})() : null;
+if (answers) {
+  extra.set('/__smoke/answers.json', withAnswers(answers.good));
+  extra.set('/__smoke/answers-none.json', withAnswers(undefined));
+  for (const [name, slot] of Object.entries(answers.dropped)) extra.set(`/__smoke/answers-${name}.json`, withAnswers(slot));
+}
+
+// --template: a bluedoc checkout's page template and board router in place of public/g/'s
+const assets = new Map(); // /g/<name> → file
+if (templateFrom) for (const name of ['template.html', 'board-geo.js']) assets.set(`/g/${name}`, join(resolve(templateFrom), 'skills/bluedoc/assets', name));
+const servedTemplate = readFileSync(assets.get('/g/template.html') || join(root, 'public/g/template.html'), 'utf8');
 const server = createServer((req, res) => {
   const path = decodeURIComponent(new URL(req.url, 'http://x').pathname);
   if (extra.has(path)) {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     return res.end(extra.get(path));
+  }
+  if (assets.has(path)) {
+    res.writeHead(200, { 'Content-Type': TYPES[extname(path)] });
+    return res.end(readFileSync(assets.get(path)));
   }
   let f = join(dist, path);
   if (!f.startsWith(dist)) return res.writeHead(403).end();
@@ -125,7 +180,9 @@ async function bundleRun(i) {
   await drawn(tab);
   const title = await tab.ev('document.title');
   check(title === `${b.title} · bluedoc`, `${stem}: the tab's title is the page's: ${title}`);
-  check(await tab.ev(IN("!!w.bluedocShare && !w.document.querySelector('.bd-docx')")), `${stem}: a shared page, no Export key`);
+  // its doc menu is the Download key (an HTML file, a PDF, Markdown), not the served page's Export
+  const docKeys = await tab.ev(IN("[...w.document.querySelectorAll('.bd-docx .bd-expb')].map(b => b.textContent.trim())"));
+  check(await tab.ev(IN('!!w.bluedocShare')) && !docKeys.some((k) => k.startsWith('Export')), `${stem}: a shared page, no Export key (${docKeys.join(', ') || 'no doc menu'})`);
   // Ctrl+P prints the doc's frame (a board's own handler first builds its print sheet), not the viewer around it
   await tab.ev(IN('(w.print = () => { w.__printed = (w.__printed || 0) + 1; }, 1)'));
   for (const type of ['keyDown', 'keyUp']) await tab.call('Input.dispatchKeyEvent', { type, modifiers: 2, key: 'p', code: 'KeyP', windowsVirtualKeyCode: 80 });
@@ -209,6 +266,58 @@ async function bundleRun(i) {
   check(!tab.logErrors.length && !narrow.logErrors.length, `${stem}: no console errors ${tab.logErrors.concat(narrow.logErrors).join(' | ')}`);
 }
 
+// the sharer's answers: shown as theirs; none without the slot; a wrong slot dropped whole, the doc drawn all the same
+async function answersRun() {
+  if (!answers) return console.log(`     answers: ${first.name} has no open question and progress item to answer`);
+  const canShow = servedTemplate.includes('__BLUEDOC_ANSWERS__');
+  if (!canShow) console.log('     answers: the served template predates the answers slot (--template <bluedoc checkout>): only the drops are checked');
+  const [cid, iid, choice] = answers.ask, [tcid, tiid] = answers.tick;
+  const errorsAt = chrome.errors.length;
+  const tab = await newTab();
+  const loads = [];
+  tab.on('Network.requestWillBeSent', ({ request }) => request.url.startsWith('http://127.0.0.1:1/') || request.url.startsWith('https://127.0.0.1:1/') ? loads.push(request.url) : 0);
+  const slotText = IN("(e => e ? e.textContent : 'no slot')(w.document.getElementById('bp-answers'))");
+  const shown = IN("w.document.querySelectorAll('.bd-ansby, .bd-ansc, .bd-ansother, .bd-ansmore').length");
+  const open = async (file) => {
+    await tab.go(pathLink(file));
+    await drawn(tab);
+  };
+
+  await open('/__smoke/answers.json');
+  if (canShow) {
+    const item = (c, i) => `w.document.querySelector('#item-${c}-${i}')`;
+    const got = await tab.ev(IN(`({
+      by: ${item(cid, iid)}?.querySelector('.bp-opt[data-id="${choice}"] .bd-ansby')?.textContent || null,
+      others: ${item(cid, iid)} ? ${item(cid, iid)}.querySelectorAll('.bd-ansby').length : -1,
+      tick: ${item(tcid, tiid)}?.querySelector('.bd-ansc')?.textContent || null,
+      box: !!w.document.getElementById('cb-${tcid}-${tiid}')?.checked,
+      who: [...(${item(cid, iid)}?.querySelectorAll('.bp-convo .bp-msg .who') || [])].map(e => e.textContent),
+      md: ${item(cid, iid)}?.querySelector('.bp-convo .bp-msg')?.textContent.includes('Shared from <acme> & co') || false,
+      img: ${item(cid, iid)}?.querySelector('.bp-convo .bd-shimgs img')?.getAttribute('src').slice(0, 22) || null,
+      off: ${item(cid, iid)}?.querySelector('.bp-convo .bp-file.off .t')?.textContent || null })`));
+    check(got.by === "Aacme-dev's answer" && got.others === 1, `answers: the pick shows beside ${cid}/${iid}'s ${choice} as acme-dev's (${got.by})`);
+    check(got.tick === 'Done · acme-dev' && !got.box, `answers: the tick on ${tcid}/${tiid} is theirs, the box stays the doc's (${got.tick})`);
+    check(got.who.join() === 'acme-dev' && got.md && got.img === 'data:image/png;base64,' && got.off === 'terms.pdf', `answers: their message, its text, image and the file not shared (${JSON.stringify(got)})`);
+    const slot = JSON.parse(await tab.ev(slotText));
+    check(slot.by === 'acme-dev' && Object.keys(slot).join() === 'by,at,rev,state', 'answers: the slot the page gets is {by, at, rev, state}');
+    check(await tab.ev(IN(`w.BP.choose('${cid}/${iid}', '${choice}')`)) === false, 'answers: still view-only, no pick');
+    await shot(tab, 'answers-1280');
+  }
+
+  for (const name of ['none', ...Object.keys(answers.dropped)]) {
+    await open(`/__smoke/answers-${name}.json`);
+    const slot = canShow ? await tab.ev(slotText) : 'null';
+    const n = canShow ? await tab.ev(shown) : 0;
+    const title = await tab.ev('document.title');
+    check(slot === 'null' && n === 0 && title === `${first.title} · bluedoc`, `answers ${name === 'none' ? 'without the slot: none show' : `${name}: dropped`}, the doc drawn (slot ${slot.slice(0, 40)}, ${n} shown)`);
+  }
+  check(!(await tab.ev('window.__pwned || ' + IN('w.__pwned') + ' || 0')), 'answers: no script got in');
+  check(!loads.length, `answers: nothing loaded from a slot's URL ${loads.join(' ')}`);
+  check(chrome.errors.length === errorsAt && !tab.logErrors.length, `answers: no page or console errors ${chrome.errors.slice(errorsAt).concat(tab.logErrors).join(' | ')}`);
+  check(!tab.routes.length, `answers: no /__bluedoc/ requests ${tab.routes.join(' ')}`);
+  await tab.close();
+}
+
 // GitHub, faked: api.github.com/gists/<id> and gist.githubusercontent.com by id
 const ID = { gone: '0000000000000000000a', missing: '0000000000000000000b', limited: '0000000000000000000c', big: '0000000000000000000d' };
 async function fakeGithub(tab) {
@@ -286,6 +395,7 @@ async function liveRun(ref) {
 
 try {
   for (let i = 0; i < bundles.length; i++) await bundleRun(i);
+  await answersRun();
   await states();
   for (const ref of live) await liveRun(ref);
 } catch (e) {
