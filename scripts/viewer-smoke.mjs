@@ -9,7 +9,11 @@
 // bluedoc-page.json, the API's rate limit with its reset time, a file the API truncates), so nothing reaches GitHub,
 // and the not-found card on another unknown path. The sharer's answers (the __BLUEDOC_ANSWERS__ slot), on the first
 // bundle's doc: a pick, a tick and a message with an image show as theirs; a bundle without the slot draws with none;
-// a slot with a URL to load, a huge string, wrong types or a raw '<' is dropped and the doc still draws.
+// a slot with a URL to load, a huge string, wrong types or a raw '<' is dropped and the doc still draws. Make a copy,
+// on a gist faked with the doc's file (its owner acme-dev): the key beside Download opens the sheet, whose Open in my
+// bluedoc links to http://127.0.0.1:8740/__bluedoc/import?src=<code> in a new tab and whose lines name the link; the
+// Download menu's bluedoc file (.zip) saves <name>.zip holding the doc verbatim, bluedoc-screens.json's files and
+// bluedoc-share.json; a bundle from a URL (no gist) has neither.
 // --template <bluedoc checkout> serves its template.html and board-geo.js at /g/ in place of public/g/'s (a template
 // before the answers slot can't show them: those checks are skipped). --shots <dir> saves screenshots at 1280 and
 // 390 px wide; --live <code> or --live <user>/<gist id> (repeatable) also opens a real gist through GitHub.
@@ -319,7 +323,10 @@ async function answersRun() {
 }
 
 // GitHub, faked: api.github.com/gists/<id> and gist.githubusercontent.com by id
-const ID = { gone: '0000000000000000000a', missing: '0000000000000000000b', limited: '0000000000000000000c', big: '0000000000000000000d' };
+const ID = { gone: '0000000000000000000a', missing: '0000000000000000000b', limited: '0000000000000000000c', big: '0000000000000000000d', copy: '0000000000000000000e' };
+// the doc file a share puts beside bluedoc-page.json (the first bundle's doc), and a screens file
+const COPY_DOC = JSON.stringify(JSON.parse(first.fill.__BLUEDOC_DOC__));
+const COPY_SCREENS = JSON.stringify({ [`${first.name}.design/acme.html`]: '<main>Acme</main>' });
 async function fakeGithub(tab) {
   await tab.call('Fetch.enable', { patterns: [{ urlPattern: 'https://api.github.com/*' }, { urlPattern: 'https://gist.githubusercontent.com/*' }] });
   const page = readFileSync(bundles[0], 'utf8');
@@ -333,6 +340,8 @@ async function fakeGithub(tab) {
     if (u.includes(ID.limited)) return json(200, page);
     if (u.startsWith('https://api.github.com/') && u.includes(ID.big)) return json(200, { id: ID.big, files: { 'bluedoc-page.json': { truncated: true, content: page.slice(0, 100), raw_url: `https://gist.githubusercontent.com/acme/${ID.big}/raw/abc123/bluedoc-page.json` } } });
     if (u.includes(`${ID.big}/raw/abc123/`)) return json(200, page);
+    if (u.startsWith('https://api.github.com/') && u.includes(ID.copy)) return json(200, { id: ID.copy, owner: { login: 'acme-dev' }, files: {
+      'bluedoc-page.json': { content: page }, [`${first.name}.bluedoc.json`]: { content: COPY_DOC }, 'bluedoc-screens.json': { content: COPY_SCREENS } } });
     return json(500, {});
   });
 }
@@ -382,6 +391,54 @@ async function states() {
   await tab.close();
 }
 
+// the zip's entries (a store-only zip): [name, text]
+function unzip(buf) {
+  const out = [];
+  for (let i = 0; i + 30 <= buf.length && buf.readUInt32LE(i) === 0x04034b50; ) {
+    const size = buf.readUInt32LE(i + 18), n = buf.readUInt16LE(i + 26), x = buf.readUInt16LE(i + 28);
+    const name = buf.slice(i + 30, i + 30 + n).toString('utf8');
+    out.push([name, buf.slice(i + 30 + n + x, i + 30 + n + x + size).toString('utf8')]);
+    i += 30 + n + x + size;
+  }
+  return out;
+}
+
+async function copyRun() {
+  const tab = await newTab();
+  await fakeGithub(tab);
+  const errorsAt = chrome.errors.length;
+  await tab.go(`${origin}/g/${codeOf(ID.copy)}`);
+  await drawn(tab);
+  const sheet = await tab.ev(IN(`(() => { const k = w.document.querySelector('.bd-bar-r .bd-mkc'); if (!k) return null; k.click();
+    const d = w.document.querySelector('dialog.bd-mkcs'); const a = d && d.querySelector('a.go');
+    return { open: !!d && d.open, href: a && a.href, target: a && a.target, lines: [...d.querySelectorAll('.lnk input')].map(i => i.value), text: d.innerText }; })()`));
+  const code = codeOf(ID.copy);
+  check(!!sheet && sheet.open, 'copy: Make a copy opens its sheet');
+  check(!!sheet && sheet.href === `http://127.0.0.1:8740/__bluedoc/import?src=${code}` && sheet.target === '_blank', `copy: Open in my bluedoc links to the local import page in a new tab (${sheet && sheet.href})`);
+  check(!!sheet && sheet.lines[0] === `import this bluedoc: https://bluedoc.ai/g/${code}` && sheet.lines[1].endsWith(`serve.py import https://bluedoc.ai/g/${code}`), `copy: the agent line and the command name the link (${sheet && sheet.lines.join(' | ')})`);
+  check(!!sheet && sheet.text.includes("acme-dev's"), 'copy: the sheet names the sharer');
+  await shot(tab, 'copy-sheet');
+  await tab.ev(IN(`(() => { w.document.querySelector('dialog.bd-mkcs').close(); w.__zip = null;
+    const make = w.URL.createObjectURL; w.URL.createObjectURL = b => { w.__zipBlob = b; return make.call(w.URL, b); };
+    w.HTMLAnchorElement.prototype.click = function () { if (this.download) w.__zipName = this.download; };
+    w.document.querySelector('.bd-docx .bd-expb').click(); const it = w.document.querySelector('.bd-docx [data-format=zip]'); if (it) it.click(); return !!it; })()`));
+  await tab.waitFor(IN('!!w.__zipBlob'), 10_000).catch(() => {});
+  const zip = await tab.ev(IN(`w.__zipBlob ? new Promise(ok => { const r = new FileReader(); r.onload = () => ok([w.__zipName, r.result.split(',')[1]]); r.readAsDataURL(w.__zipBlob); }) : null`));
+  const entries = zip ? unzip(Buffer.from(zip[1], 'base64')) : [];
+  const names = entries.map(([n]) => n);
+  check(!!zip && zip[0] === `${first.name}.zip`, `copy: Download → bluedoc file (.zip) saves ${zip && zip[0]}`);
+  check(entries.some(([n, t]) => n === `${first.name}.bluedoc.json` && t === COPY_DOC), 'copy: the zip holds the doc verbatim');
+  check(names.includes(`${first.name}.design/acme.html`) && names.includes('bluedoc-share.json'), `copy: and the screens' file and who shared it (${names.join(', ')})`);
+  const share = entries.find(([n]) => n === 'bluedoc-share.json');
+  check(!!share && JSON.parse(share[1]).by === 'acme-dev' && JSON.parse(share[1]).link === `https://bluedoc.ai/g/${code}`, 'copy: bluedoc-share.json says acme-dev and the link');
+  await tab.go(pathLink('/__smoke/0.json'));
+  await drawn(tab);
+  check(await tab.ev(IN("!w.document.querySelector('.bd-mkc') && (w.document.querySelector('.bd-docx .bd-expb').click(), !w.document.querySelector('.bd-docx [data-format=zip]'))")), 'copy: a bundle from a URL has no Make a copy and no zip');
+  check(chrome.errors.length === errorsAt && !tab.logErrors.length, `copy: no page or console errors ${chrome.errors.slice(errorsAt).concat(tab.logErrors).join(' | ')}`);
+  check(!tab.routes.length, `copy: no /__bluedoc/ requests ${tab.routes.join(' ')}`);
+  await tab.close();
+}
+
 async function liveRun(ref) {
   const tab = await newTab();
   await tab.go(ref.includes('/') ? `${origin}/g/#${ref}` : `${origin}/g/${ref}`);
@@ -396,6 +453,7 @@ async function liveRun(ref) {
 try {
   for (let i = 0; i < bundles.length; i++) await bundleRun(i);
   await answersRun();
+  await copyRun();
   await states();
   for (const ref of live) await liveRun(ref);
 } catch (e) {

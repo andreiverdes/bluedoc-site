@@ -11,6 +11,9 @@
 // view-only (its VIEW_ONLY): no dock, picks, ticks or comments, and nothing in bluedoc.ai's localStorage but its view
 // prefs (theme, panel open and width). The sharer's answers, when the bundle carries them (__BLUEDOC_ANSWERS__), show
 // read-only as theirs. An old link's fragment never leaves the browser: nothing here sends or logs it.
+// For Make a copy and Download's bluedoc file (.zip), the page also gets the doc's link (link: /g/<code>, or the old
+// /g/#<user>/<id>), the gist's account (by) and its other text files (files: <name>.bluedoc.json, the doc verbatim, and
+// bluedoc-screens.json when there is one, each as GitHub sent it, under a size cap); a bundle from a URL has none.
 //
 // The gist is anyone's: every value it fills is checked before it goes in the page (bundleOf). On localhost only,
 // /g/#url=<encoded URL of a bluedoc-page.json> loads a bundle from anywhere, and /g/<code> resolves through the map
@@ -34,6 +37,9 @@ const AT_ROOT = location.pathname === ROOT || location.pathname === `${ROOT}inde
 // user: the old link's, for the gist's raw URL when the API's limit is spent; a /g/<code> link has none
 type Source = { kind: 'gist'; user: string | null; id: string } | { kind: 'url'; url: string };
 type Bundle = { version: string; name: string; title: string; boardGeo: boolean; fill: Record<string, string> };
+// what the gist gives besides the bundle: its account and the doc's files, for Make a copy and the zip
+type Gist = { by: string | null; files: Record<string, string> | null };
+type Fetched = { raw: string; gist: Gist };
 type Problem = 'link' | 'gone' | 'missing' | 'gone-or-missing' | 'format' | 'network' | 'limit';
 
 class ViewerError extends Error {
@@ -132,11 +138,12 @@ function limitText(r: Response): string {
  * reads the gist's /raw/<file> URL (it names the user; it can lag on GitHub's CDN for a few minutes); a /g/<code> link
  * says when to try again.
  */
-async function bundleText(src: Source): Promise<string> {
+async function bundleText(src: Source): Promise<Fetched> {
+  const none: Gist = { by: null, files: null };
   if (src.kind === 'url') {
     const r = await get(src.url, { cache: 'no-cache' });
     if (!r.ok) throw new ViewerError(r.status === 404 ? 'gone-or-missing' : 'network', `HTTP ${r.status}`);
-    return text(r);
+    return { raw: await text(r), gist: none };
   }
   // no-cache: revalidated each time (a 304 doesn't count against the limit), so Share again shows on a reload
   const r = await get(`https://api.github.com/gists/${src.id}`, { cache: 'no-cache', headers: { Accept: 'application/vnd.github+json' } });
@@ -145,11 +152,11 @@ async function bundleText(src: Source): Promise<string> {
     const raw = await get(`https://gist.githubusercontent.com/${encodeURIComponent(src.user)}/${src.id}/raw/${PAGE_FILE}`, { cache: 'no-cache' });
     if (raw.status === 404) throw new ViewerError('gone-or-missing');
     if (!raw.ok) throw new ViewerError(raw.status === 403 || raw.status === 429 ? 'limit' : 'network', `HTTP ${raw.status}`, raw.status === 403 || raw.status === 429 ? limitText(r) : '');
-    return text(raw);
+    return { raw: await text(raw), gist: { by: src.user, files: null } };
   }
   if (r.status === 404) throw new ViewerError('gone');
   if (!r.ok) throw new ViewerError('network', `HTTP ${r.status}`);
-  let gist: { files?: Record<string, { truncated?: boolean; content?: string; raw_url?: string } | null> };
+  let gist: { owner?: { login?: unknown } | null; files?: Record<string, { truncated?: boolean; content?: string; raw_url?: string } | null> };
   try {
     gist = JSON.parse(await text(r));
   } catch {
@@ -157,12 +164,37 @@ async function bundleText(src: Source): Promise<string> {
   }
   const file = gist.files?.[PAGE_FILE];
   if (!file) throw new ViewerError('missing');
-  if (!file.truncated && typeof file.content === 'string') return file.content;
+  const login = gist.owner && typeof gist.owner.login === 'string' && LOGIN.test(gist.owner.login) ? gist.owner.login : src.user;
+  const found: Gist = { by: login, files: copyFiles(gist.files || {}) };
+  if (!file.truncated && typeof file.content === 'string') return { raw: file.content, gist: found };
   // over 1 MB the API leaves the content out: its raw URL, at this revision, has all of it
   if (typeof file.raw_url !== 'string' || !/^https:\/\/gist\.githubusercontent\.com\//.test(file.raw_url)) throw new ViewerError('format');
   const raw = await get(file.raw_url);
   if (!raw.ok) throw new ViewerError('network', `HTTP ${raw.status}`);
-  return text(raw);
+  return { raw: await text(raw), gist: found };
+}
+
+const LOGIN = /^[A-Za-z0-9][A-Za-z0-9-]{0,38}$/;
+// the files a copy needs: one <name>.bluedoc.json and bluedoc-screens.json, as the API sent them (one it truncated is
+// left out: the zip then has no doc and isn't offered), each at most COPY_FILE_MAX characters
+const COPY_FILE_MAX = 10_000_000;
+function copyFiles(files: Record<string, { truncated?: boolean; content?: string } | null>): Record<string, string> | null {
+  const out: Record<string, string> = {};
+  for (const [name, f] of Object.entries(files)) {
+    if (!f || f.truncated || typeof f.content !== 'string' || f.content.length > COPY_FILE_MAX) continue;
+    if (/^[^/\\\u0000-\u001f]{1,200}\.bluedoc\.json$/.test(name) || name === 'bluedoc-screens.json') out[name] = f.content;
+  }
+  return Object.keys(out).some((n) => n.endsWith('.bluedoc.json')) ? out : null;
+}
+
+/** The doc's bluedoc.ai link as share.py's link_for writes it: /g/<code> for a hex id, else the old /g/#<user>/<id>. */
+function linkOf(src: Source, by: string | null): string | null {
+  if (src.kind !== 'gist') return null;
+  if (/^(?:[0-9a-f]{2})+$/.test(src.id)) {
+    const bin = src.id.match(/../g)!.map((x) => String.fromCharCode(parseInt(x, 16))).join('');
+    return `https://bluedoc.ai/g/${btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')}`;
+  }
+  return by ? `https://bluedoc.ai/g/#${by}/${src.id}` : null;
 }
 
 const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);
@@ -331,18 +363,18 @@ function note(text: string): void {
 }
 
 // hash: an old link's fragment, which the page's revision links keep (a /g/<code> link's path is enough)
-function draw(b: Bundle, html: string, hash: string): void {
+function draw(b: Bundle, html: string, hash: string, src: Source, gist: Gist): void {
   const fr = document.createElement('iframe');
   fr.id = 'viewer-doc';
   fr.title = b.title;
   fr.allow = 'clipboard-write; fullscreen';
   document.body.append(fr);
-  const w = fr.contentWindow as (Window & { bluedocShare?: { name: string; hash: string } }) | null;
+  const w = fr.contentWindow as (Window & { bluedocShare?: { name: string; hash: string; link: string | null; by: string | null; files: Record<string, string> | null } }) | null;
   const d = fr.contentDocument;
   if (!w || !d) throw new ViewerError('network', 'the page frame didn’t open');
   d.open();
   // after open, before the page's script runs; the frame's document takes this page's URL, query and fragment included
-  w.bluedocShare = { name: b.name, hash };
+  w.bluedocShare = { name: b.name, hash, link: linkOf(src, gist.by), by: gist.by, files: gist.files && typeof gist.files[`${b.name}.bluedoc.json`] === 'string' ? gist.files : null };
   d.write(html);
   d.close();
   status.hidden = true;
@@ -381,9 +413,10 @@ async function open(): Promise<void> {
   const tpl = asset('template.html');
   tpl.catch(() => {});
   try {
-    const b = bundleOf(await bundleText(src));
+    const got = await bundleText(src);
+    const b = bundleOf(got.raw);
     const geo = b.boardGeo ? (await asset('board-geo.js')).replace(/<\/(script)/gi, '<\\/$1') : '';
-    draw(b, pageHtml(await tpl, { ...b.fill, [GEO_SLOT]: geo }), AT_ROOT ? location.hash : '');
+    draw(b, pageHtml(await tpl, { ...b.fill, [GEO_SLOT]: geo }), AT_ROOT ? location.hash : '', src, got.gist);
     if (b.version && older(shipped.version, b.version))
       note(`Shared from bluedoc ${b.version}; this viewer draws with ${shipped.version}, so some parts may look different until it updates.`);
   } catch (e) {
