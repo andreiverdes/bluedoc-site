@@ -1,0 +1,134 @@
+---
+// A feature's page (/features/<id>/), from its entry in src/content/features.ts, in the type pages' layout: the
+// hero clip in the big frame, then each section's clips as cards, how the agent uses it (when the entry has it), the
+// other feature pages, the install band and the footer. Revisions has its own page, src/pages/features/revisions.astro.
+import '../../styles/atlas.css';
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/atlas/Nav.astro';
+import Cta from '../../components/atlas/Cta.astro';
+import Footer from '../../components/atlas/Footer.astro';
+import InstallTabs from '../../components/atlas/InstallTabs.astro';
+import OtherFeatures from '../../components/atlas/OtherFeatures.astro';
+import Clip from '../../components/Clip.astro';
+import PixelIcon from '../../components/PixelIcon.astro';
+import PixelSky from '../../components/PixelSky.astro';
+import AgentSnippet from '../../components/AgentSnippet.astro';
+import { atlasFeaturePageLabels as labels } from '../../content/atlas';
+import { featurePages, type FeaturePageCopy } from '../../content/features';
+import { inlineCode } from '../../lib/inline-code';
+import { rich } from '../../lib/rich';
+import { fillGrid } from '../../lib/fill-grid';
+
+export function getStaticPaths() {
+  return featurePages.map((page) => ({ params: { feature: page.id }, props: { page } }));
+}
+
+interface Props {
+  page: FeaturePageCopy;
+}
+
+const { page } = Astro.props;
+// complete grids (src/lib/fill-grid.ts): each section's clips in 1, 2 then 3 columns
+const sectionSpans = page.sections.map((s) => fillGrid(s.clips.length, [1, 2, 3]));
+---
+
+<Base title={page.metaTitle} description={page.metaDescription}>
+  <Nav />
+  <main id="main">
+    <section id="top" class="av-hero" aria-labelledby="feature-title">
+      <div class="av-grid-bg"></div>
+      <PixelSky class="av-sky" seed={23} count={100} />
+      <div class="av-wrap av-hero-copy">
+        <p class="av-kicker enter">
+          <PixelIcon name={page.icon} size={14} />
+          {page.kicker}
+        </p>
+        <h1 id="feature-title" class="av-h1 is-feature enter" style="--d:0.08s" set:html={rich(page.title)} />
+        <p class="lead av-sub is-feature enter" style="--d:0.16s">{page.lead}</p>
+        <div class="enter w-full" style="--d:0.24s">
+          <InstallTabs id="hero" />
+        </div>
+      </div>
+
+      <figure class="av-wrap av-stage enter" style="--d:0.4s">
+        <Clip name={page.hero.clip} label={page.hero.shows} title={page.hero.title} width={1280} height={800} url={page.hero.url} priority />
+        <figcaption class="av-ask"><span class="av-cap-t">{page.hero.title}.</span> <span class="av-cap-b">{page.hero.body}</span></figcaption>
+      </figure>
+    </section>
+
+    {
+      page.sections.map((s, si) => (
+        <section id={s.id} class="av-section" aria-labelledby={`${s.id}-title`}>
+          <div class="av-wrap">
+            <div class="av-head" data-reveal>
+              <p class="label">{s.kicker}</p>
+              <h2 id={`${s.id}-title`} class="h2" set:html={rich(s.title)} />
+              <p class="lead">{s.lead}</p>
+            </div>
+            <ul class="av-clips fill-grid">
+              {s.clips.map((f, i) => (
+                <li class="av-card av-clip" style={sectionSpans[si][i]} data-reveal={String(i % 3)}>
+                  <Clip name={f.clip} label={f.shows} title={f.title} class="av-clip-frame" zoom />
+                  <div class="av-card-body">
+                    <h3 class="av-card-title">{f.title}</h3>
+                    <p class="av-card-text">{f.body}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ))
+    }
+
+    {
+      page.agent && (
+        <section class="av-section" aria-labelledby="agent-title">
+          <div class="av-wrap">
+            <div class="av-head" data-reveal>
+              <p class="label">{page.agentKicker ?? labels.agentKicker}</p>
+              <h2 id="agent-title" class="h2" set:html={rich(page.agentTitle ?? labels.agentTitle)} />
+              <p class="lead" set:html={inlineCode(page.agent.lead)} />
+            </div>
+            <div data-reveal>
+              <AgentSnippet agent={page.agent} />
+            </div>
+          </div>
+        </section>
+      )
+    }
+
+    <OtherFeatures current={page.id} />
+
+    <Cta />
+  </main>
+  <Footer />
+</Base>
+
+<style>
+  /* the hero rules are in styles/atlas.css; a feature page's heading runs a little smaller, as on the type pages */
+  .av-h1.is-feature {
+    font-size: clamp(2.1rem, 1rem + 3.8vw, 3.8rem);
+    line-height: 1.06;
+  }
+  .av-sub.is-feature {
+    max-width: 40rem;
+  }
+  .av-cap-t {
+    color: var(--fg);
+  }
+  .av-cap-b {
+    font-weight: 400;
+    color: var(--fg-muted);
+  }
+
+  .av-clips {
+    gap: 1rem;
+  }
+  /* a card's clip fills its top edge to edge: no frame of its own */
+  .av-clip :global(.av-clip-frame) {
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    box-shadow: none;
+  }
+</style>

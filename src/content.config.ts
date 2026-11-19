@@ -1,15 +1,15 @@
-// The blog (/blog/): one MDX file per post in src/content/blog/; its file name is the slug and the URL,
-// /blog/<slug>/. The pages are src/pages/blog/index.astro and src/pages/blog/[slug].astro.
+// The changelog (/changelog/): one MDX file per post in src/content/changelog/; its file name is the slug and the
+// URL, /changelog/<slug>/. The pages are src/pages/changelog/index.astro and src/pages/changelog/[slug].astro.
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
-const blog = defineCollection({
-  loader: glob({ pattern: '*.mdx', base: './src/content/blog' }),
+const changelog = defineCollection({
+  loader: glob({ pattern: '*.mdx', base: './src/content/changelog' }),
   schema: z.object({
     /** sentence case, at most 70 characters */
     title: z.string().max(70),
-    /** one or two sentences: the card on /blog/ and the post's meta description */
+    /** one or two sentences: the card on /changelog/ and the post's meta description */
     summary: z.string(),
     date: z.coerce.date(),
     /** among posts of the same date, lower comes first */
@@ -21,4 +21,4 @@ const blog = defineCollection({
   }),
 });
 
-export const collections = { blog };
+export const collections = { changelog };

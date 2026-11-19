@@ -1,18 +1,18 @@
-// The blog's posts (the `blog` collection, src/content.config.ts) and what its pages need to show them: the order,
-// the URL, the date as written, and a clip's frame size and screen-reader text.
+// The changelog's posts (the `changelog` collection, src/content.config.ts) and what its pages need to show them:
+// the order, the URL, the date as written, and a clip's frame size and screen-reader text.
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { atlasBlogHref } from '../content/atlas';
+import { atlasChangelogHref } from '../content/atlas';
 import { every, films, typePages, type ClipCopy } from '../content/types';
 
-export type BlogPost = CollectionEntry<'blog'>;
+export type ChangelogPost = CollectionEntry<'changelog'>;
 
 /** Every post, newest first; among posts of the same date, lower `order` first. */
-export async function getPosts(): Promise<BlogPost[]> {
-  const posts = await getCollection('blog');
+export async function getPosts(): Promise<ChangelogPost[]> {
+  const posts = await getCollection('changelog');
   return posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime() || a.data.order - b.data.order);
 }
 
-export const postHref = (post: BlogPost) => `${atlasBlogHref}${post.id}/`;
+export const postHref = (post: ChangelogPost) => `${atlasChangelogHref}${post.id}/`;
 
 const dateFormat = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 /** "19 November 2026"; frontmatter dates are midnight UTC */

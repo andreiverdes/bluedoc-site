@@ -1,20 +1,20 @@
 ---
-// The blog (/blog/): the hero, then every post newest first as a card (its hero clip's poster, date, version,
-// title and summary), the install band and the footer. Posts are MDX in src/content/blog/ (src/content.config.ts);
-// copy in atlasBlog (src/content/atlas.ts).
+// The changelog (/changelog/): the hero, then every post newest first as a card (its hero clip's poster, date,
+// version, title and summary), the install band and the footer. Posts are MDX in src/content/changelog/
+// (src/content.config.ts); copy in atlasChangelog (src/content/atlas.ts).
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import ArrowRight from '@lucide/astro/icons/arrow-right';
 import '../../styles/atlas.css';
-import '../../styles/blog.css';
+import '../../styles/changelog.css';
 import Base from '../../layouts/Base.astro';
 import Nav from '../../components/atlas/Nav.astro';
 import Cta from '../../components/atlas/Cta.astro';
 import Footer from '../../components/atlas/Footer.astro';
 import PixelIcon from '../../components/PixelIcon.astro';
 import PixelSky from '../../components/PixelSky.astro';
-import { atlasBlog as b } from '../../content/atlas';
-import { clipSize, formatDate, getPosts, isoDate, postHref } from '../../lib/blog';
+import { atlasChangelog as c } from '../../content/atlas';
+import { clipSize, formatDate, getPosts, isoDate, postHref } from '../../lib/changelog';
 import { base } from '../../lib/paths';
 
 // a post's card shows its hero clip's poster, when the post has a hero and the poster is recorded
@@ -25,40 +25,40 @@ const posts = (await getPosts()).map((post) => {
 });
 ---
 
-<Base title={b.metaTitle} description={b.metaDescription}>
+<Base title={c.metaTitle} description={c.metaDescription}>
   <Nav />
   <main id="main">
-    <section id="top" class="av-hero blog-hero" aria-labelledby="blog-title">
+    <section id="top" class="av-hero changelog-hero" aria-labelledby="changelog-title">
       <div class="av-grid-bg"></div>
       <PixelSky class="av-sky" seed={41} count={100} />
       <div class="av-wrap av-hero-copy">
-        <p class="av-kicker enter"><PixelIcon name="spark" size={14} />{b.kicker}</p>
-        <h1 id="blog-title" class="av-h1 enter" style="--d:0.08s">{b.title}</h1>
-        <p class="lead av-sub enter" style="--d:0.16s">{b.lead}</p>
+        <p class="av-kicker enter"><PixelIcon name="spark" size={14} />{c.kicker}</p>
+        <h1 id="changelog-title" class="av-h1 enter" style="--d:0.08s">{c.title}</h1>
+        <p class="lead av-sub enter" style="--d:0.16s">{c.lead}</p>
       </div>
     </section>
 
-    <section class="av-section blog-list-section" aria-label={b.listLabel}>
-      <ul class="av-wrap blog-list">
+    <section class="av-section changelog-list-section" aria-label={c.listLabel}>
+      <ul class="av-wrap changelog-list">
         {
           posts.map(({ post, poster }, i) => (
             <li class="enter" style={`--d:${0.24 + Math.min(i, 3) * 0.08}s`}>
-              <a class="av-card blog-card" href={postHref(post)}>
-                <span class="blog-card-art av-art" aria-hidden="true">
+              <a class="av-card changelog-card" href={postHref(post)}>
+                <span class="changelog-card-art av-art" aria-hidden="true">
                   {poster ? (
                     <img src={poster.src} alt="" width={poster.width} height={poster.height} loading={i < 2 ? 'eager' : 'lazy'} decoding="async" />
                   ) : (
                     <PixelIcon name="spark" size={40} />
                   )}
                 </span>
-                <span class="blog-card-body">
-                  <span class="blog-meta">
+                <span class="changelog-card-body">
+                  <span class="changelog-meta">
                     <time datetime={isoDate(post.data.date)}>{formatDate(post.data.date)}</time>
                     {post.data.version && <span class="av-chip">v{post.data.version}</span>}
                   </span>
-                  <span class="blog-card-title">{post.data.title}</span>
-                  <span class="blog-card-text">{post.data.summary}</span>
-                  <ArrowRight class="blog-card-arrow size-4" aria-hidden="true" />
+                  <span class="changelog-card-title">{post.data.title}</span>
+                  <span class="changelog-card-text">{post.data.summary}</span>
+                  <ArrowRight class="changelog-card-arrow size-4" aria-hidden="true" />
                 </span>
               </a>
             </li>

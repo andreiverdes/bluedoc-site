@@ -1,20 +1,24 @@
-// Copy for the site's pages (the home, the doc type pages, the revisions page), in the layout of src/components/atlas/.
+// Copy for the site's pages (the home, the doc type pages, the feature pages, the changelog), in the layout of
+// src/components/atlas/.
 // Facts come from site.ts and types.ts, so no two pages ever disagree; only the arrangement and the short
 // connecting lines are written here.
 import type { PixelIconName } from '../lib/pixel-icons';
 import { base } from '../lib/paths';
 import { docTypes, faq, features, install, meta, repoUrl, why } from './site';
 import { every, films, typePages, type ClipCopy } from './types';
+import { featurePages } from './features';
 import { clipSeconds } from '../lib/clip-length';
 
 const feature = (icon: string) => features.items.find((f) => f.icon === icon)!;
 const question = (q: string) => faq.items.find((f) => f.q === q)!;
 
-// The home, the doc type pages and the revisions page: anchors carry the home's path, so they work from any page.
+// The home, the doc type pages and the feature pages: anchors carry the home's path, so they work from any page.
 export const atlasBase = base;
 export const atlasTypeHref = (id: string) => `${atlasBase}${id}/`;
-export const atlasRevisionsHref = `${atlasBase}revisions/`;
-export const atlasBlogHref = `${atlasBase}blog/`;
+export const atlasFeaturesHref = `${atlasBase}features/`;
+export const atlasFeatureHref = (id: string) => `${atlasFeaturesHref}${id}/`;
+export const atlasRevisionsHref = atlasFeatureHref('revisions');
+export const atlasChangelogHref = `${atlasBase}changelog/`;
 const pluginAgents = install.tabs.filter((t) => t.id !== 'skills');
 
 export const atlasMeta = {
@@ -22,18 +26,44 @@ export const atlasMeta = {
   description: meta.description,
 };
 
+// The feature pages (/features/<id>/), in the Features menu's order: Revisions has its own page
+// (src/pages/features/revisions.astro, atlasRevisions below), the others come from src/content/features.ts.
+export type AtlasFeatureId = (typeof featurePages)[number]['id'] | 'revisions';
+const featureOrder: AtlasFeatureId[] = ['comments', 'questions', 'approve', 'revisions', 'sharing', 'charts', 'home'];
+const revisionsEntry = { name: 'Revisions', pitch: 'Every revision kept, any two compared side by side.', icon: 'revise' as PixelIconName };
+export const atlasFeatures = featureOrder.map((id) => {
+  const { name, pitch, icon } = id === 'revisions' ? revisionsEntry : featurePages.find((f) => f.id === id)!;
+  return { id, name, pitch, icon, href: atlasFeatureHref(id) };
+});
+
+// A feature page's (src/pages/features/[feature].astro) own lines: the agent section's head, and its foot
+// (src/components/atlas/OtherFeatures.astro): the other feature pages, then the overview.
+export const atlasFeaturePageLabels = {
+  agentKicker: 'How the agent uses it',
+  agentTitle: 'What the agent writes, and what it reads.',
+};
+export const atlasOtherFeatures = {
+  kicker: 'Other features',
+  title: 'Six more features, {a page each.}',
+  all: { label: 'All features', href: atlasFeaturesHref },
+};
+
 export const atlasNav = {
-  // Doc types opens a menu of the type pages; then anchors on the home and the Revisions and Blog pages
+  // Doc types and Features open menus of their pages; then anchors on the home and the changelog
   types: {
     label: 'Doc types',
-    pages: docTypes.items.map((t) => ({ id: t.id as PixelIconName, name: t.name, pitch: t.pitch, href: atlasTypeHref(t.id) })),
-    all: { label: 'All doc types', href: `${atlasBase}#doc-types` },
+    pages: docTypes.items.map((t) => ({ icon: t.id, name: t.name, pitch: t.pitch, href: atlasTypeHref(t.id) })),
+    all: { label: 'All doc types ↓', href: `${atlasBase}#doc-types` },
+  },
+  features: {
+    label: 'Features',
+    pages: atlasFeatures,
+    all: { label: 'All features →', href: atlasFeaturesHref },
   },
   links: [
     { label: 'How it works', href: `${atlasBase}#how-it-works` },
-    { label: 'Revisions', href: atlasRevisionsHref },
     { label: 'FAQ', href: `${atlasBase}#faq` },
-    { label: 'Blog', href: atlasBlogHref },
+    { label: 'Changelog', href: atlasChangelogHref },
   ],
   github: { label: 'GitHub', href: repoUrl },
   install: { label: 'Install', href: '#install' },
@@ -215,31 +245,31 @@ export const atlasFooter = {
     { label: 'Doc types', href: `${atlasBase}#doc-types` },
     { label: 'How it works', href: `${atlasBase}#how-it-works` },
     { label: 'Revisions', href: atlasRevisionsHref },
-    { label: 'Features', href: `${base}features/` },
+    { label: 'Features', href: atlasFeaturesHref },
     { label: 'FAQ', href: `${atlasBase}#faq` },
-    { label: 'Blog', href: atlasBlogHref },
+    { label: 'Changelog', href: atlasChangelogHref },
     { label: 'GitHub', href: repoUrl },
     { label: 'Credits and privacy', href: `${base}legal/` },
   ],
 };
 
-// The blog (/blog/ and a page per post, src/pages/blog/): the posts are MDX in src/content/blog/; this is the
-// lines around them.
-export const atlasBlog = {
-  metaTitle: 'Blog · bluedoc',
+// The changelog (/changelog/ and a page per post, src/pages/changelog/): the posts are MDX in src/content/changelog/;
+// this is the lines around them.
+export const atlasChangelog = {
+  metaTitle: 'Changelog · bluedoc',
   metaDescription: 'What’s new in bluedoc: release notes and short posts on what changed and how to use it.',
-  /** a post's <title>: "<post title> · bluedoc blog" */
-  postTitleSuffix: ' · bluedoc blog',
-  kicker: 'bluedoc · Blog',
-  title: 'Blog',
+  /** a post's <title>: "<post title> · bluedoc changelog" */
+  postTitleSuffix: ' · bluedoc changelog',
+  kicker: 'bluedoc · Changelog',
+  title: 'Changelog',
   lead: 'What’s new in bluedoc, now and then.',
   listLabel: 'Posts',
-  moreKicker: 'More from the blog',
+  moreKicker: 'More from the changelog',
   moreTitle: 'Keep [reading].',
   allPosts: 'All posts',
 };
 
-// The revisions page (/revisions/): what a revision is, how each doc type compares two, the onion
+// The revisions page (/features/revisions/): what a revision is, how each doc type compares two, the onion
 // skin, and the films where a revision lands. Clip copy comes from types.ts wherever a type page already shows the
 // clip, so the two never describe it differently.
 const typeClip = (type: keyof typeof typePages, clip: string): ClipCopy => typePages[type].features.find((f) => f.clip === clip)!;

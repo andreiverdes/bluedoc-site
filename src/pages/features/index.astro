@@ -1,29 +1,40 @@
 ---
 // The Features page (/features/): what every doc type has. The pin clip in the big frame, a row of pill links to the
 // groups, then each group (comment, decide, send and approve, revise, the home page, theme and width) as a section
-// of clip cards, how the agent reads the notes, and a card per doc type. Copy in featuresPage (src/content/types.ts).
+// of clip cards with a link to its feature page, how the agent reads the notes, and a card per doc type. Copy in
+// featuresPage (src/content/types.ts).
 import ArrowRight from '@lucide/astro/icons/arrow-right';
-import '../styles/atlas.css';
-import Base from '../layouts/Base.astro';
-import Nav from '../components/atlas/Nav.astro';
-import Cta from '../components/atlas/Cta.astro';
-import Footer from '../components/atlas/Footer.astro';
-import InstallTabs from '../components/atlas/InstallTabs.astro';
-import Clip from '../components/Clip.astro';
-import PixelIcon from '../components/PixelIcon.astro';
-import PixelSky from '../components/PixelSky.astro';
-import AgentSnippet from '../components/AgentSnippet.astro';
-import { atlasTypeHref } from '../content/atlas';
-import { docTypes } from '../content/site';
-import { featuresPage as page } from '../content/types';
-import type { PixelIconName } from '../lib/pixel-icons';
-import { inlineCode } from '../lib/inline-code';
-import { rich } from '../lib/rich';
-import { fillGrid } from '../lib/fill-grid';
+import '../../styles/atlas.css';
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/atlas/Nav.astro';
+import Cta from '../../components/atlas/Cta.astro';
+import Footer from '../../components/atlas/Footer.astro';
+import InstallTabs from '../../components/atlas/InstallTabs.astro';
+import Clip from '../../components/Clip.astro';
+import PixelIcon from '../../components/PixelIcon.astro';
+import PixelSky from '../../components/PixelSky.astro';
+import AgentSnippet from '../../components/AgentSnippet.astro';
+import { atlasFeatures, atlasTypeHref, type AtlasFeatureId } from '../../content/atlas';
+import { docTypes } from '../../content/site';
+import { featuresPage as page } from '../../content/types';
+import type { PixelIconName } from '../../lib/pixel-icons';
+import { inlineCode } from '../../lib/inline-code';
+import { rich } from '../../lib/rich';
+import { fillGrid } from '../../lib/fill-grid';
 
 // complete grids (src/lib/fill-grid.ts): each group's clips in 1, 2 then 3 columns, the doc types in 1 then 2
 const groupSpans = page.groups.map((g) => fillGrid(g.clips.length, [1, 2, 3]));
 const typeSpans = fillGrid(docTypes.items.length, [1, 2, 2]);
+// each group's feature page, by the group's id; Theme and panes (display) has none
+const groupFeature: Record<string, AtlasFeatureId> = {
+  commenting: 'comments',
+  deciding: 'questions',
+  sending: 'approve',
+  revisions: 'revisions',
+  sharing: 'sharing',
+  home: 'home',
+};
+const featureOf = (groupId: string) => atlasFeatures.find((f) => f.id === groupFeature[groupId]);
 ---
 
 <Base title={page.metaTitle} description={page.metaDescription}>
@@ -67,30 +78,39 @@ const typeSpans = fillGrid(docTypes.items.length, [1, 2, 2]);
     </section>
 
     {
-      page.groups.map((g, gi) => (
-        <section id={g.id} class="av-section" aria-labelledby={`${g.id}-title`}>
-          <div class="av-wrap">
-            <div class="av-head" data-reveal>
-              <p class="label">{g.kicker}</p>
-              <h2 id={`${g.id}-title`} class="h2">
-                {g.title}
-              </h2>
-              <p class="lead">{g.lead}</p>
+      page.groups.map((g, gi) => {
+        const feature = featureOf(g.id);
+        return (
+          <section id={g.id} class="av-section" aria-labelledby={`${g.id}-title`}>
+            <div class="av-wrap">
+              <div class="av-head" data-reveal>
+                <p class="label">{g.kicker}</p>
+                <h2 id={`${g.id}-title`} class="h2">
+                  {g.title}
+                </h2>
+                <p class="lead">{g.lead}</p>
+                {feature && (
+                  <a class="link-arrow" href={feature.href}>
+                    The {feature.name} page
+                    <ArrowRight class="size-4" aria-hidden="true" />
+                  </a>
+                )}
+              </div>
+              <ul class="av-clips fill-grid">
+                {g.clips.map((f, i) => (
+                  <li class="av-card av-clip" style={groupSpans[gi][i]} data-reveal={String(i % 3)}>
+                    <Clip name={f.clip} label={f.shows} title={f.title} class="av-clip-frame" zoom />
+                    <div class="av-card-body">
+                      <h3 class="av-card-title">{f.title}</h3>
+                      <p class="av-card-text">{f.body}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <ul class="av-clips fill-grid">
-              {g.clips.map((f, i) => (
-                <li class="av-card av-clip" style={groupSpans[gi][i]} data-reveal={String(i % 3)}>
-                  <Clip name={f.clip} label={f.shows} title={f.title} class="av-clip-frame" zoom />
-                  <div class="av-card-body">
-                    <h3 class="av-card-title">{f.title}</h3>
-                    <p class="av-card-text">{f.body}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-      ))
+          </section>
+        );
+      })
     }
 
     <section class="av-section" aria-labelledby="agent-title">

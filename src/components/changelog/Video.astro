@@ -1,9 +1,9 @@
 ---
-// A clip in a blog post: <Video clip="every-share" caption="…" /> in the MDX, no import needed (the post page passes
-// it to <Content>). It plays muted on loop while in view and opens larger on a click (Clip.astro); the caption sits
-// under it. Films (`film-*`, `ask-*`) get their 1600 × 1000 frame, every other clip 1280 × 800.
+// A clip in a changelog post: <Video clip="every-share" caption="…" /> in the MDX, no import needed (the post page
+// passes it to <Content>). It plays muted on loop while in view and opens larger on a click (Clip.astro); the caption
+// sits under it. Films (`film-*`, `ask-*`) get their 1600 × 1000 frame, every other clip 1280 × 800.
 import Clip from '../Clip.astro';
-import { clipShows, clipSize } from '../../lib/blog';
+import { clipShows, clipSize } from '../../lib/changelog';
 
 interface Props {
   /** the clip's file name in public/clips/, without extension */
@@ -18,7 +18,7 @@ const { clip, caption, priority = false } = Astro.props;
 const { width, height } = clipSize(clip);
 ---
 
-<figure class="blog-video">
+<figure class="changelog-video">
   <Clip name={clip} label={clipShows(clip, caption ?? clip)} title={caption} width={width} height={height} priority={priority} zoom />
-  {caption && <figcaption class="blog-video-cap">{caption}</figcaption>}
+  {caption && <figcaption class="changelog-video-cap">{caption}</figcaption>}
 </figure>

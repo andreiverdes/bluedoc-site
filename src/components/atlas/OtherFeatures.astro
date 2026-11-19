@@ -1,0 +1,71 @@
+---
+// A feature page's foot (src/pages/features/[feature].astro, src/pages/features/revisions.astro): a card per other
+// feature page, as the type pages list the other doc types, then a link to the overview, /features/.
+import ArrowRight from '@lucide/astro/icons/arrow-right';
+import PixelIcon from '../PixelIcon.astro';
+import { atlasFeatures, atlasOtherFeatures as o, type AtlasFeatureId } from '../../content/atlas';
+import { fillGrid } from '../../lib/fill-grid';
+import { rich } from '../../lib/rich';
+
+interface Props {
+  /** the page it ends, left out of the cards */
+  current: AtlasFeatureId;
+}
+
+const others = atlasFeatures.filter((f) => f.id !== Astro.props.current);
+// complete grids (src/lib/fill-grid.ts): 1 column, then 2
+const spans = fillGrid(others.length, [1, 2, 2]);
+---
+
+<section class="av-section" aria-labelledby="other-features-title">
+  <div class="av-wrap">
+    <div class="av-head" data-reveal>
+      <p class="label">{o.kicker}</p>
+      <h2 id="other-features-title" class="h2" set:html={rich(o.title)} />
+    </div>
+    <ul class="av-others fill-grid" data-reveal>
+      {
+        others.map((f, i) => (
+          <li style={spans[i]}>
+            <a class="av-card av-other" href={f.href}>
+              <PixelIcon name={f.icon} size={22} />
+              <span class="grid gap-1">
+                <span class="av-card-title">{f.name}</span>
+                <span class="av-card-text">{f.pitch}</span>
+              </span>
+              <ArrowRight class="av-other-arrow size-4" aria-hidden="true" />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="mt-8 flex justify-center">
+      <a class="link-arrow" href={o.all.href}>
+        {o.all.label}
+        <ArrowRight class="size-4" aria-hidden="true" />
+      </a>
+    </p>
+  </div>
+</section>
+
+<style>
+  .av-others {
+    gap: 0.75rem;
+  }
+  .av-other {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.9rem;
+    height: 100%;
+    padding: 1.1rem 1.2rem;
+    transition: border-color 0.15s;
+  }
+  .av-other:hover {
+    border-color: var(--brand-fg);
+  }
+  .av-other :global(.av-other-arrow) {
+    margin-top: 0.2rem;
+    color: var(--fg-subtle);
+  }
+</style>

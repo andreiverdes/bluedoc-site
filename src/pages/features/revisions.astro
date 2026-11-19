@@ -1,20 +1,21 @@
 ---
-// The revisions page (/revisions/): the onion skin in the big frame, how a revision works, one compare per doc type
-// in a segmented picker, the onion skin up close, the films where a revision lands, and the rest of the revision
-// clips as cards. Copy in atlasRevisions (src/content/atlas.ts).
+// The revisions page (/features/revisions/): the onion skin in the big frame, how a revision works, one compare per
+// doc type in a segmented picker, the onion skin up close, the films where a revision lands, the rest of the revision
+// clips as cards, and the other feature pages. Copy in atlasRevisions (src/content/atlas.ts).
 import ArrowRight from '@lucide/astro/icons/arrow-right';
 import Check from '@lucide/astro/icons/check';
-import '../styles/atlas.css';
-import Base from '../layouts/Base.astro';
-import Nav from '../components/atlas/Nav.astro';
-import Cta from '../components/atlas/Cta.astro';
-import Footer from '../components/atlas/Footer.astro';
-import Clip from '../components/Clip.astro';
-import PixelIcon from '../components/PixelIcon.astro';
-import PixelSky from '../components/PixelSky.astro';
-import { atlasRevisions as r } from '../content/atlas';
-import { rich } from '../lib/rich';
-import { fillGrid } from '../lib/fill-grid';
+import '../../styles/atlas.css';
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/atlas/Nav.astro';
+import Cta from '../../components/atlas/Cta.astro';
+import Footer from '../../components/atlas/Footer.astro';
+import OtherFeatures from '../../components/atlas/OtherFeatures.astro';
+import Clip from '../../components/Clip.astro';
+import PixelIcon from '../../components/PixelIcon.astro';
+import PixelSky from '../../components/PixelSky.astro';
+import { atlasRevisions as r } from '../../content/atlas';
+import { rich } from '../../lib/rich';
+import { fillGrid } from '../../lib/fill-grid';
 
 // complete grids (src/lib/fill-grid.ts): the rest of the revision clips in 1, 2 then 3 columns
 const moreSpans = fillGrid(r.more.items.length, [1, 2, 3]);
@@ -27,7 +28,7 @@ const moreSpans = fillGrid(r.more.items.length, [1, 2, 3]);
       <div class="av-grid-bg"></div>
       <PixelSky class="av-sky" seed={29} count={100} />
       <div class="av-wrap av-hero-copy">
-        <p class="av-kicker enter"><PixelIcon name="compare" size={14} />{r.kicker}</p>
+        <p class="av-kicker enter"><PixelIcon name="revise" size={14} />{r.kicker}</p>
         <h1 id="rev-title" class="av-h1 enter" style="--d:0.08s" set:html={rich(r.headline)} />
         <p class="lead av-sub is-rev enter" style="--d:0.16s">{r.subline}</p>
       </div>
@@ -173,6 +174,8 @@ const moreSpans = fillGrid(r.more.items.length, [1, 2, 3]);
         </ul>
       </div>
     </section>
+
+    <OtherFeatures current="revisions" />
 
     <Cta />
   </main>

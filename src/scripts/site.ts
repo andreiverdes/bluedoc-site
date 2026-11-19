@@ -31,9 +31,9 @@ const sentinel = document.querySelector('[data-nav-sentinel]');
 if (nav && sentinel) {
   new IntersectionObserver(([e]) => nav.classList.toggle('is-scrolled', !e.isIntersecting)).observe(sentinel);
 }
-// The mobile menu and the Doc types menu are <details>: close them after a link is picked, on Escape (focus back
-// on the summary), on a click outside, and when keyboard focus moves out of them.
-const menus = document.querySelectorAll<HTMLDetailsElement>('[data-nav-menu], [data-nav-types]');
+// The mobile menu and the Doc types and Features menus are <details>: close them after a link is picked, on Escape
+// (focus back on the summary), on a click outside, and when keyboard focus moves out of them.
+const menus = document.querySelectorAll<HTMLDetailsElement>('[data-nav-menu], [data-nav-drop]');
 menus.forEach((menu) => {
   menu.addEventListener('click', (e) => {
     if ((e.target as HTMLElement).closest('a')) menu.open = false;

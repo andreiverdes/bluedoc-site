@@ -1,6 +1,6 @@
 # bluedoc-site
 
-The marketing site for [bluedoc](https://github.com/andreiverdes/bluedoc), built with Astro, Tailwind CSS v4 and [Motion](https://motion.dev): bluedoc's blues and pixel-art night bay, rounded cards and pills, a landing page, a page per doc type (`/docs/`, `/plans/`, `/designs/`…), a revisions page, a features page and credits. Every feature is shown in a short looping clip or a film of the agent's terminal beside the page.
+The marketing site for [bluedoc](https://github.com/andreiverdes/bluedoc), built with Astro, Tailwind CSS v4 and [Motion](https://motion.dev): bluedoc's blues and pixel-art night bay, rounded cards and pills, a landing page, a page per doc type (`/docs/`, `/plans/`, `/designs/`…), a page per feature (`/features/comments/`, `/features/revisions/`…) under a features overview, a changelog and credits. Every feature is shown in a short looping clip or a film of the agent's terminal beside the page.
 
 ## Run it
 
@@ -18,11 +18,12 @@ To review the page with an agent, keep `npm run dev` running and open the bluedo
 
 ## Change the copy
 
-Page copy lives in three files; the components only lay it out.
+Page copy lives in four files; the components only lay it out.
 
-- **`src/content/atlas.ts`**: the home (`atlasHero`, `atlasTypes`, `atlasSetup`, `atlasCompare`, `atlasAnswering`, `atlasFaq`, `atlasCta`), the nav and footer (`atlasNav`, `atlasFooter`), the revisions page (`atlasRevisions`) and the lines around the blog's posts (`atlasBlog`). It takes its facts from the two files below, so no two pages disagree.
+- **`src/content/atlas.ts`**: the home (`atlasHero`, `atlasTypes`, `atlasSetup`, `atlasCompare`, `atlasAnswering`, `atlasFaq`, `atlasCta`), the nav and footer (`atlasNav` with its Doc types and Features menus, `atlasFooter`), the feature pages' order and menu entries (`atlasFeatures`) and their shared lines, the revisions page (`atlasRevisions`) and the lines around the changelog's posts (`atlasChangelog`). It takes its facts from the files below, so no two pages disagree.
 - **`src/content/site.ts`**: the facts: page title and description (`meta`), the doc types, features, install commands per agent, the FAQ and the credits (`legal`).
-- **`src/content/types.ts`**: each doc type's page (`typePages`), the clips every type shares (`every`), the films (`films`) and the features page (`featuresPage`).
+- **`src/content/types.ts`**: each doc type's page (`typePages`), the clips every type shares (`every`), the films (`films`) and the features overview (`featuresPage`).
+- **`src/content/features.ts`**: each feature page but Revisions (`featurePages`): its menu name, pitch and pixel icon, hero clip, sections of clips and, for some, how the agent uses it.
 
 Headings use a small markup that `src/lib/rich.ts` renders: `[words]` in the blue pixel face, `{words}` in the soft second ink, and `\n` for a line break.
 
@@ -32,28 +33,31 @@ Headings use a small markup that `src/lib/rich.ts` renders: `[words]` in the blu
 |---|---|---|
 | `/` | `src/pages/index.astro` | the nav, the hero over the night bay (`HeroBay.astro`) with the install tabs and the plan hook film sized to fit a laptop screen, the doc types (each tab plays its ask film for its length), setup, chat versus page, what you do on a page, the FAQ, the install band and the footer; sections in `src/components/atlas/` |
 | `/<type>/` | `src/pages/[type].astro` | one entry of `typePages`: its films in the big frame, what it's for, its clips as cards, the shared clips, how the agent uses it (`AgentSnippet.astro`), the other types |
-| `/revisions/` | `src/pages/revisions.astro` | `atlasRevisions`: the onion skin, how a revision works, a compare per doc type, the films where a revision lands |
-| `/features/` | `src/pages/features.astro` | `featuresPage`: the clips grouped by what the reader does |
+| `/features/` | `src/pages/features/index.astro` | `featuresPage`: the clips grouped by what the reader does, each group linking to its feature page |
+| `/features/<feature>/` | `src/pages/features/[feature].astro` | one entry of `featurePages` (comments, questions, approve, sharing, charts, home): its hero clip in the big frame, its sections of clip cards, how the agent uses it when it has one, the other feature pages (`OtherFeatures.astro`) |
+| `/features/revisions/` | `src/pages/features/revisions.astro` | `atlasRevisions`: the onion skin, how a revision works, a compare per doc type, the films where a revision lands, the other feature pages |
 | `/legal/` | `src/pages/legal.astro` | `legal`: licence, privacy, credits |
-| `/blog/`, `/blog/<slug>/` | `src/pages/blog/index.astro`, `src/pages/blog/[slug].astro` | the posts in `src/content/blog/` (below): the list newest first, and each post with its hero clip, its body in a prose column and the other posts; styles in `src/styles/blog.css` |
+| `/changelog/`, `/changelog/<slug>/` | `src/pages/changelog/index.astro`, `src/pages/changelog/[slug].astro` | the posts in `src/content/changelog/` (below): the list newest first, and each post with its hero clip, its body in a prose column and the other posts; styles in `src/styles/changelog.css` |
 | `/g/<code>`, `/g/` | `src/pages/404.astro`, `src/pages/g/index.astro` | the shared-doc viewer (below): `src/components/SharedDocViewer.astro` with `src/scripts/viewer.ts` and the bluedoc template in `public/g/`; on 404.html, also the not-found card for any other missing path |
 
-Shared layout styles (hero, sections, cards, segmented pickers, the install terminal, and the Shape block that sets every corner radius) are in `src/styles/atlas.css`; colours per theme (`[data-theme='dark']`, `[data-theme='light']`), fonts and base styles in `src/styles/global.css`. Every card grid uses `.fill-grid` with `fillGrid` (`src/lib/fill-grid.ts`), so no grid ends on a half-empty row. Pixel icons are 12 × 12 maps in `src/lib/pixel-icons.ts`. `Clip.astro` looks for its files at build time: a clip with no MP4 yet shows its poster, and one with no poster either shows a card with its title, so a page builds before its clips are recorded; a `zoom` clip opens larger in the lightbox (`ClipLightbox.astro`).
+Shared layout styles (hero, sections, cards, segmented pickers, the install terminal, and the Shape block that sets every corner radius) are in `src/styles/atlas.css`; colours per theme (`[data-theme='dark']`, `[data-theme='light']`), fonts and base styles in `src/styles/global.css`. Every card grid uses `.fill-grid` with `fillGrid` (`src/lib/fill-grid.ts`), so no grid ends on a half-empty row. Pixel icons are 12 × 12 maps in `src/lib/pixel-icons.ts`: one per doc type and one per feature page, named in its menu entry. `Clip.astro` looks for its files at build time: a clip with no MP4 yet shows its poster, and one with no poster either shows a card with its title, so a page builds before its clips are recorded; a `zoom` clip opens larger in the lightbox (`ClipLightbox.astro`).
 
-### Blog
+Moved pages keep their old URLs as redirects in `astro.config.mjs` (`redirects`): `/blog/` and `/blog/<slug>/` go to the changelog, `/revisions/` to `/features/revisions/`. The static build writes each as a small page that sends the browser on; the sitemap lists only the new URLs.
 
-A post is an MDX file, `src/content/blog/<slug>.mdx`; its file name is the URL, `/blog/<slug>/`. The `blog` collection in `src/content.config.ts` checks its frontmatter:
+### Changelog
+
+A post is an MDX file, `src/content/changelog/<slug>.mdx`; its file name is the URL, `/changelog/<slug>/`. The `changelog` collection in `src/content.config.ts` checks its frontmatter:
 
 ```yaml
 title: 'Questions, revamped'      # sentence case, at most 70 characters
-summary: 'One or two sentences.'  # the card on /blog/ and the meta description
+summary: 'One or two sentences.'  # the card on /changelog/ and the meta description
 date: 2026-11-19
 order: 2                          # among posts of the same date, lower first
 version: '1.1.0'                  # optional: the bluedoc version it describes, shown as a chip
 hero: every-option-rows           # optional: a clip in public/clips/, under the title and on the post's card
 ```
 
-The body is Markdown (headings, lists, links, code, blockquotes) plus one component, needing no import: `<Video clip="every-share" caption="One sentence on what it shows." />` (`src/components/blog/Video.astro`) plays a clip from `public/clips/` muted on loop while in view, wider than the text, and opens it larger on a click; films (`film-*`, `ask-*`) get their 1600 × 1000 frame, other clips 1280 × 800. The list sorts by `date`, newest first, then `order`; the sitemap picks up every post.
+The body is Markdown (headings, lists, links, code, blockquotes) plus one component, needing no import: `<Video clip="every-share" caption="One sentence on what it shows." />` (`src/components/changelog/Video.astro`) plays a clip from `public/clips/` muted on loop while in view, wider than the text, and opens it larger on a click; films (`film-*`, `ask-*`) get their 1600 × 1000 frame, other clips 1280 × 800. The list sorts by `date`, newest first, then `order`; the sitemap picks up every post.
 
 ### Design experiments
 

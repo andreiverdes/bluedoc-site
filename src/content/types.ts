@@ -1,5 +1,5 @@
 // Copy and clip lists for the eight type pages (/docs/ … /other/) and the Features page (/features/).
-// src/pages/[type].astro lays out one type page; src/pages/features.astro lays out featuresPage.
+// src/pages/[type].astro lays out one type page; src/pages/features/index.astro lays out featuresPage.
 // Each clip is named by its id in the showcase plan; its files are public/clips/<clip>.{mp4,webm,poster.webp}.
 // A clip whose files aren't recorded yet shows as a card with its title (see Clip.astro).
 export type ClipCopy = {

@@ -1,8 +1,8 @@
 ---
-// A floating capsule nav, centred over the page: logo, the Doc types menu (every type's page), two anchors, theme,
-// GitHub and Install; below 820 px one menu holds the links and the type pages. The scrolled state, the theme
-// switch and closing the menus (Escape, a click outside, a picked link) come from src/scripts/site.ts
-// ([data-nav], [data-nav-sentinel], [data-theme-toggle], [data-nav-types], [data-nav-menu]).
+// A floating capsule nav, centred over the page: logo, the Doc types and Features menus (every type's page, every
+// feature's page), three links, theme, GitHub and Install; below 820 px one menu holds the type and feature pages and
+// the links. The scrolled state, the theme switch and closing the menus (Escape, a click outside, a picked link) come
+// from src/scripts/site.ts ([data-nav], [data-nav-sentinel], [data-theme-toggle], [data-nav-drop], [data-nav-menu]).
 import Sun from '@lucide/astro/icons/sun';
 import Moon from '@lucide/astro/icons/moon';
 import Menu from '@lucide/astro/icons/menu';
@@ -13,7 +13,8 @@ import PixelIcon from '../PixelIcon.astro';
 import { atlasBase, atlasNav } from '../../content/atlas';
 
 const onHome = Astro.url.pathname === atlasBase;
-const { types } = atlasNav;
+const menus = [atlasNav.types, atlasNav.features];
+const current = (href: string) => (Astro.url.pathname === href ? 'page' : undefined);
 ---
 
 <div data-nav-sentinel aria-hidden="true" class="pointer-events-none absolute top-0 left-0 h-6 w-px"></div>
@@ -23,36 +24,40 @@ const { types } = atlasNav;
       <Logo size={22} />
     </a>
     <ul class="av-links">
-      <li>
-        <details class="av-types" data-nav-types>
-          <summary class="av-link">
-            {types.label}
-            <ChevronDown class="av-chev size-3.5" aria-hidden="true" />
-          </summary>
-          <div class="av-panel av-types-panel">
-            <ul class="av-types-list">
-              {
-                types.pages.map((t) => (
-                  <li>
-                    <a class="av-type" href={t.href} aria-current={Astro.url.pathname === t.href ? 'page' : undefined}>
-                      <PixelIcon name={t.id} size={18} />
-                      <span class="grid gap-0.5">
-                        <span class="font-medium text-fg">{t.name}</span>
-                        <span class="text-[0.8125rem] leading-snug text-fg-muted">{t.pitch}</span>
-                      </span>
-                    </a>
-                  </li>
-                ))
-              }
-            </ul>
-            <a class="av-types-all label" href={types.all.href}>{types.all.label} ↓</a>
-          </div>
-        </details>
-      </li>
+      {
+        menus.map((m) => (
+          <li>
+            <details class="av-drop" data-nav-drop>
+              <summary class="av-link">
+                {m.label}
+                <ChevronDown class="av-chev size-3.5" aria-hidden="true" />
+              </summary>
+              <div class="av-panel av-drop-panel">
+                <ul class="av-drop-list">
+                  {m.pages.map((p) => (
+                    <li>
+                      <a class="av-drop-item" href={p.href} aria-current={current(p.href)}>
+                        <PixelIcon name={p.icon} size={18} />
+                        <span class="grid gap-0.5">
+                          <span class="font-medium text-fg">{p.name}</span>
+                          <span class="text-[0.8125rem] leading-snug text-fg-muted">{p.pitch}</span>
+                        </span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+                <a class="av-drop-all label" href={m.all.href}>
+                  {m.all.label}
+                </a>
+              </div>
+            </details>
+          </li>
+        ))
+      }
       {
         atlasNav.links.map((l) => (
           <li>
-            <a class="av-link" href={l.href}>
+            <a class="av-link" href={l.href} aria-current={current(l.href)}>
               {l.label}
             </a>
           </li>
@@ -66,31 +71,40 @@ const { types } = atlasNav;
       </button>
       <a class="av-icon av-gh" href={atlasNav.github.href} rel="noopener">
         <GithubMark class="size-4" />
-        <span class="max-sm:sr-only">{atlasNav.github.label}</span>
+        <span class="max-sm:sr-only min-[820px]:max-[899px]:sr-only">{atlasNav.github.label}</span>
       </a>
       <details class="av-menu" data-nav-menu>
         <summary class="av-icon" aria-label="Menu">
           <Menu class="size-4" aria-hidden="true" />
         </summary>
         <div class="av-panel av-menu-panel">
-          <p class="av-menu-label label">{types.label}</p>
-          <ul>
-            {
-              types.pages.map((t) => (
-                <li>
-                  <a class="av-menu-link" href={t.href} aria-current={Astro.url.pathname === t.href ? 'page' : undefined}>
-                    <PixelIcon name={t.id} size={16} />
-                    {t.name}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
+          {
+            menus.map((m) => (
+              <div class="av-menu-group">
+                <p class="av-menu-label label">{m.label}</p>
+                <ul>
+                  {m.pages.map((p) => (
+                    <li>
+                      <a class="av-menu-link" href={p.href} aria-current={current(p.href)}>
+                        <PixelIcon name={p.icon} size={16} />
+                        {p.name}
+                      </a>
+                    </li>
+                  ))}
+                  <li>
+                    <a class="av-menu-link av-menu-all" href={m.all.href}>
+                      {m.all.label}
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            ))
+          }
           <ul class="av-menu-more">
             {
               atlasNav.links.map((l) => (
                 <li>
-                  <a class="av-menu-link" href={l.href}>
+                  <a class="av-menu-link" href={l.href} aria-current={current(l.href)}>
                     {l.label}
                   </a>
                 </li>
@@ -118,7 +132,9 @@ const { types } = atlasNav;
     display: flex;
     align-items: center;
     gap: 1.1rem;
-    width: min(100%, 50rem);
+    /* wide enough for both menus and three links beside GitHub and Install; from 820 to 899 px GitHub drops its
+       label to fit */
+    width: min(100%, 54rem);
     height: 3rem;
     padding: 0 0.4rem 0 1.2rem;
     border-radius: var(--av-pill);
@@ -141,6 +157,7 @@ const { types } = atlasNav;
     flex: none;
   }
   .av-links {
+    position: relative;
     display: none;
     gap: 0.15rem;
   }
@@ -168,24 +185,31 @@ const { types } = atlasNav;
       color 0.15s,
       background-color 0.15s;
   }
+  /* the narrowest one-line nav: tighter pills keep room to spare */
+  @media (max-width: 899px) {
+    .av-link {
+      padding-inline: 0.6rem;
+    }
+  }
   .av-link::-webkit-details-marker,
   .av-menu summary::-webkit-details-marker {
     display: none;
   }
   .av-link:hover,
-  .av-types[open] .av-link {
+  .av-link[aria-current='page'],
+  .av-drop[open] .av-link {
     color: var(--fg);
     background: var(--line);
   }
   .av-chev {
     transition: transform 0.2s var(--ease-out-soft);
   }
-  .av-types[open] .av-chev {
+  .av-drop[open] .av-chev {
     transform: rotate(180deg);
   }
 
-  /* the menus' panels: square, hairline, on the page's surface */
-  .av-types,
+  /* the menus' panels: square, hairline, on the page's surface. Both dropdowns open from the links' left edge,
+     so the Features panel stays inside the window at 820 px. */
   .av-menu {
     position: relative;
   }
@@ -197,16 +221,20 @@ const { types } = atlasNav;
     border-radius: var(--av-r);
     overflow: hidden;
   }
-  .av-types-panel {
+  .av-drop-panel {
     top: calc(100% + 0.9rem);
     left: -1.2rem;
     width: 38rem;
   }
-  .av-types-list {
+  .av-drop-list {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .av-type {
+  /* an odd count: the last page takes the whole row, so the grid ends full */
+  .av-drop-list > li:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+  .av-drop-item {
     display: flex;
     align-items: flex-start;
     gap: 0.7rem;
@@ -216,27 +244,27 @@ const { types } = atlasNav;
     font-size: 0.875rem;
     transition: background-color 0.15s;
   }
-  .av-types-list > li:nth-child(odd) .av-type {
+  .av-drop-list > li:nth-child(odd):not(:last-child) .av-drop-item {
     border-right: 1px solid var(--line);
   }
-  .av-type :global(svg) {
+  .av-drop-item :global(svg) {
     flex: none;
     margin-top: 0.1rem;
   }
-  .av-type:hover,
-  .av-type[aria-current='page'] {
+  .av-drop-item:hover,
+  .av-drop-item[aria-current='page'] {
     background: var(--line);
   }
-  .av-types-all {
+  .av-drop-all {
     display: block;
     padding: 0.7rem 0.9rem;
     color: var(--fg-muted);
   }
-  .av-types-all:hover {
+  .av-drop-all:hover {
     color: var(--brand-fg);
   }
 
-  /* below 820 px: one menu for the links and the type pages */
+  /* below 820 px: one menu for the type and feature pages and the links */
   @media (min-width: 820px) {
     .av-menu {
       display: none;
@@ -252,6 +280,11 @@ const { types } = atlasNav;
     max-height: calc(100dvh - 6rem);
     overflow-y: auto;
     padding: 0.35rem;
+  }
+  .av-menu-group + .av-menu-group {
+    margin-top: 0.35rem;
+    padding-top: 0.35rem;
+    border-top: 1px solid var(--line);
   }
   .av-menu-label {
     padding: 0.55rem 0.6rem 0.25rem;
@@ -269,6 +302,10 @@ const { types } = atlasNav;
   .av-menu-link[aria-current='page'] {
     color: var(--fg);
     background: var(--line);
+  }
+  .av-menu-all {
+    font-size: 0.8125rem;
+    color: var(--fg-subtle);
   }
   .av-menu-more {
     margin-top: 0.35rem;
