@@ -6,6 +6,7 @@ Short looping screen recordings of bluedoc for the site's pages, made from scrip
 npm run clips                          # every scenario in clips/scenarios/
 npm run clips -- docs-nested-zoom      # one (or a few) by name
 CLIPS_TAG=docs npm run clips -- a b    # name the run's temp paths yourself
+CLIPS_OUT=/tmp/try npm run clips -- a # a trial run: the clips go there, not public/clips (social cuts still go to clips/social)
 ```
 
 Each scenario:
@@ -121,9 +122,11 @@ right, both driven live in one take. It is a scenario with `stage: true` and
 - **`c.stage`**: `caption(text)` (`[words]` in the pixel face, `{words}` soft; `null` fades it), `layout('solo' |
   'tandem')`, `term.*` (`type`, `submit`, `tool` → id, `done(id, lines)`, `say`, `block`, `spin`, `ghost`, `footer`,
   `title`, `clear`, `gap`), `wait(doc)` (a real background `serve.py wait`, resolving with its stdout), `py(script,
-  …)` (a bluedoc script, async), `gate(doc, url)` and `approvedNote(doc)` (hook.py's words), `tidy(text)`.
-- **What the terminal says**: everything bluedoc prints (replies, build and patch output, the gate's words) is
-  the take's real output through `tidy`, which shows the temp project as `~/acme-shop` and the port as 8740. Only the
+  …)` (a bluedoc script, async), `planHook(doc, url)` (the plan-mode hook's words, from hook.py; record films with
+  `env -u CI`, since the hook stays silent under CI) and `approvedNote(doc)`, `tidy(text)`.
+- **What the terminal says**: everything bluedoc prints (replies, build and patch output, the hook's words) is
+  the take's real output through `tidy`, which shows the temp project as `~/acme-shop`, the bluedoc checkout as
+  `~/.claude/skills/bluedoc` and the port as 8740. Only the
   typed prompt, the agent's own short lines, its Read lines and the spinners are scripted; long output folds as
   Claude Code folds it (`… +N lines`).
 - **Never block a take**: use `c.stage.py`, not `c.bd.py`, inside `run()`; a synchronous call stalls the screencast.

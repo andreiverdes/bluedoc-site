@@ -17,7 +17,8 @@ import { Stage } from './lib/stage.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const site = resolve(here, '..');
-const OUT = join(site, 'public/clips');
+// CLIPS_OUT records somewhere else (a trial run that leaves the site's clips alone)
+const OUT = resolve(process.env.CLIPS_OUT || join(site, 'public/clips'));
 const WORK = join(here, '.work');
 const VIEW = { width: 1280, height: 800, dpr: 2 };
 const BLUEDOC_REPO = resolve(process.env.BLUEDOC_REPO || join(site, '../bluedoc'));

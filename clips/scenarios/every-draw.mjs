@@ -1,11 +1,13 @@
-// Every doc type: Draw (D), pick the amber pen, box the numbers table by hand, write a note, Save; the drawing stays
-// on the table and the comment waits in the Comments panel.
-const TOOL = (m) => `.bd-anntb button[data-m="${m}"]`;
+// Every doc type: Pen (D), pick the blue pen in the pill above the dock, box the numbers table by hand, write a note,
+// Save; the drawing stays on the table and the comment waits in the Comments panel.
+const TOOL = (m) => `.bd-anntb .bd-key[data-m="${m}"]`;
+const BLUE = '.bd-anntb button[data-pen="accent"]';
 
 export default {
   doc: 'acme-status',
   posterAt: -0.4,
-  cursor: [700, 560],
+  // on the table, not the chart under it (its hover tooltip would open the clip)
+  cursor: [700, 250],
 
   async setup(c) {
     await c.waitForSelector('.bd-anntb');
@@ -17,9 +19,9 @@ export default {
   async run(c) {
     await c.pause(450);
     await c.click(TOOL('draw'), { ms: 520 });
-    await c.waitForSelector('.bd-anntb .bd-pen-warn');
+    await c.waitForSelector(BLUE);
     await c.pause(180);
-    await c.click('.bd-anntb .bd-pen-warn', { ms: 360 });
+    await c.click(BLUE, { ms: 360 });
     await c.pause(180);
 
     // a hand-drawn box just outside the table's edges

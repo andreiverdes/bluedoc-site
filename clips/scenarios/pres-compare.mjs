@@ -1,6 +1,7 @@
 // Presentations: compare a slide with the last revision. The temp copy gets rev B (Weekly actives reworded to lead
-// with the 2.1× jump); Changes from rev A marks that slide changed. Its compare key shows rev A and rev B side by
-// side, then Onion skin lays rev B over rev A and the opacity slider fades between them.
+// with the 2.1× jump); Changes from rev A marks that slide changed. Its Compare key shows rev A and rev B side by
+// side, then Onion skin lays rev B over rev A and the opacity slider fades between them. The Revisions drawer that
+// ?diff= opens is shut first: it would cover the compare view's slider and Close key.
 import { settled, view } from '../fixtures/acme-fit-design/board.mjs';
 import { panels, revB } from '../fixtures/acme-fit-deck/deck.mjs';
 
@@ -19,9 +20,9 @@ export default {
   prepare: revB,
 
   async setup(c) {
-    await panels(c, { right: true });
+    await panels(c);
     await c.waitFor(`BP.board().artboards.find(a => a.id === 'actives').change === 'mod'`);
-    await view(c, { x: 960, y: 3260, k: 0.3, to: [560, 440] });
+    await view(c, { x: 960, y: 3260, k: 0.3, to: [640, 450] });
     await settled(c);
   },
 

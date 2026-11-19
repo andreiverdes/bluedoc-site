@@ -1,5 +1,6 @@
-// Websites: Point at a post title on the live Blog and write a comment; Request changes previews what the agent
-// gets: the element, the width it was made at (At: 1440 px wide) and its section's source files (Source: …).
+// Websites: Element (the dock's comment pin) on a post title on the live Blog, and write a comment; Request changes
+// opens the send dialog with what goes to the agent: the comment on its section and element (On Post list › h2) and
+// the hero pick still open.
 import { BOARD_READY, boardOnly, inPage, settle, startFixture, stepBack } from '../fixtures/acme-fit-site/fixture.mjs';
 
 let site;
@@ -35,7 +36,7 @@ export default {
     await c.waitFor(`BP.annotations().length === 1`);
     await c.pause(350);
     await c.click(`.bd-key.go`, { ms: 600 });
-    await c.waitFor(`!!document.querySelector('.bd-chgs[open] pre')`);
+    await c.waitFor(`!!document.querySelector('dialog.bd-chgs[open]')`);
     await c.pause(1800);
   },
 };

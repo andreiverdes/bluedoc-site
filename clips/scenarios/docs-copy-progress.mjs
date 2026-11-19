@@ -1,12 +1,13 @@
-// Docs: checklist progress as Markdown. With three runbook steps ticked, Copy progress in the rail's Tracker copies
-// the page's progress; a card then shows what was copied (BP.progressMarkdown(), the same text), with its [x] ticks.
-// The card is drawn by this scenario: a headless clipboard has nothing to paste into.
+// Docs: checklist progress as Markdown. With three runbook steps ticked, Copy in the Local stack checklist's toolbar
+// copies its progress; a card then shows what was copied (the text the page wrote to the clipboard), with its [x]
+// ticks. The card is drawn by this scenario: a headless clipboard has nothing to paste into.
 const CARD = 'clip-md-card';
-const COPY = '.bp-side-tools .bp-btn';
+const CL = '#cl-local';
+const COPY = `${CL} .bp-cl-h .bd-split button:nth-child(2)`; // Expand · Copy · Reset
 
 // the copied Markdown, as a card over the page: a drawing, not bluedoc UI
 const SHOW_CARD = `(() => {
-  const md = BP.progressMarkdown().trim().split('\\n').filter((l, i, a) => !(l === '' && a[i - 1] === ''));
+  const md = window.__clipCopied.trim().split('\\n');
   const esc = (s) => s.replace(/[&<>]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[ch]);
   const line = (l) => {
     const t = esc(l).replace(/\`([^\`]+)\`/g, '<span class="k">\`$1\`</span>');
@@ -16,7 +17,7 @@ const SHOW_CARD = `(() => {
   const el = document.createElement('div');
   el.id = '${CARD}';
   el.innerHTML = '<div class="t"><span>Copied as Markdown</span><span class="n">' + md.length + ' lines</span></div><pre>' + md.map(line).join('') + '</pre>';
-  const box = document.querySelector('#cl-local').getBoundingClientRect(); // over the checklist, its width
+  const box = document.querySelector('${CL}').getBoundingClientRect(); // over the checklist, its width
   Object.assign(el.style, { left: box.left + 'px', width: box.width + 'px' });
   document.body.append(el);
   requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('on')));
@@ -24,15 +25,20 @@ const SHOW_CARD = `(() => {
 
 export default {
   doc: 'acme-orders',
-  posterAt: -0.9,
+  posterAt: 3.3, // the card in full
   cursor: [760, 560],
 
   async setup(c) {
-    await c.waitForSelector('#cl-local');
+    await c.waitForSelector(CL);
     await c.ev(`BP.sidebar({ open: false })`); // the page's own width, without the comments panel
     await c.ev(`['doctor', 'up', 'worker'].forEach((id) => { const cb = document.getElementById('cb-local-' + id); if (!cb.checked) cb.click(); })`);
     await c.waitFor(`BP.progress().find((p) => p.id === 'local').done === 3`);
-    await c.ev(`scrollTo(0, document.querySelector('#cl-local').getBoundingClientRect().top + scrollY - 76)`);
+    // keep what Copy writes to the clipboard, for the card
+    await c.ev(`(() => {
+      const write = navigator.clipboard.writeText.bind(navigator.clipboard);
+      navigator.clipboard.writeText = (t) => { window.__clipCopied = t; return write(t).catch(() => {}); };
+    })()`);
+    await c.ev(`scrollTo({ top: document.querySelector('${CL}').getBoundingClientRect().top + scrollY - 76, behavior: 'instant' })`);
     await c.addStyle(`
       #${CARD} { position: fixed; top: 150px; z-index: 90; border-radius: 14px; overflow: hidden;
         background: var(--surface); box-shadow: 0 0 0 1px var(--line), 0 24px 64px rgba(0,0,0,.45);
@@ -44,7 +50,7 @@ export default {
       #${CARD} pre { margin: 0; padding: 14px 16px 16px; font: 12.5px/1.7 var(--mono); color: var(--fg-muted); white-space: pre-wrap; }
       #${CARD} .h { color: var(--fg); font-weight: 600; }
       #${CARD} .k { color: var(--fg-subtle); }
-      #${CARD} b { color: var(--ok-fg); font-weight: 600; }
+      #${CARD} b { color: var(--accent-fg); font-weight: 600; }
     `);
     await c.pause(300);
   },
@@ -53,7 +59,8 @@ export default {
     await c.pause(700);
 
     await c.click(COPY, { ms: 700 });
-    await c.pause(450); // the toast: Copied progress as Markdown
+    await c.waitFor(`!!window.__clipCopied`, 2000);
+    await c.pause(450); // the toast: Copied checklist as Markdown
     await c.ev(SHOW_CARD);
     await c.moveTo({ sel: `#${CARD}`, x: 0.88, y: 0.86 }, { ms: 700 }); // the card's empty corner, clear of its lines
     await c.pause(2100);

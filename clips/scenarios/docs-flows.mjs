@@ -9,16 +9,19 @@ export default {
 
   async setup(c) {
     await c.waitForSelector(CV);
+    await c.addStyle(`${CV} .bp-hint { display: none !important; }`); // the how-to hint, as the other drawing clips
     await c.ev(`document.querySelector('${CV}').scrollIntoView({block: 'center', behavior: 'instant'})`);
     await c.pause(300);
     await c.click(`${CV} .bp-tb button[aria-label="Full screen"]`, { ms: 200 });
     await c.waitFor(`!!document.fullscreenElement && BP.state('orders').k > 0.9`);
     await c.pause(800);
+    // start the flow over, as picking it in the Flow menu does, so the clip opens on step 1 (the recording starts
+    // a moment after setup ends)
+    await c.ev(`document.querySelector('${CV} .bd-selm[aria-label=Flow] [role=option][data-v="0"]').click()`);
+    await c.waitFor(`BP.state('orders').step === 0`, 2000);
   },
 
   async run(c) {
-    // start the flow over, as picking it in the Flow menu does, so the clip opens on step 1
-    await c.ev(`(() => { const s = document.querySelector('${CV} .bp-tb select'); s.value = '0'; s.dispatchEvent(new Event('change')); })()`);
     // steps take 1.2 s each, plus a short beat at the node they reach
     await c.waitFor(`BP.state('orders').step === 4`, 8000);
     await c.pause(500);

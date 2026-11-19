@@ -8,6 +8,8 @@
 [data-theme='dark'] {
   --av-ok: #3ccf8e;
   --av-del: #ff6b81;
+  /* the fill of a green send key (Approve), white text on it in both themes */
+  --av-go: #17935a;
   /* Shape: boxes get --av-r, the small boxes inside them --av-r-sm; narrow things (buttons, chips, tabs, links in
      a row) are pills, with round ends */
   --av-r: 14px;
@@ -17,6 +19,7 @@
 [data-theme='light'] {
   --av-ok: #13865a;
   --av-del: #c8324f;
+  --av-go: #13865a;
 }
 
 .av-wrap {
@@ -330,6 +333,10 @@
 .clip-frame,
 .clip-lightbox-frame,
 .mock-diff,
+.mock-ac,
+.mock-send,
+.mock-set,
+.mock-share,
 .art-list {
   border-radius: var(--av-r);
 }
@@ -342,7 +349,12 @@
 /* the small boxes inside them */
 .mock-node,
 .mock-msg,
-.mock-opt,
+.ac-opts,
+.ac-det,
+.ac-tmm,
+.rv-row,
+.sd-list,
+.set-row,
 .art-tile,
 .art-file,
 .av-faq-q {
@@ -357,7 +369,31 @@
 .av-seg-tab,
 .av-page,
 .btn,
-.clip-chrome .url {
+.clip-chrome .url,
+.mock-dock,
+.mock-new,
+.dk-end,
+.dk-end b,
+.ac-state,
+.ac-field,
+.ac-cmt,
+.ac-save,
+.rv-tag,
+.rv-chg,
+.sd-rev,
+.sd-chip,
+.sd-note,
+.sd-copy,
+.sd-go,
+.set-nav li,
+.set-sw,
+.share-sw,
+.set-btn,
+.bar-tray,
+.bar-thsw,
+.share-link,
+.share-state,
+.share-act {
   border-radius: var(--av-pill);
 }
 /* small squares become circles */
@@ -365,6 +401,10 @@
 .av-cmp-icon,
 .mock-pin,
 .av-chip::before,
+.ac-radio,
+.dk-k,
+.rv-dot,
+.bar-k,
 .clip-chrome .dots i,
 .clip-lightbox-close,
 .clip-frame .clip-stage .clip-toggle,

@@ -1,5 +1,5 @@
-// Every doc type: Approve plan opens a dialog that lists the picks it approves; Approve, and the chip at the top of the
-// page and the key both read Approved · rev 1.
+// Every doc type: Approve opens the send dialog with the picks it approves (one differs from the recommendation, which
+// it names); Approve there, and the chip at the top of the page reads Approved · rev 1.
 export default {
   doc: 'acme-saved-carts-plan',
   posterAt: -0.4,
@@ -19,14 +19,17 @@ export default {
   async run(c) {
     await c.pause(700);
     await c.click('.bd-anntb .approve', { ms: 650 });
-    await c.waitForSelector('.bd-approve .bp-btn.ok');
+    await c.waitForSelector('dialog.bd-approve[open] .ft .pri');
     await c.pause(300);
-    await c.moveTo({ sel: '.bd-approve', x: 0.62, y: 0.52 }, { ms: 600 });
+    // the picks it approves: Until deleted, against the recommended 180 days
+    await c.moveTo({ sel: 'dialog.bd-approve[open] .sd-dec .sd-chip', x: 0.5, y: 0.5, dy: 22 }, { ms: 600 });
     await c.pause(1000);
-    await c.click('.bd-approve .bp-btn.ok', { ms: 550 });
-    await c.waitFor(`BP.planState().state === 'approved'`);
+    await c.click('dialog.bd-approve[open] .ft .pri', { ms: 550 });
+    await c.waitFor(`BP.planState().state === 'approved' && !document.querySelector('dialog.bd-approve[open]')`);
     await c.pause(300);
-    await c.moveTo({ text: 'Approved · rev 1' }, { ms: 750 });
+    // just under the chip, so its words stay readable
+    const [x, y] = await c.point({ text: 'Approved · rev 1' });
+    await c.moveTo([x + 24, y + 20], { ms: 750 });
     await c.pause(1300);
   },
 };

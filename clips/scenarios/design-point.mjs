@@ -1,6 +1,6 @@
-// Designs: comment on an element inside a screen. Point picks the Start workout button in Today (its data-bd name
-// labels it: start-workout); the note is saved as a pending comment keyed el:today/start-workout, listed in the
-// Comments panel under Board › Today.
+// Designs: comment on an element inside a screen. The dock's Element tool picks the Start workout button in Today
+// (its data-bd name labels it: start-workout); the note is saved as a pending comment keyed el:today/start-workout,
+// listed in the Comments panel under Board › Today.
 import { panels, settled, view } from '../fixtures/acme-fit-design/board.mjs';
 
 export default {
@@ -9,14 +9,14 @@ export default {
   cursor: [1060, 430],
 
   async setup(c) {
-    await panels(c, { right: true });
+    await panels(c, { right: 'comments' });
     await view(c, { x: 785, y: 1808, k: 0.62, to: [470, 440] });
     await settled(c);
   },
 
   async run(c) {
     await c.pause(700);
-    await c.click('button.bd-key[aria-label="Point"]', { ms: 700 });
+    await c.click('.bd-key[data-m=point]', { ms: 700 });
     await c.waitFor(`BP.board().mode === 'point'`);
     await c.pause(200);
     // Start workout, inside Today's frame

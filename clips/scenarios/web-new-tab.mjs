@@ -17,7 +17,8 @@ export default {
   async setup(c) {
     await c.waitFor(BOARD_READY, 30_000);
     await boardOnly(c);
-    await c.ev(`BP.board({fit: true})`);
+    // the Blog large enough that its title bar shows its keys (a page under 300 px on screen hides them)
+    await c.ev(`BP.board({focus: 'blog'})`);
     await settle(c);
   },
 
@@ -25,9 +26,11 @@ export default {
     await c.pause(700);
     const tab = await c.followNewTab(() => c.click(`.bd-ab[data-ab=blog] .bd-ab-t button.opn`, { ms: 700 }));
     if (!(await tab.ev('location.href')).startsWith(site.origin + '/blog/')) throw new Error(`the new tab is at ${await tab.ev('location.href')}`);
-    await c.waitForSelector('#post-weekly-goals');
+    // the actor's selectors and waits stay on the board's tab after followNewTab: ask the new tab itself
+    await tab.waitFor(`!!document.querySelector('#post-weekly-goals')`);
     await c.pause(500);
-    await c.moveTo({ sel: '#post-first-10k .cover', x: 0.5, y: 0.6 }, { ms: 700 });
+    const cover = await tab.ev(`(r => [r.left + r.width * 0.5, r.top + r.height * 0.6])(document.querySelector('#post-first-10k .cover').getBoundingClientRect())`);
+    await c.moveTo(cover, { ms: 700 });
     await c.pause(1100);
   },
 };

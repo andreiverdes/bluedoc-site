@@ -1,12 +1,14 @@
 // Film, Questions (docs/plans/demo-films.bluedoc.json): the agent needs four answers before it goes on.
 // 0–3 s without bluedoc: the terminal question picker, its one-line box cut off mid-answer. Then a fresh session: the
 // prompt, the agent puts its four questions on one page (a real `serve.py open`), waits in the background (a real
-// `serve.py wait`). The reader picks on the option rows (the starred recommendations), writes a longer note on the
-// expiry question and presses Send answers; the real reply prints in the terminal and the agent goes on.
+// `serve.py wait`). The reader picks on the answer cards (the starred recommendations), writes their own longer answer
+// to the expiry question under Other and sends the answers from the send dialog; the real reply prints in the terminal
+// and the agent goes on.
 // The page is a copy of the acme-status example cut down to its decision checklist, with three more decision items,
 // all made with build.py patch in prepare.
 import { cpSync } from 'node:fs';
 import { join } from 'node:path';
+import { HOME_READY, showProject } from './_shared/home-seed.mjs';
 
 export const view = { width: 1600, height: 1000, dpr: 2 };
 export const crf = 26;
@@ -54,7 +56,7 @@ const ITEMS = [
 export default {
   stage: true,
   posterAt: -1.2,
-  cursor: [1440, 760],
+  cursor: [1440, 830],
 
   prepare(ctx) {
     // the questions page: a copy of acme-status, cut down to its open decision, plus three more
@@ -75,7 +77,7 @@ export default {
     p('section:incidents', '--delete', '--no-bump');
     p('section:numbers', '--delete', '--no-bump');
     p('block:next/1', '--delete', '--no-bump');
-    p('section:next', '--json', JSON.stringify({ title: 'Questions', lead: 'Pick an answer on each; a comment on any of them overrides its pick.' }), '--no-bump');
+    p('section:next', '--json', JSON.stringify({ title: 'Questions', lead: 'Pick an answer on each, or write your own under Other.' }), '--no-bump');
     p('block:next/0', '--set', 'title=Before I schedule the rollout', '--no-bump');
     for (const it of ITEMS) p('block:next/0', '--append', JSON.stringify(it), '--no-bump');
   },
@@ -83,7 +85,10 @@ export default {
   async setup(c) {
     const s = c.stage, t = s.term;
     this.path = c.bd.docPath(DOC);
+    // bluedoc's home with acme-shop's docs (1.0.70 hides /tmp folders until shown), off stage until the cut
+    await showProject(c);
     await c.goto('home');
+    await c.waitFor(HOME_READY);
     await s.layout('solo');
     await t.title('acme-shop — claude (without bluedoc)');
     await t.block([
@@ -150,7 +155,7 @@ export default {
     await s.caption(null);
 
     // ---- the reader, on the page ----
-    await c.ev('BP.sidebar({open: false})');
+    await c.ev('BP.sidebar({open: false}); BP.contents({open: false})');
     await c.pause(400);
     await c.wheel(await c.ev(`document.querySelector('#next').getBoundingClientRect().top - 50`), { ms: 650 });
     await c.pause(250);
@@ -159,22 +164,20 @@ export default {
     await c.click(opt('audience', 'signed-in'), { ms: 550 });
     await c.pause(250);
     await c.wheel(await c.ev(`document.querySelector('${item('expiry')}').getBoundingClientRect().top - 70`), { ms: 550 });
-    await c.click(opt('expiry', 'd30'), { ms: 550 });
     await c.pause(200);
-    // a longer note in the item's comment box (a decision's box shows under its options, open or closed)
-    await c.click({ sel: `${item('expiry')} .bp-note-ta`, x: 0.3 }, { ms: 550 });
+    // a longer answer of the reader's own, under Other (typing in it picks it)
+    await c.click({ sel: `${item('expiry')} .bp-opt.cust textarea`, x: 0.3 }, { ms: 600 });
     await c.type(NOTE, { cps: 34 });
-    await c.pause(200);
-    await c.click(`${item('expiry')} .bp-note .bp-btn.primary`, { ms: 450 });
-    await c.pause(250);
+    await c.waitFor(`document.querySelector('${item('expiry')} .bp-opt.cust').classList.contains('on')`);
+    await c.pause(400);
     await c.wheel(await c.ev(`document.querySelector('${item('prices')}').getBoundingClientRect().top - 120`), { ms: 550 });
     await c.click(opt('prices', 'notice'), { ms: 550 });
     await c.pause(300);
-    await c.click('.bd-anntb .send', { ms: 650 });
-    await c.waitForSelector('.bd-send:not(.bd-chgs) .bp-btn.primary');
-    await c.pause(700);
-    await c.click('.bd-send:not(.bd-chgs) .bp-btn.primary', { ms: 500 });
-    await c.moveTo([1440, 760], { ms: 650 }); // back where the loop starts, off the picks
+    await c.click('.bd-anntb .bd-key.send', { ms: 650 });
+    await c.waitForSelector('dialog.bd-sendans[open] .ft .pri');
+    await c.pause(1200);
+    await c.click('dialog.bd-sendans[open] .ft .pri', { ms: 500 });
+    await c.moveTo([1440, 830], { ms: 650 }); // back where the loop starts, off the picks
 
     // ---- the payoff: every answer, in one reply ----
     const all = (await reply).trim().split('\n');

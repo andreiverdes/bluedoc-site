@@ -1,10 +1,11 @@
-// Presentations (hero): Present plays the deck full-window from the selected slide, each slide as large as the window
-// allows with its speaker notes under it. → steps from the title through What shipped to Weekly actives; Esc returns
-// to the board on the slide it left. The board starts fitted, so every slide's frame is live when Esc lands.
+// Presentations (hero): Present, the dock's green end key, plays the deck full-window from the selected slide, each
+// slide as large as the window allows with its speaker notes under it. → steps from the title through What shipped to
+// Weekly actives; Esc returns to the board on the slide it left. The board starts fitted, so every slide's frame is
+// live when Esc lands.
 import { ab, settled } from '../fixtures/acme-fit-design/board.mjs';
 import { panels } from '../fixtures/acme-fit-deck/deck.mjs';
 
-const PRESENT = '.bd-btb .bd-tbtn.pri';
+const PRESENT = '.bd-anntb .bd-key.present';
 const shown = (id) => `BP.board().presented && BP.board().presented.screen === '${id}'`;
 
 export default {

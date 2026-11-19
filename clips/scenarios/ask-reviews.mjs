@@ -74,13 +74,12 @@ export default {
 
   async setup(c) {
     const s = c.stage, t = s.term;
-    // the page rendered 1100 px wide and scaled 0.8 into the browser window (the stage's default is 1240 at 0.71):
-    // bluedoc's narrow layout, its column edge to edge, so the code and the findings read at their largest
-    await s.tab.ev(`Object.assign(document.getElementById('frame').style, { width: '1100px', height: '1023px', transform: 'scale(0.8)' })`);
     // the page in Merged view, loaded off stage until the agent opens it
     await s.layout('tandem');
     await c.goto(DOC);
     await findingsView(c, 'pr-412', 'merged');
+    await c.ev('BP.contents({open: false})');
+    await c.waitFor('!BP.contents().open');
     await c.pause(400);
     await s.layout('solo');
     await t.title('acme-shop — claude');
@@ -123,7 +122,7 @@ export default {
     await c.pause(800);
     await c.moveTo([1120, 600], { ms: 700 });
     await c.pause(200);
-    await c.wheel(await c.ev(`document.querySelector('${TIERS}').getBoundingClientRect().top - 124`), { ms: 1200 });
+    await c.wheel(await c.ev(`document.querySelector('${TIERS}').getBoundingClientRect().top - 170`), { ms: 1200 });
     await c.pause(1100);
     await c.wheel(await c.ev(`document.querySelector('${row('tier-boundary')}').getBoundingClientRect().top - 330`), { ms: 900 });
     await c.pause(500);
@@ -135,7 +134,7 @@ export default {
     await c.click({ sel: `${opt('tier-boundary', 'fix')} .oh`, x: 0.25, y: 0.5 }, { ms: 500 });
     await c.waitFor(`document.querySelector('${opt('tier-boundary', 'fix')} .oh').getAttribute('aria-expanded') === 'true'`);
     await c.pause(1300);
-    await c.moveTo({ sel: `${opt('tier-boundary', 'fix')} .ob`, x: 0.95, y: 0.7 }, { ms: 700 });
+    await c.moveTo({ sel: `${opt('tier-boundary', 'fix')} .ob`, x: 0.9, y: 0.15 }, { ms: 700 });
     await c.pause(1500);
   },
 };

@@ -9,18 +9,18 @@ export default {
 
   async setup(c) {
     await panels(c);
-    await view(c, { x: 1000, y: 1830, k: 0.5, to: [640, 450] });
+    await view(c, { x: 785, y: 1830, k: 0.5, to: [640, 450] }); // the three columns of phone screens, centred
     await settled(c);
   },
 
   async run(c) {
-    await c.pause(700);
+    await c.pause(900);
     await c.click({ text: 'Sketch', in: '.bd-btb' }, { ms: 650 });
     await c.waitFor(`BP.board().sketch === true`);
-    await c.pause(1500);
+    await c.pause(1800);
     await c.click({ text: 'As drawn', in: '.bd-btb' }, { ms: 450 });
     await c.waitFor(`BP.board().sketch === false`);
     await c.moveTo([1110, 600], { ms: 600 });
-    await c.pause(400);
+    await c.pause(800);
   },
 };

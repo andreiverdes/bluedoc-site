@@ -13,13 +13,13 @@ export default {
 
   async setup(c) {
     await panels(c);
-    await view(c, { x: 2150, y: 3194, k: 0.5, to: [520, 430] });
+    await view(c, { x: 2150, y: 3194, k: 0.5, to: [640, 430] });
     await settled(c);
   },
 
   async run(c) {
     await c.pause(600);
-    await c.click('button.bd-key[aria-label="Frame"]', { ms: 550 });
+    await c.click('.bd-key[data-m=frame]', { ms: 550 });
     await c.waitFor(`BP.board().mode === 'frame'`);
     await c.pause(150);
     // a click places a phone with its top-left there
@@ -39,8 +39,9 @@ export default {
       await c.type(label, { cps: 28 });
       await c.pause(150);
     };
-    await box(24, 110, 366, 420, 'Route map');
-    await box(24, 450, 366, 600, 'Stats');
+    // clear of the frame's middle, where the saved frame prints its prompt
+    await box(24, 110, 366, 380, 'Route map');
+    await box(24, 470, 366, 620, 'Stats');
     await c.click({ text: 'Save', in: '.bd-rqe' }, { ms: 550 });
     await c.waitFor(`BP.annotations().some(a => a.target.key.startsWith('frame:phone@'))`);
     await c.moveTo([1100, 650], { ms: 500 });

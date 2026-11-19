@@ -1,7 +1,8 @@
 // Ask, Other (the Atlas home's "Inside your agent" tab): Claude Code beside the bluedoc page. The request is typed,
 // the agent reads the week's numbers and the incident note, writes the acme-status example, builds it and opens it
 // (real build.py and serve.py open output), and the page slides in. The tour: the TL;DR, the week-over-week numbers
-// (a row lights up), the incident table, and the open decision with its recommendation, where the take rests.
+// (a row lights up, then the orders chart shows Thursday's values), the incident table, and the open decision with its
+// recommendation, where the take rests.
 import { readFileSync } from 'node:fs';
 
 export const view = { width: 1600, height: 1000, dpr: 2 };
@@ -67,22 +68,24 @@ export default {
     id = await t.tool('Bash', `serve.py open ${REL} --to "Claude Code"`);
     const opened = await s.py('serve.py', 'open', REL, '--to', 'Claude Code');
     if (opened.code !== 0) throw new Error(`serve.py open: ${opened.out}`);
-    // the page loads while the browser is still off stage, at the page's own width (comments panel closed)
+    // the page loads while the browser is still off stage, at the page's own width (both panes closed)
     await c.goto(DOC);
-    await c.ev('BP.sidebar({open: false})');
-    await c.waitFor('!BP.sidebar().open');
+    await c.ev('BP.sidebar({open: false}); BP.contents({open: false})');
+    await c.waitFor('!BP.sidebar().open && !BP.contents().open');
     await t.done(id, lines(opened.out).map((l) => (/^https?:\/\//.test(l.trim()) ? `http://${s.shown(l.trim())}` : l)));
     await t.spin(null);
     await s.layout('tandem');
 
-    // ---- the tour: TL;DR, numbers, the incident, the open decision ----
+    // ---- the tour: TL;DR, numbers and their chart, the incident, the open decision ----
     await c.moveTo({ text: 'when to start the saved carts rollout.', at: 'end' }, { ms: 650 }); // under the TL;DR, clear of its words
     await c.pause(950);
 
     await c.wheel(await c.ev(to('#numbers')), { ms: 650 });
     await c.pause(200);
     await c.moveTo({ sel: '#numbers tbody tr[data-r="0"]', x: 0.3 }, { ms: 550 });
-    await c.pause(800); // orders up 6%
+    await c.pause(700); // orders up 6%
+    await c.moveTo({ sel: '#numbers .bp-chart:not(.bare)', x: 0.47, y: 0.32 }, { ms: 550 });
+    await c.pause(900); // the chart's values for Thursday's dip
 
     await c.wheel(await c.ev(to('#incidents')), { ms: 600 });
     await c.pause(200);

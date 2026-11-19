@@ -4,6 +4,7 @@ const TOP = 76; // a section's heading just under the app bar
 const to = (sel) => `(document.querySelector('${sel}').getBoundingClientRect().top - ${TOP})`;
 
 export const crf = 26; // three scrolls of small text
+export const dropGlitches = true; // a tile of the app bar unrastered for a frame as the page scrolls
 
 export default {
   doc: 'acme-orders',

@@ -1,5 +1,6 @@
 // Other: the hero stat on the home card. The acme-status card draws its one number, 18,420 orders placed in week 41;
-// a click opens the page, whose TL;DR leads with the same number.
+// a click opens the page, whose TL;DR leads with the same number, and a scroll shows it again in the numbers table
+// over the orders-per-day chart.
 import { seedHome } from './_shared/home-seed.mjs';
 
 const CARD = 'a.bd-card[href*="acme-status"]';
@@ -11,9 +12,11 @@ export default {
 
   async setup(c) {
     await seedHome(c);
-    // the card row with acme-status in the middle of the frame
+    // the home's Cards view (Rows is the other), the card row with acme-status in the middle of the frame
+    await c.ev(`(() => { const b = [...document.querySelectorAll('button[role=radio]')].find((b) => b.textContent.trim() === 'Cards'); if (b && b.getAttribute('aria-checked') !== 'true') b.click(); })()`);
+    await c.waitForSelector(CARD);
     await c.ev(`window.scrollTo({top: document.querySelector('${CARD}').getBoundingClientRect().top + scrollY - 230, behavior: 'instant'})`);
-    await c.pause(400);
+    await c.pause(600);
   },
 
   async run(c) {
@@ -22,6 +25,8 @@ export default {
     await c.pause(1000);
     await c.click({ sel: `${CARD} .bd-card-t`, x: 0.3 }, { ms: 450 });
     await c.waitFor(`!!window.BP && BP.doc.id === 'acme-status'`);
-    await c.pause(1400);
+    await c.pause(1300); // the TL;DR: 18,420 orders
+    await c.wheel(await c.ev(`document.querySelector('#numbers').getBoundingClientRect().top - 64`), { ms: 600 });
+    await c.pause(1300); // the same number in the table, the chart under it
   },
 };

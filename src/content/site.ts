@@ -94,32 +94,32 @@ export const features = {
     {
       icon: 'comment',
       title: 'Comments that become conversations',
-      body: 'Point at an element, select a passage or draw a box, and attach a file when words aren’t enough. Each note, item and general comment is a thread the agent replies in.',
+      body: 'Pin a comment on an element, box a region, select a passage or draw with the pen, and attach a file when words aren’t enough. Each comment is a thread the agent replies in, its replies signed with its model’s name.',
     },
     {
       icon: 'star',
-      title: 'Options as rows, recommendation starred',
-      body: 'Each option explains itself in a line. Pick one, or several where a question allows, or Accept recommended to take every starred option.',
+      title: 'One answer card per question',
+      body: 'Each answer explains itself in a line, and More details opens the agent’s reasoning. Pick one, or several where a question allows, write your own under Other, or ask it to Tell me more. Each list’s Accept recommended takes every starred answer.',
     },
     {
       icon: 'compare',
       title: 'Revisions you can compare',
-      body: 'Every build is a revision. Compare any two: new, changed and removed parts are marked in place, word by word.',
+      body: 'Every build is a revision. Changes from N, on each row of the Revisions panel, marks new, changed and removed parts in place, word by word.',
     },
     {
       icon: 'approve',
       title: 'Approve, and the agent proceeds',
-      body: 'Plans, designs, decks and store listings wait for approval on the current revision. Request changes sends them back.',
+      body: 'Plans, designs and websites wait for approval on the current revision. Approve and Request changes open one send dialog: what goes, a note, then the send key.',
     },
     {
       icon: 'local',
       title: 'Your input stays on your machine',
-      body: 'Ticks, picks and comments live in a local SQLite file the server owns, never in the repo. Screens run sandboxed, with no network.',
+      body: 'Ticks, picks and comments live in a local SQLite file the server owns, never in the repo. Screens run sandboxed, with no network. A doc leaves only when you press Share.',
     },
     {
       icon: 'agents',
       title: 'Works with your agent, plan mode too',
-      body: 'Claude Code, Codex, Copilot CLI, Antigravity CLI, pi and omp install it as a plugin, with /bluedoc-* commands. In plan mode, the plan opens as a page and waits for your approval.',
+      body: 'Claude Code, Codex, Copilot CLI, Antigravity CLI, pi and omp install it as a plugin, with /bluedoc-* commands. In plan mode, the plan-mode hook opens the plan as a page and waits for your approval.',
     },
   ] satisfies { icon: FeatureIcon; title: string; body: string }[],
 };
@@ -169,7 +169,7 @@ export const install = {
       note: 'For any other agent that reads skills. Or clone the repository and link skills/bluedoc into your agent’s skills folder.',
     },
   ],
-  requirements: ['Python 3.9 or later on PATH', 'git, for code reviews', 'gh, only to import GitHub review threads'],
+  requirements: ['Python 3.9 or later on PATH', 'git, for code reviews', 'gh, only for GitHub review threads and Share'],
 };
 
 // What a page gives you that a chat reply doesn't, in four counts. Each `count` is worked out from the lists above,
@@ -181,7 +181,7 @@ export const why = {
     { count: docTypes.items.length, label: 'Doc types', body: 'Docs, plans, reviews, designs, decks, sites, store listings and more.' },
     { count: pluginAgents.length, label: 'Agent plugins', body: `${pluginAgents.map((t) => t.label).join(', ')}. Any other through the skills CLI.` },
     { count: 1, label: 'JSON file per doc', body: 'The server renders the page from it; no HTML to keep in sync.' },
-    { count: 0, label: 'Accounts', body: 'It runs on 127.0.0.1, MIT, with no hosted service.' },
+    { count: 0, label: 'Accounts', body: 'No bluedoc account and no hosted service: it runs on 127.0.0.1, MIT.' },
   ],
 };
 
@@ -193,19 +193,23 @@ export const faq = {
     },
     {
       q: 'Which agents does it work with?',
-      a: 'Claude Code, Codex, Copilot CLI, Antigravity CLI, pi and omp install it as a plugin, with a plan-mode gate and /bluedoc-* commands. Any other agent that reads skills can get it with the skills CLI (npx skills add andreiverdes/bluedoc) or a copy of the skill folder.',
+      a: 'Claude Code, Codex, Copilot CLI, Antigravity CLI, pi and omp install it as a plugin, with a plan-mode hook and /bluedoc-* commands. Any other agent that reads skills can get it with the skills CLI (npx skills add andreiverdes/bluedoc) or a copy of the skill folder.',
     },
     {
       q: 'Where does my data live?',
-      a: 'On your machine. Ticks, picks, comments and replies live in ~/.bluedoc/state.db, a SQLite file the local server owns, never in the repo. Only a browser that opened a link from the server can save.',
+      a: 'On your machine. Ticks, picks, comments and replies live in ~/.bluedoc/state.db, a SQLite file the local server owns, never in the repo; the Settings page keeps its switches in ~/.bluedoc/settings.json. Only a browser that opened a link from the server can save. A doc leaves only when you press Share.',
     },
     {
       q: 'Does it need an internet connection?',
-      a: 'No. The server runs on 127.0.0.1 and serves its fonts, styles and UI kits itself. Design screens run sandboxed with no network. Only importing GitHub review threads, or diffing a PR whose repo isn’t checked out, calls gh.',
+      a: 'No. The server runs on 127.0.0.1 and serves its fonts, styles and UI kits itself. Design screens run sandboxed with no network. Only Share, importing GitHub review threads, or diffing a PR whose repo isn’t checked out calls gh.',
     },
     {
       q: 'Can I export a doc?',
-      a: 'Yes. Add -o name.html to the build command for a standalone HTML file you can send to someone. Decks also export as PDF, and store listings as a fastlane ZIP, a plain-folders ZIP, a PDF or HTML.',
+      a: 'Yes. The app bar’s ⋮ → Export saves the revision you’re viewing as an HTML file that opens without the server, a PDF, or Markdown. Decks and store listings have their own Export to…: decks as PDF, store listings as a fastlane ZIP, a plain-folders ZIP, a PDF or HTML.',
+    },
+    {
+      q: 'Can I share a doc with someone?',
+      a: 'Yes. Share puts the doc’s current revision in a secret gist on your own GitHub account, through gh, and copies a bluedoc.ai/g/ link that opens in any browser with nothing to install. The page there is view-only: the reader reads it, downloads it, or makes a copy in their own bluedoc. Update sends a new revision to the same link; Stop sharing deletes the gist. Anyone with the link can read it, so check the doc first.',
     },
     {
       q: 'What licence is it under?',
@@ -237,8 +241,8 @@ export const legal = {
       id: 'privacy',
       title: 'Privacy',
       body: [
-        '**bluedoc** keeps everything on your machine. Your comments, picks and approvals live in a SQLite file under `~/.bluedoc`, and the server only listens on 127.0.0.1. Nothing is sent anywhere unless your agent sends it.',
-        '**This site** sets no cookies, loads no analytics or trackers, and has no forms. It opens in the dark theme; if you switch to light, that choice is kept in your browser’s session storage until you close the tab and never leaves it. The site is hosted on GitHub Pages, which keeps server logs under [GitHub’s privacy statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement).',
+        '**bluedoc** keeps everything on your machine. Your comments, picks and approvals live in a SQLite file under `~/.bluedoc`, and the server only listens on 127.0.0.1. Nothing is sent anywhere unless your agent sends it, or you press **Share**: then the doc’s current revision, with the answers you leave switched on under Include my answers, goes to a secret gist on your own GitHub account, through `gh`. Anyone with its link can read it; Stop sharing deletes it.',
+        '**This site** sets no cookies, loads no analytics or trackers, and has no forms. It opens in the dark theme; if you switch to light, that choice is kept in your browser’s session storage until you close the tab and never leaves it. A shared doc at bluedoc.ai/g/ is fetched by your browser straight from GitHub’s gist API, and keeps only its view settings (theme, panel open and width) in your browser’s local storage. The site is hosted on GitHub Pages, which keeps server logs under [GitHub’s privacy statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement); the same statement covers those gist requests.',
       ],
     },
     {

@@ -12,7 +12,7 @@ export default {
   cursor: [1150, 560], // in the gutter right of the page, clear of the text
 
   async setup(c) {
-    await c.waitForSelector('.bp-files');
+    await c.waitForSelector('#files .bp-frow');
     await c.ev(`BP.sidebar({ open: false })`); // the page's own width, without the comments panel
     await c.waitFor(`!BP.sidebar().open`);
     await c.pause(300);

@@ -1,26 +1,41 @@
-// Every doc type, the home page: filter by status, then by type. Each chip shows its count; the overview and the
-// cards narrow to match (Awaiting approval: the website, the design and the plan; then Plans: the plan alone).
+// Every doc type, the home page: filter by status, then by type. Each menu shows its counts; the docs table narrows to
+// match (Status: Awaiting approval, 4 of 8: the website, the listing, the deck and the plan; then Type: Plans, the plan
+// alone) and each filter stays as a chip with ×.
 import { seedHome } from './_shared/home-seed.mjs';
 
-const SCROLL = 268; // the search box at the top of the frame, the chips, the overview and the first row of cards
+// the docs' own filter key (the home repeats the toolbar in a top bar that slides in on scroll: not that one)
+const FILTER = (label) => `[...document.querySelectorAll('button.bd-fc')].find((b) => b.textContent.trim().startsWith('${label}') && b.getBoundingClientRect().top > 80)`;
+const at = (c, label) => c.ev(`(() => { const r = (${FILTER(label)}).getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; })()`);
+const ITEM = (text) => ({ text, in: '[role=menu]' });
 
 export default {
   doc: 'home',
   posterAt: -0.4,
-  cursor: [760, 300],
+  cursor: [760, 330],
 
   async setup(c) {
     await seedHome(c);
-    await c.ev(`window.scrollTo({top: ${SCROLL}, behavior: 'instant'})`);
+    // at the top: the hero, the stat line, the filters and the table (a narrowed table is shorter than the frame, so a
+    // scrolled page would jump back up mid-clip)
+    await c.ev(`window.scrollTo({top: 0, behavior: 'instant'})`);
     await c.pause(400);
   },
 
   async run(c) {
     await c.pause(700);
-    // the status chip (the first "Awaiting approval" on the page: the cards' badges come after it)
-    await c.click({ text: 'Awaiting approval' }, { ms: 650 });
+    await c.click(await at(c, 'Status'), { ms: 650 });
+    await c.waitForSelector('[role=menu]');
+    await c.pause(450);
+    await c.click(ITEM('Awaiting approval'), { ms: 500 });
+    await c.waitFor(`document.querySelectorAll('a.t').length === 4 && !document.querySelector('[role=menu]')`);
+    await c.pause(1000);
+    await c.click(await at(c, 'Type'), { ms: 600 });
+    await c.waitForSelector('[role=menu]');
+    await c.pause(400);
+    await c.click(ITEM('Plans'), { ms: 500 });
+    await c.waitFor(`document.querySelectorAll('a.t').length === 1 && !document.querySelector('[role=menu]')`);
+    await c.pause(300);
+    await c.moveTo({ sel: 'a.t', x: 0.6, y: 0.5, dy: 22 }, { ms: 600 });
     await c.pause(1300);
-    await c.click('button.bd-fc.t-plan', { ms: 600 });
-    await c.pause(1600);
   },
 };

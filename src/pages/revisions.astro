@@ -14,6 +14,10 @@ import PixelIcon from '../components/PixelIcon.astro';
 import PixelSky from '../components/PixelSky.astro';
 import { atlasRevisions as r } from '../content/atlas';
 import { rich } from '../lib/rich';
+import { fillGrid } from '../lib/fill-grid';
+
+// complete grids (src/lib/fill-grid.ts): the rest of the revision clips in 1, 2 then 3 columns
+const moreSpans = fillGrid(r.more.items.length, [1, 2, 3]);
 ---
 
 <Base title={r.metaTitle} description={r.metaDescription}>
@@ -154,10 +158,10 @@ import { rich } from '../lib/rich';
           <p class="label">{r.more.kicker}</p>
           <h2 id="more-title" class="h2" set:html={rich(r.more.title)} />
         </div>
-        <ul class="av-rev-cards">
+        <ul class="av-rev-cards fill-grid">
           {
             r.more.items.map((f, i) => (
-              <li class="av-card av-clip" data-reveal={String(i % 3)}>
+              <li class="av-card av-clip" style={moreSpans[i]} data-reveal={String(i % 3)}>
                 <Clip name={f.clip} label={f.shows} title={f.title} class="av-clip-frame" zoom />
                 <div class="av-card-body">
                   <h3 class="av-card-title">{f.title}</h3>
@@ -262,18 +266,7 @@ import { rich } from '../lib/rich';
   }
 
   .av-rev-cards {
-    display: grid;
     gap: 1rem;
-  }
-  @media (min-width: 720px) {
-    .av-rev-cards {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  @media (min-width: 1080px) {
-    .av-rev-cards {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
   }
   /* a card's clip fills its top edge to edge: no frame of its own */
   .av-clip :global(.av-clip-frame) {

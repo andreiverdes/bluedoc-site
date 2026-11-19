@@ -40,8 +40,8 @@ export default {
     // the reader approved rev 1 (with the recommended picks)
     await c.ev(`BP.acceptRecommended()`);
     await c.click('.bd-anntb .approve', { ms: 100 });
-    await c.waitForSelector('.bd-approve .bp-btn.ok');
-    await c.click('.bd-approve .bp-btn.ok', { ms: 100 });
+    await c.waitForSelector('dialog.bd-approve[open] .ft .pri');
+    await c.click('dialog.bd-approve[open] .ft .pri', { ms: 100 });
     await c.waitFor(`BP.planState().state === 'approved'`);
     // the agent's rev 2: steps 1 and 2 done, the tests run and their result recorded (pinned to HEAD)
     const doc = c.bd.docPath('acme-saved-carts-plan');
@@ -76,7 +76,7 @@ export default {
     await c.pause(500);
     await c.click(`${ITEM} .bp-pin-stale summary`, { ms: 550 });
     await c.waitFor(`document.querySelector('${ITEM} .bp-pin-stale').open`);
-    await c.moveTo({ sel: `${ITEM} .bp-pin-stale li`, x: 1, y: 0.5, dx: 40 }, { ms: 500 });
+    await c.moveTo({ sel: `${ITEM} .bp-pin-stale li`, x: 0.7, y: 0.5 }, { ms: 500 }); // past the path, in the row
     await c.pause(1300);
   },
 };

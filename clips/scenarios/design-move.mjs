@@ -13,7 +13,7 @@ export default {
 
   async setup(c) {
     await panels(c);
-    await view(c, { x: 1480, y: 1250, k: 0.24, to: [640, 440] });
+    await view(c, { x: 1250, y: 1250, k: 0.24, to: [640, 440] }); // the screens and Workout's spot right of Workouts
     await settled(c);
   },
 

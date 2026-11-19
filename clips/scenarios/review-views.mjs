@@ -12,8 +12,9 @@ export default {
   cursor: [760, 520],
 
   async setup(c) {
-    await findingsView(c, 'pr-412', 'merged');
-    await scrollTop(c, '#pr-412 .bd-mg.bd-xf', 130);
+    // All: the picked finding stays in the list as the views change
+    await findingsView(c, 'pr-412', 'merged', { filter: 'all' });
+    await scrollTop(c, '#pr-412 .bd-mg.bd-xf', 150);
     await c.waitForSelector(`${ROW} .bp-opt:has(.rec) .pk`);
   },
 

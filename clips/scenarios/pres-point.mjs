@@ -1,5 +1,5 @@
-// Presentations: comment on one element of a slide. Point picks the big number on Weekly actives (its data-bd name
-// labels it: stat); the note is saved as a pending comment keyed el:actives/stat, listed in the Comments panel.
+// Presentations: comment on one element of a slide. Element (C) picks the big number on Weekly actives (its data-bd
+// name labels it: stat); the note is saved as a pending comment keyed el:actives/stat, listed in the Comments pane.
 import { settled, view } from '../fixtures/acme-fit-design/board.mjs';
 import { panels } from '../fixtures/acme-fit-deck/deck.mjs';
 
@@ -16,7 +16,7 @@ export default {
 
   async run(c) {
     await c.pause(700);
-    await c.click('button.bd-key[aria-label="Point"]', { ms: 700 });
+    await c.click('.bd-anntb .bd-key[data-m="point"]', { ms: 700 });
     await c.waitFor(`BP.board().mode === 'point'`);
     await c.pause(200);
     // 41,800, in the middle of the slide

@@ -9,7 +9,7 @@ export default {
 
   async setup(c) {
     await panels(c);
-    await view(c, { x: 560, y: 1800, k: 0.3, to: [640, 440] });
+    await view(c, { x: 785, y: 1800, k: 0.3, to: [640, 440] });
     await settled(c);
   },
 

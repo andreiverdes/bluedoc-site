@@ -1,5 +1,5 @@
-// Websites: the Pages panel lists each page's sections with their source hints; clicking Pricing takes the board
-// to that section of the live Home page.
+// Websites: the left pane's Pages tab lists each page's sections with their source hints; clicking Pricing takes the
+// board to that section of the live Home page.
 import { BOARD_READY, settle, startFixture } from '../fixtures/acme-fit-site/fixture.mjs';
 
 const SECTION = (page, id) => `.bd-sec-l[aria-label="Sections of ${page}"] button[data-sec="${id}"]`;
@@ -18,6 +18,9 @@ export default {
   async setup(c) {
     await c.waitFor(BOARD_READY, 30_000);
     await c.ev(`BP.sidebar({open: false})`);
+    // the left pane opens on the Brief: its Pages key switches it
+    await c.ev(`(k => k.getAttribute('aria-pressed') === 'true' || k.click())(document.querySelector('.bd-stripe.l .bd-sk[data-f=screens]'))`);
+    await c.waitFor(`BP.board().panel && !!document.querySelector('${SECTION('Home', 'pricing')}')?.offsetWidth`);
     await c.ev(`BP.board({fit: true})`);
     await settle(c);
   },

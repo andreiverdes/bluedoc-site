@@ -13,7 +13,7 @@ export default {
 
   async setup(c) {
     await panels(c);
-    await view(c, { x: 1400, y: 2620, k: 0.3, to: [640, 470] });
+    await view(c, { x: 1400, y: 2620, k: 0.3, to: [736, 470] });
     await settled(c);
     await c.click(ab('today', 0.5, 0.6), { ms: 1 });
     await c.waitFor(`BP.board().selected === 'today'`);
@@ -37,13 +37,13 @@ export default {
     await c.pause(200);
     await c.up();
     await c.waitFor(`BP.boardEdit().drafts.some(d => d.key === '${LINK}' && d.link.to === 'settings')`);
-    await c.pause(1100);
+    await c.pause(900);
     // Present from Today, then its Profile tab
-    await c.click('button[aria-label^="Present"]', { ms: 700 });
+    await c.click('.bd-btb button[aria-label^="Present"]', { ms: 650 });
     await c.waitFor(`BP.board().presented && BP.board().presented.screen === 'today'`);
-    await c.pause(700);
+    await c.pause(550);
     await c.click(scr(0.857, 0.921), { ms: 650 });
     await c.waitFor(`BP.board().presented.screen === 'settings'`);
-    await c.pause(1300);
+    await c.pause(1100);
   },
 };

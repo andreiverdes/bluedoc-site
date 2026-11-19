@@ -7,12 +7,12 @@ import { answerFileDialog, panels, paneTo, shotsReady, toRow } from '../fixtures
 
 let image;
 
-// a brand board: deep green, mint, an orange accent and a few mid tones
+// a brand board in blues: deep navy, ice, a bright blue accent and a few mid tones
 const BOARD = `<svg xmlns="http://www.w3.org/2000/svg" width="640" height="400">
-  <rect width="640" height="400" fill="#0f3d2e"/>
-  <rect x="380" width="260" height="400" fill="#e7f6ee"/>
-  <rect x="380" y="260" width="260" height="140" fill="#f97316"/>
-  <rect x="0" y="300" width="380" height="100" fill="#1f7a55"/>
+  <rect width="640" height="400" fill="#0b1f3a"/>
+  <rect x="380" width="260" height="400" fill="#e8f1fb"/>
+  <rect x="380" y="260" width="260" height="140" fill="#1d6ff2"/>
+  <rect x="0" y="300" width="380" height="100" fill="#2a4f86"/>
   <circle cx="190" cy="150" r="80" fill="#ffffff"/>
 </svg>`;
 

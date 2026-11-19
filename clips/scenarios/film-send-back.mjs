@@ -1,8 +1,10 @@
 // Film, Send it back (docs/plans/demo-films.bluedoc.json): in plan mode, saying no to a plan makes it disappear.
-// With bluedoc the saved carts plan is already open and the agent waits (a real serve.py wait). The reader pins one
-// note on the sweeper step and sends Request changes; the real change request lands in the terminal, the agent runs
-// a real build.py patch that rewrites the step and resolves that comment, and waits again. The page opens rev 2 with
-// the step marked word by word and the comment resolved; the reader approves, the real approval prints.
+// With bluedoc the saved carts plan is already open (its questions answered) and the agent waits (a real serve.py
+// wait). The reader pins one note on the sweeper step with Element and sends it from the Request changes dialog; the
+// real change request lands in the terminal, the agent runs a real build.py patch that rewrites the step and resolves
+// that comment, and waits again. The reader's page shows "Updated since you last opened it"; Show what changed opens
+// rev 2 against rev 1 (the Revisions pane: 1 changed, resolves 1 comment), the next change is the step marked word by
+// word; the reader approves in the send dialog, the real approval prints. Record with `env -u CI` (stage.planHook).
 import { cpSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -13,6 +15,8 @@ const DOC = 'plans/saved-carts';
 const REL = 'docs/plans/saved-carts.bluedoc.json';
 const NOTE = 'Run it on the existing jobs queue';
 const STEP = '.bp-step[data-step="sweeper"] .bp-step-t';
+const CHANGES = 'dialog.bd-chgs[open]';
+const APPROVE = 'dialog.bd-approve[open]';
 const MD = 'Runs on the existing jobs queue at 03:10 UTC, in batches of 1,000 rows. Deletes carts unused for longer than the retention you pick.';
 
 /** a long real reply, folded at its command appendix as Claude Code folds long output */
@@ -42,9 +46,13 @@ export default {
   async setup(c) {
     const s = c.stage, t = s.term;
     this.path = c.bd.docPath(DOC);
-    this.gate = (await s.gate(this.path, `http://${s.shown(await c.bd.urlFor(DOC))}`)).split('\n');
+    this.hook = (await s.planHook(this.path, `http://${s.shown(await c.bd.urlFor(DOC))}`)).split('\n');
     await c.goto(DOC);
-    await c.ev('BP.sidebar({open: false})');
+    // the reader has answered the plan's questions already (a plan is approved with every question answered)
+    await c.ev(`BP.acceptRecommended('decisions')`);
+    await c.waitFor(`document.querySelectorAll('#questions .bp-cl-item.has-choices.done').length === 3`);
+    await c.ev('BP.sidebar({open: false}); BP.contents({open: false})');
+    await c.waitFor('!BP.sidebar().open && !BP.contents().open');
     await c.wheel(await c.ev(`document.querySelector('${STEP}').getBoundingClientRect().top - 300`), { ms: 50 });
     await s.layout('tandem');
     await t.title('acme-shop — claude');
@@ -58,8 +66,8 @@ export default {
     s.caption('Said no? The plan disappears.');
     await c.pause(1200);
     let id = await t.tool('ExitPlanMode');
-    await t.done(id, [s.tidy(this.gate[0].replace(/ \(doc: [^)]*\)/, '')), { text: `… +${this.gate.length - 1} lines (ctrl+o to expand)`, cls: 'faint' }]);
-    let reply = s.wait(this.path); reply.catch(() => {});
+    await t.done(id, [s.tidy(this.hook[0].replace(/ \(doc: [^)]*\)/, '')), { text: `… +${this.hook.length - 1} lines (ctrl+o to expand)`, cls: 'faint' }]);
+    let reply = s.wait(this.path);
     id = await t.tool('Bash', `serve.py wait ${REL} --kind any`);
     await t.done(id, ['Running in the background (↓ to manage)']);
     await t.say('The plan is open in bluedoc. I’ll wait for your review.');
@@ -67,17 +75,17 @@ export default {
 
     // the reader: one note on the sweeper step, then Request changes
     s.caption('Send it [back] instead.');
-    await c.click('.bd-anntb button[data-m="point"]', { ms: 600 });
+    await c.click('.bd-anntb .bd-key[data-m=point]', { ms: 600 });
     await c.click({ sel: STEP, x: 0.35, y: 0.5 }, { ms: 600 });
     await c.waitForSelector('.bd-cmp:not([hidden]) textarea');
     await c.type(NOTE, { cps: 26 });
     await c.click('.bd-cmp:not([hidden]) .bp-btn.primary', { ms: 450 });
     await c.waitFor('BP.annotations().length === 1');
     await c.pause(300);
-    await c.click('.bd-anntb .go', { ms: 600 });
-    await c.waitForSelector('.bd-chgs .bp-btn.primary');
-    await c.pause(500);
-    await c.click('.bd-chgs .bp-btn.primary', { ms: 500 });
+    await c.click('.bd-anntb .bd-key.go', { ms: 600 });
+    await c.waitForSelector(`${CHANGES} .ft .pri`);
+    await c.pause(900);
+    await c.click(`${CHANGES} .ft .pri`, { ms: 500 });
     await c.waitFor(`BP.planState().state === 'changes'`);
 
     // the real change request, the real patch
@@ -98,32 +106,28 @@ export default {
     const lines = out.out.trim().split('\n').filter(Boolean);
     await t.done(id, [...lines.slice(0, 3).map((l) => s.tidy(l)), ...(lines.length > 3 ? [{ text: `… +${lines.length - 3} lines (ctrl+o to expand)`, cls: 'faint' }] : [])]);
     await t.spin(null);
-    reply = s.wait(this.path); reply.catch(() => {});
+    reply = s.wait(this.path);
     id = await t.tool('Bash', `serve.py wait ${REL} --kind any`);
     await t.done(id, ['Running in the background (↓ to manage)']);
     await t.say('Rev 2: the sweeper now runs on the jobs queue.');
 
-    // the reader opens rev 2's diff
-    await c.goto(DOC, 'diff=1');
-    await c.waitFor(`!!window.BP && BP.planState().rev === '2'`);
-    await c.ev('BP.sidebar({open: false})');
+    // the reader opens the page again: updated since they last opened it; Show what changed compares rev 2 with rev 1
+    await c.goto(DOC);
+    await c.ev('BP.sidebar({open: false}); BP.contents({open: false})');
+    await c.waitForSelector('.bd-revbar.upd button[aria-label="Show what changed"]');
     await c.pause(500);
-    await c.click('.bd-revtb button[aria-label="Next change"]', { ms: 600 });
-    await c.pause(1700);
-    await c.click('.bd-revtb .go', { ms: 600 });
-    await c.waitForSelector('.bd-anntb .approve');
-    // the comment, resolved by the agent in rev 2
-    await c.ev('BP.sidebar({open: true})');
-    await c.pause(400);
-    await c.click('button[data-f="resolved"]', { ms: 600 });
-    await c.pause(1500);
-    await c.ev('BP.sidebar({open: false})');
-    await c.pause(300);
-    await c.click('.bd-anntb .approve', { ms: 650 });
-    await c.waitForSelector('.bd-approve .bp-btn.ok');
-    await c.pause(600);
-    await c.click('.bd-approve .bp-btn.ok', { ms: 500 });
+    await c.click('.bd-revbar.upd button[aria-label="Show what changed"]', { ms: 650 });
+    await c.waitFor(`!!window.BP && BP.planState().rev === '2' && !!BP.compare()`);
+    await c.waitForSelector('.bd-revbar button[aria-label="Next change"]');
+    await c.pause(900);
+    await c.click('.bd-revbar button[aria-label="Next change"]', { ms: 600 });
+    await c.pause(2000);
+    await c.click('.bd-anntb .bd-key.approve', { ms: 650 });
+    await c.waitForSelector(`${APPROVE} .ft .pri:not(:disabled)`);
+    await c.pause(900);
+    await c.click(`${APPROVE} .ft .pri`, { ms: 500 });
     await c.waitFor(`BP.planState().state === 'approved'`);
+    await c.moveTo('.bd-anntb .bd-key.approve.done', { ms: 600 });
 
     const note = s.approvedNote(this.path);
     s.caption('Rev 2, every change marked.');

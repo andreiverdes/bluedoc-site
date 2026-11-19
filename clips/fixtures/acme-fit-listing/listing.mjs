@@ -29,15 +29,18 @@ export async function settle(c, rounds = 8) {
 }
 
 /**
- * The left panel (Text, Style, Colors, Checks) open or shut, the right one (Brief, Comments, Revisions) shut unless
- * asked, and the left panel on `tab`. The page remembers the left panel: a toggle is followed by a reload, so the
- * recording starts on a page that loaded that way (a page left mid-slide before the first recorded frame now and
- * then stops painting in headless Chrome).
+ * The left pane on its Listing tab (Text, Style, Colors, Checks) or shut, the right one (Comments, Revisions) shut
+ * unless asked, and the Listing pane on `tab`. The left pane's keys are Brief and Listing: a lit key shuts the pane,
+ * the other one switches it. The page remembers the left pane: a change is followed by a reload, so the recording
+ * starts on a page that loaded that way (a page left mid-slide before the first recorded frame now and then stops
+ * painting in headless Chrome).
  */
 export async function panels(c, { left = true, right = false, tab = 'text' } = {}) {
   await c.waitFor(LISTING_READY, 30_000);
-  if ((await c.ev('BP.listing().toolbar.lp')) !== left) {
-    await c.ev(`document.querySelector('.bd-lst-btb button[aria-keyshortcuts="["]').click()`);
+  const lit = await c.ev(`document.querySelector('.bd-stripe.l .bd-sk[aria-pressed=true]')?.dataset.f ?? null`);
+  const want = left ? 'screens' : null;
+  if (lit !== want) {
+    await c.ev(`document.querySelector('.bd-stripe.l .bd-sk[data-f=${want ?? lit}]').click()`);
     await c.pause(400);
     await c.reload();
     await c.waitFor(LISTING_READY, 30_000);

@@ -1,4 +1,4 @@
-// Every doc type: Select (T), drag over a TL;DR phrase, write the change, Save; the phrase stays marked and the
+// Every doc type: Text (T), drag over a TL;DR phrase, write the change, Save; the phrase stays marked and the
 // comment waits in the Comments panel.
 export default {
   doc: 'acme-orders',

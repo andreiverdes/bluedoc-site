@@ -10,6 +10,13 @@ export default {
 
   async setup(c) {
     await panels(c, { left: false });
+    // each store's page drawn once, so the switches land on drawn shots
+    await c.ev(`BP.listing({platform: 'appstore'})`);
+    await c.waitFor(`BP.listing().platform === 'appstore'`);
+    await shotsReady(c);
+    await c.ev(`BP.listing({platform: 'play'})`);
+    await c.waitFor(`BP.listing().platform === 'play'`);
+    await shotsReady(c);
   },
 
   async run(c) {

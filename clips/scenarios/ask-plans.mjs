@@ -28,15 +28,12 @@ export default {
 
   async setup(c) {
     const s = c.stage, t = s.term;
-    // the page rendered 1100 px wide and scaled 0.8 into the browser window (the stage's default is 1240 at 0.71):
-    // bluedoc's narrow layout, its column edge to edge, so the canvas fills the window
-    await s.tab.ev(`Object.assign(document.getElementById('frame').style, { width: '1100px', height: '1023px', transform: 'scale(0.8)' })`);
     // the page loaded and settled in the browser window, off stage until the agent opens it
     await s.layout('tandem');
     await c.goto(DOC);
     await c.waitForSelector(CV);
-    await c.ev(`BP.sidebar({ open: false })`);
-    await c.waitFor(`!BP.sidebar().open`);
+    await c.ev(`BP.sidebar({ open: false }); BP.contents({ open: false })`);
+    await c.waitFor(`!BP.sidebar().open && !BP.contents().open`);
     await c.pause(400);
     await s.layout('solo');
     await t.title('acme-shop — claude');

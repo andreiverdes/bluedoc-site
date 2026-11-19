@@ -2,16 +2,18 @@
 // Stage.start serves the stage; attach(tab) makes the page framable in it (the recording's copy only: bluedoc sends
 // X-Frame-Options DENY and frame-ancestors 'none', which the tab's Fetch interception drops for this server's
 // documents) and tracks the iframe's execution context, so the Actor can evaluate and point inside it. The agent's
-// side is real: the gate's words come from hook.py and the reply from a background `serve.py wait`.
+// side is real: the plan-mode hook's words come from hook.py and the reply from a background `serve.py wait`.
 import { spawn } from 'node:child_process';
 import { readFileSync, existsSync } from 'node:fs';
 import { createServer } from 'node:http';
-import { basename, extname, join } from 'node:path';
+import { basename, dirname, extname, join } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 
 const TYPES = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.woff2': 'font/woff2' };
 /** the port a reader sees: the take's server runs on a free port, the address bar shows bluedoc's default */
 const SHOWN_ORIGIN = 'http://127.0.0.1:8740';
+/** where a reader's agent finds the bluedoc skill (the take runs the checkout's skills/bluedoc) */
+const SHOWN_SKILL = '~/.claude/skills/bluedoc';
 
 export class Stage {
   static async start({ bd, clips, site }) {
@@ -150,9 +152,17 @@ export class Stage {
     return `${u.host}${u.pathname}${u.search}`;
   }
 
-  /** Text the agent prints, as on a reader's machine: the take's temp project folder as ~/<project>, its port as 8740. */
+  /**
+   * Text the agent prints, as on a reader's machine: the take's temp project folder as ~/<project> (also as macOS
+   * resolves /tmp, under /private), the bluedoc checkout's skill folder as an installed skill's, its port as 8740.
+   */
   tidy(text) {
-    return String(text).replaceAll(this.bd.work, `~/${basename(this.bd.work)}`).replaceAll(this.bd.origin, SHOWN_ORIGIN);
+    const project = `~/${basename(this.bd.work)}`;
+    return String(text)
+      .replaceAll(`/private${this.bd.work}`, project)
+      .replaceAll(this.bd.work, project)
+      .replaceAll(dirname(this.bd.scripts), SHOWN_SKILL)
+      .replaceAll(this.bd.origin, SHOWN_ORIGIN);
   }
 
   /**
@@ -169,7 +179,7 @@ export class Stage {
 
   /** hook.py as the agent sees it: expr runs in Python with hook imported; resolves with its JSON value (async, so a
    *  take never blocks on it) */
-  hook(expr) {
+  #hook(expr) {
     const code = `import sys, json; from pathlib import Path; sys.path.insert(0, ${JSON.stringify(this.bd.scripts)}); import hook; print(json.dumps(${expr}))`;
     const proc = spawn('python3', ['-c', code], { env: this.bd.env, cwd: this.bd.work, stdio: ['ignore', 'pipe', 'pipe'] });
     let out = '', err = '';
@@ -178,21 +188,38 @@ export class Stage {
     return new Promise((ok, fail) => proc.on('exit', (code) => (code === 0 ? ok(JSON.parse(out.trim().split('\n').at(-1))) : fail(new Error(`hook.py: ${err || out}`)))));
   }
 
-  gate(doc, url) {
-    return this.hook(`hook.instructions(Path(${JSON.stringify(doc)}), ${JSON.stringify(url)}, hook.AGENTS['claude'][1])`);
+  /**
+   * What the plan-mode hook tells Claude Code when it opens the plan at url (hook.open_plan's message: the
+   * instructions, then `## Stale evidence` when the doc has any). Fails when the hook would stay silent in this
+   * environment (under CI, say: record films with `env -u CI`).
+   */
+  async planHook(doc, url) {
+    const why = await this.#hook('hook.no_reader({})');
+    if (why) throw new Error(`the plan-mode hook is off here (${why}): record with it on, e.g. env -u CI npm run clips`);
+    const d = `Path(${JSON.stringify(doc)})`;
+    return this.#hook(`hook.instructions(${d}, ${JSON.stringify(url)}, hook.AGENTS['claude'][1]) + ('\\n\\n' + s if (s := hook.stale_evidence(${d})) else '')`);
   }
 
   approvedNote(doc) {
-    return this.hook(`(hook.approval('claude', 'clips', {'doc': ${JSON.stringify(doc)}}) or {}).get('note')`);
+    return this.#hook(`(hook.approval('claude', 'clips', {'doc': ${JSON.stringify(doc)}}) or {}).get('note')`);
   }
 
-  /** A background `serve.py wait <doc> --kind any`; resolves with what it printed on stdout when a reply comes. */
+  /**
+   * A background `serve.py wait <doc> --kind any`; resolves with what it printed on stdout when a reply comes. A wait
+   * that ends otherwise (stop() ends those still waiting when a take fails) rejects, but never as an unhandled
+   * rejection: a scenario that doesn't await it fails on its own error.
+   */
   wait(doc, kind = 'any') {
     const proc = spawn('python3', [join(this.bd.scripts, 'serve.py'), 'wait', doc, '--kind', kind], { env: this.bd.env, cwd: this.bd.work, stdio: ['ignore', 'pipe', 'pipe'] });
     this.waits.push(proc);
-    let out = '';
+    let out = '', err = '';
     proc.stdout.on('data', (d) => (out += d));
-    return new Promise((ok, fail) => proc.on('exit', (code) => (code === 0 ? ok(out) : fail(new Error(`serve.py wait exited ${code}`)))));
+    proc.stderr.on('data', (d) => (err += d));
+    const reply = new Promise((ok, fail) =>
+      proc.on('exit', (code, signal) => (code === 0 ? ok(out) : fail(new Error(`serve.py wait ${signal ? `ended by ${signal}` : `exited ${code}`}${err.trim() ? `: ${err.trim()}` : ''}`)))),
+    );
+    reply.catch(() => {});
+    return reply;
   }
 
   async stop() {

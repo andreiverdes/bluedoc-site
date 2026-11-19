@@ -29,8 +29,9 @@ export default {
 
   async run(c) {
     await c.pause(900);
-    const [x, y] = await inPage(c, 'blog', TITLE_EL, { fx: 1 });
-    await c.moveTo([x + 40, y + 34], { ms: 650 });
+    // the cursor in the margin at the title's start: the added words land to its right and on the line below
+    const [x, y] = await inPage(c, 'blog', TITLE_EL, { fx: 0, fy: 0.5 });
+    await c.moveTo([x - 22, y - 6], { ms: 650 });
     await c.pause(350);
     // src/content/blog.ts, as an editor saves it on each keystroke
     const file = join(site.root, 'src/content/blog.ts');

@@ -17,7 +17,7 @@ export default {
   prepare: revD,
 
   async setup(c) {
-    await panels(c, { right: true });
+    await panels(c); // the compare view's slider sits in its header, under where the Revisions panel opens
     await c.ev(`BP.board({compare: 'today'})`);
     await c.waitFor(`BP.board().compare === true`);
     await c.click('.bd-cmpv button[data-v="onion"]', { ms: 1 });

@@ -1,5 +1,5 @@
-// Websites: pick a hero version in place, then Approve website: the dialog lists the pick against the
-// recommendation, and Approve sends it to the agent, which writes the picks into the site's source.
+// Websites: pick a hero version in place, then Approve: the send dialog lists the pick against the recommendation,
+// and Approve sends it to the agent, which writes the picks into the site's source; the key then reads Approved.
 import { BOARD_READY, boardOnly, settle, startFixture, stepBack } from '../fixtures/acme-fit-site/fixture.mjs';
 
 let site;
@@ -29,10 +29,10 @@ export default {
     await c.waitFor(`BP.board().artboards[0].page.variants.hero.shown === 'c'`);
     await c.pause(700);
     await c.click(`.bd-key.approve`, { ms: 700 });
-    await c.waitFor(`!!document.querySelector('.bd-approve[open]')`);
+    await c.waitFor(`!!document.querySelector('dialog.bd-approve[open]')`);
     await c.pause(1300);
-    await c.click(`.bd-approve[open] .bp-btn.ok`, { ms: 650 });
-    await c.waitFor(`!document.querySelector('.bd-approve[open]') && document.querySelector('.bd-key.approve').classList.contains('done')`, 15_000);
+    await c.click(`dialog.bd-approve[open] .ft .pri`, { ms: 650 });
+    await c.waitFor(`!document.querySelector('dialog.bd-approve[open]') && document.querySelector('.bd-key.approve').classList.contains('done')`, 15_000);
     await c.pause(1300);
   },
 };

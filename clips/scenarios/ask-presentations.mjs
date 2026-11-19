@@ -1,8 +1,9 @@
 // Ask, Presentations (the Atlas home's "Inside your agent" tab): Claude Code beside the bluedoc page. The request is
 // typed, the agent reads the review and its numbers, writes the acme-fit-deck example, builds it and opens it (real
-// build.py and serve.py open output), and the deck's board of slides slides in. The tour: Present plays the deck in
-// the page's own window, each slide with its speaker notes under it; → twice steps from the title through What
-// shipped to Weekly actives, where it rests. Present fills the page's window, not the screen, so it runs framed.
+// build.py and serve.py open output), and the deck's board of slides slides in. The tour: Present (the dock's green
+// key) plays the deck in the page's own window, each slide with its speaker notes under it; → twice steps from the
+// title through What shipped to Weekly actives, where it rests. Present fills the page's window, not the screen, so it
+// runs framed.
 import { readFileSync } from 'node:fs';
 import { settled } from '../fixtures/acme-fit-design/board.mjs';
 import { panels } from '../fixtures/acme-fit-deck/deck.mjs';
@@ -14,7 +15,7 @@ const DOC = 'acme-fit-deck';
 const REL = `docs/${DOC}.bluedoc.json`;
 const PROMPT = 'Turn the Q3 launch review into a deck with speaker notes.';
 const WELCOME = { html: '<div class="box"><span style="color:var(--t-accent)">✻</span> Welcome to <span class="b">Claude Code</span><br><span class="dim">cwd: ~/acme-shop</span></div>' };
-const PRESENT = '.bd-btb .bd-tbtn.pri';
+const PRESENT = '.bd-anntb .bd-key.present';
 const NEXT = '.bd-pres .bar button[aria-label="Next slide (→)"]';
 const shown = (id) => `BP.board().presented && BP.board().presented.screen === '${id}' && !!document.querySelector('.bd-pres iframe')`;
 

@@ -1,8 +1,10 @@
 // Film, Designs (docs/plans/demo-films.bluedoc.json): Claude Code beside the Acme Fit design board. The agent builds
 // the board and opens it (real build.py and serve.py open output), then waits in the background (a real serve.py
-// wait). The reader points at Profile in Today's tab bar, pins a change request and sends it; the real request lands
-// in the terminal, naming the element. The agent applies rev D (the fixture's Today, with the real build.py patch),
-// waits again, and the board shows Today's rev C and rev D onion-skinned.
+// wait). The board slides in fitted, its Screens pane open over the left; the reader picks Today in the pane (the board
+// glides to it), points at Profile in Today's tab bar with Element, pins a change request and sends it from the
+// Request changes dialog; the real request lands in the terminal, naming the element. The agent applies rev D (the
+// fixture's Today, with the real build.py patch), waits again, and the board shows Today's rev C and rev D
+// onion-skinned.
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 import { panels, settled } from '../fixtures/acme-fit-design/board.mjs';
@@ -44,8 +46,8 @@ export default {
     this.opened = run(c, 'serve.py', 'open', this.path, '--to', 'Claude Code').map((l) => (/^https?:\/\//.test(l.trim()) ? `http://${s.shown(l.trim())}` : s.tidy(l)));
     await s.layout('tandem');
     await c.goto(DOC);
-    await panels(c);
-    await c.ev(`BP.board({focus: 'today'})`);
+    await panels(c, { left: 'screens' });
+    await c.ev(`BP.board({fit: true})`);
     await settled(c);
     // off stage until the agent opens it
     await s.layout('solo');
@@ -81,9 +83,12 @@ export default {
     await t.say('The board is open. Point at anything and I’ll pick it up.');
     await s.caption(null);
 
-    // ---- the reader points at Profile in Today's tab bar ----
+    // ---- the reader picks Today in the Screens pane, then points at Profile in its tab bar ----
     s.caption('Point at the [screen].');
-    await c.click('button.bd-key[aria-label="Point"]', { ms: 650 });
+    await c.click('.bd-scr-l button[data-ab="today"]', { ms: 650 });
+    await c.waitFor(`BP.board().k > 0.8`);
+    await settled(c);
+    await c.click('.bd-anntb .bd-key[data-m=point]', { ms: 600 });
     await c.waitFor(`BP.board().mode === 'point'`);
     await c.moveTo({ sel: SCR, x: 0.87, y: 0.955 }, { ms: 700 });
     await c.pause(350);
@@ -96,10 +101,10 @@ export default {
     await c.waitFor(`BP.annotations().length === 1`);
     await c.key('v');
     await c.pause(300);
-    await c.click('button.bd-key[aria-label^="Request changes"]', { ms: 650 });
-    await c.waitForSelector('.bd-chgs[open] .bp-btn.primary');
+    await c.click('.bd-anntb .bd-key.go', { ms: 650 });
+    await c.waitForSelector('dialog.bd-chgs[open] .ft .pri');
     await c.pause(1500);
-    await c.click('.bd-chgs[open] .bp-btn.primary', { ms: 500 });
+    await c.click('dialog.bd-chgs[open] .ft .pri', { ms: 500 });
     await s.caption(null);
 
     // ---- the request lands; the agent revises ----
@@ -134,8 +139,19 @@ export default {
     u.searchParams.set('diff', 'C');
     await s.open(u.href);
     await c.waitFor(`!!(window.BP && BP.board() && document.querySelector('.bd-board'))`);
+    // ?diff= opens Revisions over the board's right edge, where the compare view's keys sit: shut it; the reader shuts
+    // the Screens pane with its key
+    await c.ev(`BP.sidebar({open: false})`);
+    await c.waitFor(`!BP.sidebar().open`);
+    if (await c.ev(`BP.board().panel`)) {
+      await c.click('.bd-stripe.l .bd-sk[data-f=screens]', { ms: 550 });
+      await c.waitFor(`!BP.board().panel`);
+    }
     await c.ev(`BP.board({compare: 'today'})`);
     await c.waitFor(`BP.board().compare === true`);
+    // both revs' screens drawn before the view is used (they paint blank for a moment after compare opens)
+    await c.waitFor(`[...document.querySelectorAll('.bd-cmpv iframe')].length >= 2 && [...document.querySelectorAll('.bd-cmpv iframe')].every((f) => { try { return f.contentDocument.readyState === 'complete' && f.contentDocument.body.children.length > 0; } catch { return true; } })`, 20_000);
+    await c.pause(400);
     await c.click('.bd-cmpv button[data-v="onion"]', { ms: 600 });
     await c.waitFor(`!document.querySelector('${SLIDER}').hidden`);
     await settled(c);

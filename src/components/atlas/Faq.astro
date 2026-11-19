@@ -1,7 +1,20 @@
 ---
 // "Questions, answered": the questions as a vertical tab list beside one panel, each panel a small blueprint
-// illustration over its answer (the tabs script in src/scripts/site.ts; Up and Down move through the list).
+// illustration over its answer (the tabs script in src/scripts/site.ts; Up and Down move through the list). The share
+// answer draws bluedoc's app bar (the home key and Contents, the doc's name, then Share, the light/dark switch,
+// Comments, Revisions and ⋮) over its share sheet.
+import ChevronDown from '@lucide/astro/icons/chevron-down';
 import ChevronRight from '@lucide/astro/icons/chevron-right';
+import Copy from '@lucide/astro/icons/copy';
+import EllipsisVertical from '@lucide/astro/icons/ellipsis-vertical';
+import House from '@lucide/astro/icons/house';
+import Link from '@lucide/astro/icons/link';
+import ListChecks from '@lucide/astro/icons/list-checks';
+import MessageCircle from '@lucide/astro/icons/message-circle';
+import Moon from '@lucide/astro/icons/moon';
+import RotateCcwClock from '@lucide/astro/icons/rotate-ccw-clock';
+import Share from '@lucide/astro/icons/share';
+import Sun from '@lucide/astro/icons/sun';
 import { atlasFaq as f } from '../../content/atlas';
 import { rich } from '../../lib/rich';
 ---
@@ -81,6 +94,12 @@ import { rich } from '../../lib/rich';
                       can’t save
                     </span>
                   </li>
+                  <li>
+                    a secret gist
+                    <span class="av-chip" data-tone="off">
+                      only on Share
+                    </span>
+                  </li>
                 </ul>
               )}
               {it.art === 'offline' && (
@@ -98,9 +117,72 @@ import { rich } from '../../lib/rich';
               )}
               {it.art === 'export' && (
                 <div class="art-row is-files">
-                  <span class="art-file">name.html</span>
-                  <span class="art-file">deck.pdf</span>
-                  <span class="art-file">fastlane.zip</span>
+                  <span class="art-file">orders.html</span>
+                  <span class="art-file">orders.pdf</span>
+                  <span class="art-file">orders.md</span>
+                </div>
+              )}
+              {it.art === 'share' && (
+                <div class="art-share">
+                  <div class="bar">
+                    <span class="bar-tray">
+                      <span class="bar-home">
+                        <House />
+                        <span class="bar-word">
+                          blue<b>doc</b>
+                        </span>
+                      </span>
+                      <i class="bar-groove" />
+                      <span class="bar-k is-ring">
+                        <ListChecks />
+                      </span>
+                    </span>
+                    <span class="bar-name">
+                      Acme Shop: saved carts <ChevronDown />
+                    </span>
+                    <span class="bar-tray is-r">
+                      <span class="bar-share is-on">
+                        <Share /> Share
+                      </span>
+                      <i class="bar-groove bar-th" />
+                      <span class="bar-thsw bar-th">
+                        <Sun />
+                        <span class="is-on">
+                          <Moon />
+                        </span>
+                      </span>
+                      <i class="bar-groove" />
+                      <span class="bar-k">
+                        <MessageCircle />
+                      </span>
+                      <span class="bar-k">
+                        <RotateCcwClock />
+                        <b class="bar-n">3</b>
+                      </span>
+                      <i class="bar-groove" />
+                      <span class="bar-k">
+                        <EllipsisVertical />
+                      </span>
+                    </span>
+                  </div>
+                  <div class="mock-share">
+                    <p class="share-t">
+                      Secret gist
+                      <span class="share-state">Up to date · rev 3</span>
+                    </p>
+                    <p class="share-link">
+                      <Link />
+                      <span>bluedoc.ai/g/ChssPU5fYHGCk6S1xtfo-Q</span>
+                      <Copy />
+                    </p>
+                    <p class="share-row">
+                      Include my answers <i class="share-sw" />
+                    </p>
+                    <p class="share-acts">
+                      <span class="share-act">Details</span>
+                      <span class="share-act">Stop sharing</span>
+                    </p>
+                  </div>
                 </div>
               )}
               {it.art === 'licence' && (
@@ -280,5 +362,263 @@ import { rich } from '../../lib/rich';
     font-family: var(--font-mono);
     font-size: 0.6875rem;
     color: var(--fg);
+  }
+
+  /* the share answer: bluedoc's app bar, its two raised trays (home key and Contents; Share, light/dark, Comments,
+     Revisions and ⋮), then the share sheet under Share. As the panel narrows, the bar sheds what bluedoc's sheds:
+     the doc's name, the wordmark, then the theme switch (in ⋮ on a phone). */
+  .art-share {
+    display: grid;
+    gap: 0.6rem;
+    width: 100%;
+    font-size: 0.75rem;
+    color: var(--fg);
+  }
+  .art-share :global(svg) {
+    flex: none;
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+  }
+  .bar-tray {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 0.15rem;
+    padding: 0.2rem;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    box-shadow: 0 8px 20px -14px rgb(0 0 0 / 0.55);
+  }
+  .bar-tray.is-r {
+    margin-left: auto;
+  }
+  .bar-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding-inline: 0.45rem 0.3rem;
+    color: var(--brand-fg);
+  }
+  .bar-word {
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+  }
+  .bar-word b {
+    font-weight: 600;
+    color: var(--brand-fg);
+  }
+  .bar-groove {
+    width: 1px;
+    height: 1.1rem;
+    margin-inline: 0.15rem;
+    background: var(--line-strong);
+  }
+  .bar-k {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 1.8rem;
+    height: 1.8rem;
+    color: var(--fg-muted);
+  }
+  /* Contents, ringed with the tracker's progress */
+  .bar-k.is-ring {
+    padding: 2px;
+    background: conic-gradient(var(--brand-fg) 0 62%, var(--line-strong) 62% 100%);
+  }
+  .bar-k.is-ring :global(svg) {
+    box-sizing: content-box;
+    padding: 0.32rem;
+    border-radius: 50%;
+    background: var(--surface);
+  }
+  .bar-n {
+    position: absolute;
+    top: -0.2rem;
+    right: -0.15rem;
+    display: grid;
+    place-items: center;
+    min-width: 0.9rem;
+    height: 0.9rem;
+    padding-inline: 0.2rem;
+    border-radius: var(--av-pill);
+    background: var(--surface-2);
+    font-size: 0.5625rem;
+    font-weight: 500;
+    color: var(--fg);
+    box-shadow: 0 0 0 1px var(--line-strong);
+  }
+  .bar-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    color: var(--fg);
+  }
+  .bar-name :global(svg) {
+    width: 0.75rem;
+    height: 0.75rem;
+    color: var(--fg-subtle);
+  }
+  .bar-share {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    height: 1.8rem;
+    padding-inline: 0.6rem;
+    border-radius: var(--av-pill);
+    font-weight: 500;
+  }
+  .bar-share.is-on {
+    background: color-mix(in oklab, var(--brand) 16%, var(--surface));
+    color: var(--brand-fg);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--brand-fg) 50%, transparent);
+  }
+  /* the light/dark switch: sun and moon on a track, the current one raised */
+  .bar-thsw {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.1rem;
+    padding: 0.15rem;
+    background: var(--bg-2);
+    color: var(--fg-subtle);
+  }
+  .bar-thsw > :global(svg),
+  .bar-thsw span {
+    box-sizing: content-box;
+    padding: 0.2rem;
+    border-radius: 50%;
+  }
+  .bar-thsw span {
+    display: grid;
+    background: var(--surface-2);
+    color: var(--fg);
+    box-shadow: 0 0 0 1px var(--line-strong);
+  }
+  :global([data-theme='light']) .bar-thsw > :global(svg) {
+    background: var(--surface);
+    color: var(--fg);
+    box-shadow: 0 0 0 1px var(--line-strong);
+  }
+  :global([data-theme='light']) .bar-thsw span {
+    background: none;
+    color: var(--fg-subtle);
+    box-shadow: none;
+  }
+  @container (max-width: 34rem) {
+    .bar-name {
+      display: none;
+    }
+  }
+  @container (max-width: 26rem) {
+    .bar-word {
+      display: none;
+    }
+  }
+  @container (max-width: 21rem) {
+    .bar-th {
+      display: none;
+    }
+  }
+
+  /* the share sheet: a ticket under the Share key */
+  .mock-share {
+    display: grid;
+    gap: 0.5rem;
+    justify-self: end;
+    width: min(100%, 20rem);
+    padding: 0.8rem 0.85rem;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    box-shadow: 0 24px 48px -28px rgb(0 0 0 / 0.6);
+  }
+  .share-t {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+  .share-state {
+    padding: 0.05rem 0.5rem;
+    background: color-mix(in oklab, var(--av-ok) 16%, transparent);
+    font-size: 0.625rem;
+    font-weight: 500;
+    color: var(--av-ok);
+    white-space: nowrap;
+  }
+  .share-link {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--line-strong);
+    background: var(--bg-2);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--fg-muted);
+  }
+  .share-link span {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .share-link :global(svg) {
+    width: 0.8rem;
+    height: 0.8rem;
+  }
+  .share-link :global(svg:last-child) {
+    color: var(--brand-fg);
+  }
+  .share-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--fg-muted);
+  }
+  .share-sw {
+    position: relative;
+    width: 1.75rem;
+    height: 1rem;
+    background: var(--brand);
+  }
+  .share-sw::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: calc(1rem - 4px);
+    height: calc(1rem - 4px);
+    border-radius: 50%;
+    background: #fff;
+  }
+  .share-acts {
+    display: flex;
+    gap: 0.4rem;
+  }
+  .share-act {
+    padding: 0.15rem 0.6rem;
+    border: 1px solid var(--line-strong);
+    background: var(--surface-2);
+    font-size: 0.6875rem;
+  }
+  .share-act:last-child {
+    margin-left: auto;
+    color: var(--av-del);
   }
 </style>

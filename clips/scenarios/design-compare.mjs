@@ -1,6 +1,7 @@
 // Designs: compare a screen across revisions. The temp copy gets rev D (Today: the avatar opens Profile, the tab
 // bar drops it, Start workout opens as a sheet); Changes from rev C marks Today changed and its links New, Changed
-// and Removed, listed in the Revisions panel. Today's compare button shows rev C and rev D side by side.
+// and Removed, listed in the Revisions panel. Today's labelled Compare key shows rev C and rev D side by side; Esc
+// closes it (its own close key lies under the Revisions panel).
 import { panels, revD, settled, view } from '../fixtures/acme-fit-design/board.mjs';
 
 export const crf = 26;
@@ -14,9 +15,9 @@ export default {
   prepare: revD,
 
   async setup(c) {
-    await panels(c, { right: true });
+    await panels(c, { right: 'revisions' });
     await c.waitFor(`BP.board().artboards.find(a => a.id === 'today').change === 'mod'`);
-    await view(c, { x: 820, y: 1830, k: 0.5, to: [560, 470] });
+    await view(c, { x: 820, y: 1830, k: 0.5, to: [500, 470] });
     await settled(c);
   },
 
@@ -26,9 +27,9 @@ export default {
     await c.waitFor(`BP.board().compare === true`);
     await settled(c);
     await c.pause(1900);
-    await c.click('.bd-cmpv .hd button[aria-label^="Close"], .bd-cmpv .hd .bd-ibtn', { ms: 700 });
-    await c.waitFor(`BP.board().compare === false`);
     await c.moveTo([880, 640], { ms: 600 });
+    await c.key('Escape');
+    await c.waitFor(`BP.board().compare === false`);
     await c.pause(700);
   },
 };

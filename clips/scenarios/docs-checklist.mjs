@@ -1,5 +1,6 @@
 // Docs: tick a runbook step. In the Local stack runbook (two steps already done), Start the fulfilment worker opens
-// to its command, Copy takes the command, and the tick moves the checklist's bar and the Tracker in the rail to 3 of 6.
+// to its command, Copy takes the command, and the tick moves the checklist's bar and the Tracker in the Contents pane
+// to 3 of 6.
 const CL = '#cl-local';
 const ITEM = '#item-local-worker';
 
@@ -10,7 +11,8 @@ export default {
 
   async setup(c) {
     await c.waitForSelector(ITEM);
-    await c.ev(`BP.sidebar({ open: false })`); // the page's own width, without the comments panel
+    // the Contents pane (its Tracker) beside the page, without the comments panel
+    await c.ev(`BP.sidebar({ open: false }); BP.contents({ open: true })`);
     // the first two steps are done: the bar has somewhere to go
     await c.ev(`['doctor', 'up'].forEach((id) => { const cb = document.getElementById('cb-local-' + id); if (!cb.checked) cb.click(); })`);
     await c.waitFor(`BP.progress().find((p) => p.id === 'local').done === 2`);

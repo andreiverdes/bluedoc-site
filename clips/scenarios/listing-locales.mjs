@@ -9,6 +9,14 @@ export default {
 
   async setup(c) {
     await panels(c, { left: true, tab: 'text' });
+    await toRow(c, 'phone', -10);
+    // the es-ES shots drawn once, so the switch lands on drawn shots
+    await c.ev(`BP.listing({locale: 'es-ES'})`);
+    await c.waitFor(`BP.listing().locale === 'es-ES'`);
+    await shotsReady(c);
+    await c.ev(`BP.listing({locale: 'en-US'})`);
+    await c.waitFor(`BP.listing().locale === 'en-US'`);
+    await shotsReady(c);
     await paneTo(c, '.bd-lfield[data-field="en-US/play/name"]', 40);
     await toRow(c, 'phone', -10);
   },

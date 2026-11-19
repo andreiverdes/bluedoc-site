@@ -1,5 +1,5 @@
-// Every doc type: Request changes · 2 opens the dialog with the Markdown the agent gets; Send, and the chip at the top
-// of the page reads Changes requested.
+// Every doc type: Request changes · 2 opens the send dialog with what the agent gets (the two comments, then the
+// picks); Send, and the chip at the top of the page reads Changes requested.
 export default {
   doc: 'acme-saved-carts-plan',
   posterAt: -0.4,
@@ -18,15 +18,17 @@ export default {
   async run(c) {
     await c.pause(700);
     await c.click('.bd-anntb .go', { ms: 650 });
-    await c.waitForSelector('.bd-chgs .bp-btn.primary');
+    await c.waitForSelector('dialog.bd-chgs[open] .ft .pri');
     await c.pause(400);
-    // the preview: what the agent reads
-    await c.moveTo({ sel: '.bd-chgs pre', x: 0.55, y: 0.45 }, { ms: 600 });
+    // what the agent reads: the comments, each on its spot
+    await c.moveTo({ sel: 'dialog.bd-chgs[open] .sd-cm .bp-msg:last-child', x: 0.7, y: 0.85 }, { ms: 600 });
     await c.pause(1100);
-    await c.click('.bd-chgs .bp-btn.primary', { ms: 550 });
-    await c.waitFor(`BP.planState().state === 'changes'`);
+    await c.click('dialog.bd-chgs[open] .ft .pri', { ms: 550 });
+    await c.waitFor(`BP.planState().state === 'changes' && !document.querySelector('dialog.bd-chgs[open]')`);
     await c.pause(300);
-    await c.moveTo({ text: 'Changes requested' }, { ms: 750 });
+    // just under the chip, so its words stay readable
+    const [x, y] = await c.point({ text: 'Changes requested' });
+    await c.moveTo([x + 24, y + 20], { ms: 750 });
     await c.pause(1300);
   },
 };

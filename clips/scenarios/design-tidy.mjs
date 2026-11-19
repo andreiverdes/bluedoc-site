@@ -8,7 +8,7 @@ const MESSY = { workout: [1790, 1900], workouts: [40, 2700], activity: [610, 282
 
 export default {
   doc: 'acme-fit-design',
-  posterAt: 3,
+  posterAt: -0.4, // Request changes with the layout draft
   cursor: [1110, 610],
 
   prepare(ctx) {
@@ -24,12 +24,13 @@ export default {
 
   async run(c) {
     await c.pause(900);
-    await c.click('button[aria-label^="Tidy up"]', { ms: 700 });
+    await c.click('.bd-btb button[aria-label^="Tidy up"]', { ms: 700 });
     await c.waitFor(`BP.boardEdit().drafts.some(d => d.key === 'layout:main')`);
     await settled(c);
-    await c.pause(900);
-    await c.click('button.bd-key[aria-label^="Request changes"]', { ms: 700 });
-    await c.waitForSelector('dialog[open]');
+    await c.moveTo([1110, 610], { ms: 450 }); // off the toolbar: its keys shift as the drafts count joins them
+    await c.pause(500);
+    await c.click('.bd-anntb .bd-key.go', { ms: 700 });
+    await c.waitForSelector('dialog.bd-chgs[open]');
     await c.pause(1800);
   },
 };

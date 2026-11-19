@@ -45,7 +45,7 @@ export const atlasHero = {
   clip: {
     name: 'film-plan-hook',
     label:
-      'Claude Code beside the bluedoc page. Without bluedoc, a plan scrolls by as a wall of text. With it, plan mode opens the saved carts plan as a page; the reader accepts the recommendations, adds guests, pins a note on the sweeper step and approves, and the terminal prints the approval the agent was waiting for.',
+      'Claude Code beside the bluedoc page. Without bluedoc, a plan scrolls by as a wall of text. With it, the plan-mode hook opens the saved carts plan as a page; the reader takes the recommendations with the questions’ Accept recommended, adds guests, pins a note on the sweeper step with Element and approves in the send dialog, and the terminal prints the approval the agent was waiting for.',
     width: 1600,
     height: 1000,
   },
@@ -77,7 +77,7 @@ const typeClips: Record<string, { clip: string; label: string; ask: string }> = 
   },
   presentations: {
     clip: 'ask-presentations',
-    label: 'The Acme Fit Q3 deck opens as a board of slides, then Present plays it in the page, stepping from the title to What shipped and what moved and to Weekly actives, each with its speaker notes.',
+    label: 'The Acme Fit Q3 deck opens as a board of slides, then Present, the dock’s green key, plays it in the page, stepping from the title to What shipped and what moved and to Weekly actives, each with its speaker notes.',
     ask: '“Turn the Q3 launch review into a deck with speaker notes.”',
   },
   websites: {
@@ -92,7 +92,7 @@ const typeClips: Record<string, { clip: string; label: string; ask: string }> = 
   },
   other: {
     clip: 'ask-other',
-    label: 'Claude Code writes the week 41 status page and opens it in bluedoc: the TL;DR, the Numbers table, the pricing incident, and the open decision on the saved carts rollout with its recommended date.',
+    label: 'Claude Code writes the week 41 status page and opens it in bluedoc: the TL;DR, the Numbers table, its orders-per-day chart hovered for Thursday’s values, the pricing incident, and the open decision on the saved carts rollout with its recommended date.',
     ask: '“Write this week’s status page.”',
   },
 };
@@ -116,7 +116,7 @@ export const atlasSetup = {
     {
       title: 'Install once.',
       body: 'One command adds the skill to your agent. It needs Python 3.9 or later and nothing to host.',
-      clip: { name: 'every-home-overview', label: 'The bluedoc home page: the Decisions, Waiting on agent and By type widgets above the doc cards.' },
+      clip: { name: 'every-home-overview', label: 'The bluedoc home page’s Statistics: Activity, Decisions and Waiting on agent across the projects, the range switching from 14 to 30 days.' },
     },
     {
       title: 'Ask in plain words.',
@@ -125,17 +125,17 @@ export const atlasSetup = {
     },
     {
       title: 'Answer on the page.',
-      body: 'Point at a part, pick an option, approve. The agent reads every answer and revises.',
-      clip: { name: 'every-option-rows', label: 'On the Acme saved carts plan, one option’s explanation opens, then two options are ticked and the question reads 2 picked.' },
+      body: 'Pin a comment on a part, pick an answer, approve. The agent reads every answer and revises.',
+      clip: { name: 'every-option-rows', label: 'On the Acme saved carts plan, one answer’s explanation opens, then two answers are ticked and the question reads 2 picked.' },
     },
   ],
   support: [
-    { lead: 'Plan mode too.', body: 'In plan mode the plan opens as a page, and the agent waits for Approve before it writes code.' },
+    { lead: 'Plan mode too.', body: 'The plan-mode hook opens the plan as a page, and the agent waits for Approve before it writes code. Settings turns it off.' },
     { lead: 'One JSON file per doc.', body: 'The server renders the page from it on every request, so an edit and a reload is the whole build.' },
   ],
 };
 
-// Chat versus page: the same five things you do with an agent's answer, and how each one goes.
+// Chat versus page: the same six things you do with an agent's answer, and how each one goes.
 export const atlasCompare = {
   title: 'A chat asks you to reply {in prose.}',
   lead: why.lead,
@@ -144,10 +144,11 @@ export const atlasCompare = {
   page: { name: 'A bluedoc page', tag: 'Point, pick, approve' },
   rows: [
     { act: 'Point at one part', chat: 'Quote it back in prose', page: 'Pin a comment on it' },
-    { act: 'Choose between options', chat: 'Type “go with option 2”', page: 'Pick a row; the recommendation is starred' },
+    { act: 'Choose between options', chat: 'Type “go with option 2”', page: 'Pick an answer; the recommendation is starred' },
     { act: 'See what changed', chat: 'Reread the whole reply', page: 'Compare two revisions, word by word' },
     { act: 'Sign off', chat: 'Say “looks good”', page: 'Approve the current revision' },
     { act: 'Keep your answers', chat: 'Scrolled away in the transcript', page: 'Kept in ~/.bluedoc/state.db' },
+    { act: 'Pass it on', chat: 'Paste the reply into a message', page: 'Share a view-only bluedoc.ai link' },
   ],
   stats: why.stats,
   footnote: `Counted from the lists on this site, so they stay true when a type or an agent is added. Agent plugins: ${pluginAgents
@@ -164,8 +165,8 @@ export const atlasAnswering = {
     ...feature('local'),
     facts: [
       { label: 'Address', value: '127.0.0.1' },
-      { label: 'Accounts', value: '0' },
       { label: 'Your answers', value: 'state.db' },
+      { label: 'Leaves on', value: 'Share' },
     ],
   },
   approve: {
@@ -179,7 +180,7 @@ export const atlasAnswering = {
   more: features.more,
 };
 
-export type FaqArt = 'free' | 'agents' | 'data' | 'offline' | 'export' | 'licence';
+export type FaqArt = 'free' | 'agents' | 'data' | 'offline' | 'export' | 'share' | 'licence';
 
 export const atlasFaq = {
   id: 'faq',
@@ -190,6 +191,7 @@ export const atlasFaq = {
     { ...question('Where does my data live?'), art: 'data' as FaqArt },
     { ...question('Does it need an internet connection?'), art: 'offline' as FaqArt },
     { ...question('Can I export a doc?'), art: 'export' as FaqArt },
+    { ...question('Can I share a doc with someone?'), art: 'share' as FaqArt },
     { ...question('What licence is it under?'), art: 'licence' as FaqArt },
   ],
   agents: install.tabs.map((t) => ({ label: t.label, how: t.id === 'skills' ? 'any agent' : 'plugin' })),
@@ -236,7 +238,7 @@ export const atlasRevisions = {
     title: 'Fade one design into the next',
     body: 'Open a changed screen from the Revisions panel and switch to Onion skin. Drag the slider and the new dashboard fades in over the old one, so every moved card shows in place.',
     shows:
-      'On acme-fit-design, the Revisions panel lists Dashboard as changed in rev D; its compare opens, Onion skin lays rev D over rev C, and the opacity slider fades the light indigo dashboard into a dark redesign and back, then rests half way.',
+      'On acme-fit-design, Changes from rev C lists Dashboard as changed in the Revisions panel; its labelled Compare key opens the compare view and the panel is put away, Onion skin lays rev D over rev C, and the opacity slider fades the light indigo dashboard into a dark redesign, then rests half way.',
   } satisfies ClipCopy,
   loop: {
     kicker: 'How a revision works',
@@ -252,7 +254,7 @@ export const atlasRevisions = {
       },
       {
         title: 'Changes are marked in place',
-        body: 'New, changed and removed parts are marked where they are, words struck and added, beside the agent’s note. Any two revisions compare.',
+        body: 'Changes from N, on any row of the Revisions panel, marks new, changed and removed parts where they are, words struck and added, beside the agent’s note. Any two revisions compare.',
       },
       {
         title: 'Your comments close',
@@ -273,7 +275,7 @@ export const atlasRevisions = {
           title: 'See what changed since you last read',
           body: 'Updated since you last opened it offers Show what changed. The drawing marks the new part green and the changed one amber, and the text shows struck and added words.',
           shows:
-            'On acme-orders, the reader opens rev 2 and presses Show what changed; Next change goes to the architecture canvas, where notify-worker glows green and orders DB amber, zooms in on them, then goes to the Known issues callout with its words struck and added.',
+            'On acme-orders, the reader opens rev 2 and presses Show what changed in the Updated strip; the panel is hidden with its –, and ↓ steps through each change: notify-worker green and orders DB amber on the architecture canvas, then the relay-lag risk with its words struck and added.',
         } satisfies ClipCopy,
       },
       { id: 'plans' as PixelIconName, name: 'Plans', clip: typeClip('plans', 'plan-revise') },
@@ -283,9 +285,9 @@ export const atlasRevisions = {
         clip: {
           clip: 'review-compare',
           title: 'A finding’s recommendation, before and after',
-          body: 'Changes from 1 marks the finding the agent moved to a ticket: the star now sits on Ticket, and What changed shows Fix in PR struck and Ticket added.',
+          body: 'Changes from 1 marks the finding the agent moved to a ticket: the star now sits on Ticket, and its More details opens on What changed, with Fix in PR struck and Ticket added.',
           shows:
-            'On acme-review-findings, compare view scrolls to the docs/pricing.md finding, marked Changed, with Ticket now Recommended and What changed listing Recommended going from Fix in PR to Ticket.',
+            'On acme-review-findings, Changes from 1 marks the docs/pricing.md finding Changed in #412’s checklist, the star now on Ticket, and its More details opens on What changed: the subtitle reworded and Recommended going from Fix in PR to Ticket.',
         } satisfies ClipCopy,
       },
       { id: 'designs' as PixelIconName, name: 'Designs', clip: typeClip('designs', 'design-compare') },
@@ -308,6 +310,6 @@ export const atlasRevisions = {
   more: {
     kicker: 'And the rest of it',
     title: 'Nothing is lost {between revisions.}',
-    items: [every.revisions, every.compare, every.panel, every.conversation, every.carry, typeClip('websites', 'web-snapshot')],
+    items: [every.revisions, every.compare, every.panel, every.conversation, every.carry, every.copyPull, typeClip('websites', 'web-snapshot')],
   },
 };

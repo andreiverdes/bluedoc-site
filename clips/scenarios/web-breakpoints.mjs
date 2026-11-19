@@ -1,5 +1,5 @@
-// Websites: the toolbar's Desktop, Tablet and Mobile resize every page, and each page reflows at that width, since
-// its frame really is that wide; then the Home page's title-bar icon puts that page alone back at 1440 px.
+// Websites: the Home page's title-bar icons set that page alone to Mobile (390 px) and it reflows, since its frame
+// really is that wide; then the toolbar's Tablet and Desktop resize every page, back to where the clip began.
 import { BOARD_READY, boardOnly, settle, startFixture } from '../fixtures/acme-fit-site/fixture.mjs';
 
 const EVERY = (w) => `.bd-btb .bd-sg[aria-label="Width of every page"] button[data-w="${w}"]`;
@@ -28,14 +28,17 @@ export default {
 
   async run(c) {
     await c.pause(800);
+    await c.click(`.bd-ab[data-ab=home] .bd-ab-t .bps button[data-w="390"]`, { ms: 650 });
+    await c.waitFor(widths(390, 1440), 20_000);
+    await settle(c);
+    await c.pause(800);
     await c.click(EVERY(768), { ms: 620 });
     await c.waitFor(widths(768, 768), 20_000);
+    await settle(c);
+    await c.pause(800);
+    await c.click(EVERY(1440), { ms: 450 });
+    await c.waitFor(widths(1440, 1440), 20_000);
+    await settle(c);
     await c.pause(1100);
-    await c.click(EVERY(390), { ms: 420 });
-    await c.waitFor(widths(390, 390), 20_000);
-    await c.pause(1100);
-    await c.click(`.bd-ab[data-ab=home] .bd-ab-t .bps button[data-w="1440"]`, { ms: 650 });
-    await c.waitFor(widths(1440, 390), 20_000);
-    await c.pause(1500);
   },
 };

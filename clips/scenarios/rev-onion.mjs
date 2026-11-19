@@ -1,7 +1,8 @@
 // Revisions: onion skin on a redesign. The temp copy gets rev D, a new Dashboard (dark, a sidebar, a big steps chart,
 // the KPI cards moved to a right rail, emerald accent) by a real build.py patch. In Changes from C, the Revisions panel
-// lists Dashboard changed; its compare opens, Onion skin lays rev D over rev C, and the opacity slider cross-fades the
-// two designs: old, new, old, then rests half way.
+// lists Dashboard changed; its labelled Compare key opens the compare view, the panel is hidden (it lies over the
+// view's header), Onion skin lays rev D over rev C, and the opacity slider cross-fades the two designs: old, new, then
+// rests half way.
 import { join } from 'node:path';
 import { panels, settled } from '../fixtures/acme-fit-design/board.mjs';
 
@@ -32,27 +33,28 @@ export default {
   },
 
   async run(c) {
-    await c.pause(700);
+    await c.pause(600);
     // the Revisions panel's changes: Dashboard, changed in rev D; the board brings it into view
     await c.click({ text: 'Dashboard', in: '.bd-chl' }, { ms: 650 });
     await c.pause(200);
     await settled(c);
     await c.click('.bd-ab[data-ab="dashboard"] .bd-ab-t .cmp', { ms: 600 });
     await c.waitFor(CMP_READY);
-    await c.pause(450);
-    await c.click('.bd-cmpv button[data-v="onion"]', { ms: 550 });
+    await c.pause(350);
+    await c.click('.bd-sp .bd-pane-x', { ms: 550 }); // Hide the Revisions panel: the compare keys are under it
+    await c.waitFor(`!BP.sidebar().open`);
+    await c.pause(200);
+    await c.click('.bd-cmpv button[data-v="onion"]', { ms: 500 });
     await c.waitFor(`!document.querySelector('${SLIDER}').hidden`);
     await c.pause(150);
-    await c.moveTo(knob(50), { ms: 450 });
+    await c.moveTo(knob(50), { ms: 400 });
     await c.down();
-    await c.moveTo(knob(0), { ms: 650 }); // rev C alone
-    await c.pause(350);
-    await c.moveTo(knob(100), { ms: 1600 }); // a slow cross-fade to rev D
-    await c.pause(500);
-    await c.moveTo(knob(0), { ms: 1500 }); // and back
+    await c.moveTo(knob(0), { ms: 600 }); // rev C alone
     await c.pause(300);
-    await c.moveTo(knob(50), { ms: 650 });
+    await c.moveTo(knob(100), { ms: 1500 }); // a slow cross-fade to rev D
+    await c.pause(450);
+    await c.moveTo(knob(50), { ms: 700 }); // and back half way
     await c.up();
-    await c.pause(1500);
+    await c.pause(1100);
   },
 };

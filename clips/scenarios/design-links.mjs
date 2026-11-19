@@ -10,7 +10,7 @@ export default {
   async setup(c) {
     await panels(c);
     await c.waitFor(`BP.board().flows === true`);
-    await view(c, { x: 1000, y: 1790, k: 0.165, to: [640, 440] });
+    await view(c, { x: 1080, y: 1850, k: 0.3, to: [640, 440] });
     await settled(c);
   },
 

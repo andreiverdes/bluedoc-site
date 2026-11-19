@@ -1,8 +1,9 @@
 // Reviews: GitHub review threads come in through ghthreads.py, which runs in a terminal (the page has no import key).
 // The terminal card is drawn by this scenario: the command as the agent guide writes it (skills/bluedoc/types/
 // review.md) and the one line ghthreads.py prints to stderr, in its own format, for #415's 4 open threads at the
-// commits in acme-shop.bundle (base 89efd8e22, head 0a46a97f3). Then the page: #415's PR link, the note on who read
-// and posted, and one finding from a thread opened on Reviewer, My reasoning and Reply I'd post.
+// commits in acme-shop.bundle (base 89efd8e22, head 0a46a97f3). Then the page: #415's PR link in the Contents pane, the
+// note on who read and posted, and one finding from a thread, its More details opened on Reviewer, My reasoning and
+// Reply I'd post.
 import { findingsView, scrollSettled } from './_shared/review-findings.mjs';
 
 // the page scrolls a long way to the finding in one glide: trade a little quality for size
@@ -58,7 +59,9 @@ export default {
 
   async setup(c) {
     await findingsView(c, 'pr-415', 'merged');
-    // the summary's #415 rows and its note in view, the PR links in the rail
+    // the Contents pane open on its Related links; the summary's #415 rows and its note in view
+    await c.ev(`BP.contents({open: true})`);
+    await c.pause(600);
     await c.ev(`(() => { const n = document.querySelector('#summary .bp-callout') || document.querySelector('#summary > :last-child');
       window.scrollTo({top: n.getBoundingClientRect().bottom + scrollY - 700, behavior: 'instant'}); })()`);
     await c.addStyle(CSS);
@@ -82,8 +85,8 @@ export default {
     await c.waitForSelector(`${ROW}.bd-flash`);
     await scrollSettled(c);
     await c.pause(100);
-    await c.click(`${ROW} .bd-mdet`, { ms: 450 });
-    await c.waitFor(`document.querySelector('${ROW} .bd-mdet').getAttribute('aria-expanded') === 'true'`);
+    await c.click(`${ROW} .ac-detrow .pv-more`, { ms: 450 });
+    await c.waitFor(`!!document.querySelector('${ROW} .ac-detrow .bd-dets')?.getClientRects().length`);
     await c.pause(100);
     // the details fit under the row: the pointer rests just under Reply I'd post
     const [x, y] = await c.point({ text: 'Reply I', in: ROW });

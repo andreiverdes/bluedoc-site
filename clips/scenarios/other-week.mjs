@@ -1,6 +1,7 @@
 // Other: what changed since last week. The agent rebuilds the status page for week 42 as the next rev of the same
 // doc; from the Revisions tab, Changes from the rev before marks the new title, dates and TL;DR word by word, then the
 // numbers table cell by cell.
+const CHG = 'a.rv-chg[href*="diff="]'; // the current revision's Changes from <the rev before>
 
 export default {
   doc: 'acme-status',
@@ -32,17 +33,17 @@ export default {
 
   async setup(c) {
     await c.ev(`BP.sidebar({open: true, section: 'revisions'})`);
-    await c.waitForSelector('.bd-rv.on a.bp-btn[href*="diff="]');
+    await c.waitForSelector(CHG);
     await c.pause(300);
   },
 
   async run(c) {
     await c.pause(600);
-    await c.click('.bd-rv.on a.bp-btn[href*="diff="]', { ms: 650 });
-    await c.waitFor(`!!window.BP && !!BP.compare() && !!document.querySelector('.bd-revtb')`);
+    await c.click(CHG, { ms: 650 });
+    await c.waitFor(`!!window.BP && !!BP.compare() && !!document.querySelector('.bd-revbar.cmp')`);
     await c.pause(300);
     // the header: week 41 → 42, the dates, the TL;DR
-    await c.click('.bd-revtb button[aria-label="Next change"]', { ms: 650 });
+    await c.click('.bd-revbar.cmp button[aria-label="Next change"]', { ms: 650 });
     await c.pause(1400);
     // the numbers, cell by cell
     await c.click({ text: 'Row Orders placed', in: '.bd-sp' }, { ms: 700 });

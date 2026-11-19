@@ -5,15 +5,29 @@ import { join } from 'node:path';
 const here = new URL('.', import.meta.url).pathname;
 
 /**
- * Show or hide the Screens panel (left) and the right panel; right is true or false, or the right panel's tab to open
- * ('brief', 'comments', 'revisions').
+ * Set the panes: left is false, 'brief' or 'screens' (true: Screens), the left pane's two sections, and leftW its width
+ * in px (dragged by its handle; 240 by default); right is true or false, or the right panel's section to open
+ * ('comments', 'revisions'). Both open over the board.
  */
-export async function panels(c, { left = false, right = false } = {}) {
+export async function panels(c, { left = false, leftW = null, right = false } = {}) {
   await c.waitFor(`!!(window.BP && BP.board() && document.querySelector('.bd-board'))`);
   await c.pause(300);
-  for (let i = 0; i < 5 && (await c.ev('BP.board().panel')) !== left; i++) {
-    await c.click('button[aria-label="Screens ([)"]', { ms: 1 });
-    await c.pause(400);
+  if (left === 'brief') await c.ev(`BP.sidebar({ open: true, section: 'brief' })`);
+  else {
+    // the Screens key, pressed until the pane is shut, or open on Screens
+    const want = !!left;
+    for (let i = 0; i < 5; i++) {
+      const st = await c.ev(`({ open: BP.board().panel, sec: document.querySelector('.bd-lp-tabs2 [aria-selected=true]')?.dataset.f })`);
+      if (st.open === want && (!want || st.sec === 'screens')) break;
+      await c.click('.bd-stripe.l .bd-sk[data-f=screens]', { ms: 1 });
+      await c.pause(400);
+    }
+  }
+  if (left && leftW) {
+    await c.pause(300);
+    const [hx, hy, w] = await c.ev(`(() => { const r = document.querySelector('.bd-rh-left').getBoundingClientRect();
+      return [r.left + r.width / 2, r.top + r.height / 2, document.querySelector('.bd-lp').getBoundingClientRect().width]; })()`);
+    await c.drag([hx, hy], [hx + leftW - w, hy], { ms: 150 });
   }
   await c.ev(`BP.sidebar(${JSON.stringify(typeof right === 'string' ? { open: true, section: right } : { open: right })})`);
   // the board refits while the panels slide: wait until its width holds

@@ -10,6 +10,7 @@ export default {
 
   async setup(c) {
     await c.waitForSelector(CV);
+    await c.addStyle(`${CV} .bp-hint { display: none !important; }`); // the hint fades at the first touch
     await c.ev(`document.querySelector('${CV}').scrollIntoView({block: 'center', behavior: 'instant'})`);
     await c.pause(300);
     await c.click(`${TB} button[aria-label="Full screen"]`, { ms: 200 });
@@ -21,11 +22,11 @@ export default {
   async run(c) {
     await c.pause(600); // the Production path plays
 
-    // the Flow menu: Local stack path. A headless screencast never shows a native menu, so the menu stays shut and
-    // the pick lands with the click, as choosing it would.
-    await c.ev(`document.querySelector('${TB} select').addEventListener('mousedown', (e) => e.preventDefault(), { once: true })`);
-    await c.click(`${TB} select`, { ms: 600 });
-    await c.ev(`(() => { const s = document.querySelector('${TB} select'); s.value = '1'; s.dispatchEvent(new Event('change')); })()`);
+    // the Flow menu opens under its key: Local stack path
+    await c.click(`${TB} .bd-selb[aria-label=Flow]`, { ms: 600 });
+    await c.waitFor(`!document.querySelector('${TB} .bd-selm[aria-label=Flow]').hidden`, 2000);
+    await c.pause(350);
+    await c.click(`${TB} .bd-selm [role=option][data-v="1"]`, { ms: 450 });
     await c.waitFor(`BP.state('orders').flow === 'local'`, 2000);
     await c.pause(600); // its first step runs: the seeder publishes events
 

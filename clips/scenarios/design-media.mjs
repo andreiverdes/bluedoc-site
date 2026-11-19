@@ -3,7 +3,7 @@
 // it plays in the screen's frame; Present opens the screen full-window and the video keeps playing there.
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { ab, panels, settled } from '../fixtures/acme-fit-design/board.mjs';
+import { ab, panels, settled, view } from '../fixtures/acme-fit-design/board.mjs';
 
 export default {
   doc: 'acme-fit-design',
@@ -25,22 +25,22 @@ export default {
 
   async setup(c) {
     await panels(c);
-    await c.ev(`BP.board({focus: 'dashboard'})`);
+    await view(c, { x: 720, y: 5526, k: 0.58, to: [640, 425] }); // the dashboard, clear of the toolbar and the dock
     await settled(c);
-    await c.pause(1200); // the screen's frame is sandboxed (no access from here): give its video time to start
+    await c.pause(2500); // the screen's frame is sandboxed (no access from here): give its video time to start
   },
 
   async run(c) {
-    await c.pause(900);
+    await c.pause(800);
     await c.moveTo(ab('dashboard', 0.3, 0.62), { ms: 650 });
-    await c.pause(1300); // it plays on the board
+    await c.pause(1100); // it plays on the board
     await c.click(ab('dashboard', 0.9, 0.06), { ms: 550 });
     await c.waitFor(`BP.board().selected === 'dashboard'`);
     await c.pause(200);
-    await c.click('button[aria-label^="Present"]', { ms: 650 });
+    await c.click('.bd-btb button[aria-label^="Present"]', { ms: 650 });
     await c.waitFor(`BP.board().presented && BP.board().presented.screen === 'dashboard'`);
     await c.waitForSelector('.bd-pres iframe');
     await c.moveTo({ sel: '.bd-pres iframe', x: 0.92, y: 0.9 }, { ms: 600 });
-    await c.pause(2000);
+    await c.pause(1700);
   },
 };

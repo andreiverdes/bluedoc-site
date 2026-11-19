@@ -3,7 +3,7 @@
 import { glide, panels, settled, view } from '../fixtures/acme-fit-design/board.mjs';
 
 // the sheet (artboard app-icon at 0, 4096, 1280 × 860)
-const SHEET = { x: 640, y: 4526, k: 0.72 };
+const SHEET = { x: 640, y: 4526, k: 0.64, to: [640, 430] };
 
 export const crf = 31;
 

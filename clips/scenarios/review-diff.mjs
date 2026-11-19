@@ -12,8 +12,8 @@ export default {
 
   async setup(c) {
     await findingsView(c, 'pr-412', 'diff');
-    // the file list and the pane under the view bar; the pane's foot (and its pill) clears the tool tray
-    await scrollTop(c, '#diff-diff-412 .bd-diff-tb', 64);
+    // the file list and the pane right under the PR's sticky header; the pane's foot (and its pill) clears the dock
+    await scrollTop(c, '#diff-diff-412 .bd-diff-body', 150);
     await c.waitFor(`BP.diffState('diff-412').file === 'src/pricing/tiers.ts'`);
   },
 

@@ -1,13 +1,15 @@
 // Film, the Plans hook (docs/plans/demo-films.bluedoc.json): Claude Code in plan mode beside the bluedoc page.
 // Without bluedoc first: a start scene (a fresh session, the prompt typed, the agent reading), then the plan wall
 // ending on Claude Code's proceed picker, its caption held over 4 s. Then a fresh session: the prompt, the
-// agent writes and builds the plan, ExitPlanMode is met by the bluedoc gate (its words from hook.py), the page opens,
-// the agent waits in the background (a real serve.py wait). The reader accepts the recommendations, adds guests,
-// pins a note on the sweeper step and approves; the real approval prints in the terminal and the agent starts on
-// rev 1 with the note hook.py gives it.
+// agent writes and builds the plan, ExitPlanMode is met by bluedoc's plan-mode hook (its words from hook.py), the page
+// opens, the agent waits in the background (a real serve.py wait). The reader takes the recommendations from the
+// questions' toolbar, adds guests on the multi-answer card, pins a note on the sweeper step with Element and approves
+// in the send dialog (picks, the pin, a one-line note); the real approval prints in the terminal and the agent starts
+// on rev 1 with the note hook.py gives it. Record with the hook on: `env -u CI` (stage.planHook checks).
 import { spawnSync } from 'node:child_process';
 import { cpSync, mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { HOME_READY, showProject } from './_shared/home-seed.mjs';
 
 export const view = { width: 1600, height: 1000, dpr: 2 };
 export const crf = 26;
@@ -15,7 +17,10 @@ export const crf = 26;
 const DOC = 'plans/saved-carts';
 const PROMPT = 'Let shoppers save a cart and come back to it later.';
 const NOTE = 'Run it on the existing jobs queue';
+const APPROVE_NOTE = 'Keep the flag off until QA signs off';
 const STEP = '.bp-step[data-step="sweeper"] .bp-step-t';
+const ACCEPT = '#questions .bd-ftb .bp-btn[title^="Pick the starred"]';
+const APPROVE = 'dialog.bd-approve[open]';
 /** Claude Code's welcome box, at the top of each session */
 const WELCOME = { html: '<div class="box"><span style="color:var(--t-accent)">✻</span> Welcome to <span class="b">Claude Code</span><br><span class="dim">cwd: ~/acme-shop</span></div>' };
 
@@ -54,12 +59,15 @@ export default {
     const s = c.stage, t = s.term;
     this.path = c.bd.docPath(DOC);
     this.wall = wall(JSON.parse(readFileSync(this.path, 'utf8')));
-    // what the agent's build and the gate print, worked out before the take (a blocking call would stall it)
+    // what the agent's build and the plan-mode hook print, worked out before the take (a blocking call would stall it)
     const b = spawnSync('python3', [join(c.bd.scripts, 'build.py'), this.path], { env: c.bd.env, cwd: c.bd.work, encoding: 'utf8' });
     this.built = `${b.stdout}\n${b.stderr}`.split('\n').find((l) => /error\(s\)/.test(l)) ?? 'built';
-    this.gate = (await s.gate(this.path, `http://${s.shown(await c.bd.urlFor(DOC))}`)).split('\n');
-    // the browser already shows bluedoc's home, off stage until the cut
+    this.hook = (await s.planHook(this.path, `http://${s.shown(await c.bd.urlFor(DOC))}`)).split('\n');
+    // the browser already shows bluedoc's home with acme-shop's docs (1.0.70 hides /tmp folders until shown), off
+    // stage until the cut
+    await showProject(c);
     await c.goto('home');
+    await c.waitFor(HOME_READY);
     await s.layout('solo');
     await t.title('acme-shop — claude (without bluedoc)');
     await t.footer('⏸ plan mode on (shift+tab to cycle)');
@@ -121,10 +129,11 @@ export default {
     await c.pause(400);
     await t.done(id, [this.built]);
 
-    // ExitPlanMode meets the gate: the page opens, the agent is told to wait
+    // ExitPlanMode meets the plan-mode hook: the page opens, the agent is told to wait
     id = await t.tool('ExitPlanMode');
     await c.goto(DOC);
-    await t.done(id, [s.tidy(this.gate[0].replace(/ \(doc: [^)]*\)/, '')), { text: `… +${this.gate.length - 1} lines (ctrl+o to expand)`, cls: 'faint' }]);
+    await c.ev('BP.sidebar({open: false}); BP.contents({open: false})');
+    await t.done(id, [s.tidy(this.hook[0].replace(/ \(doc: [^)]*\)/, '')), { text: `… +${this.hook.length - 1} lines (ctrl+o to expand)`, cls: 'faint' }]);
     await t.spin(null);
     const reply = s.wait(this.path);
     id = await t.tool('Bash', 'serve.py wait docs/plans/saved-carts.bluedoc.json --kind any');
@@ -132,14 +141,14 @@ export default {
     await t.say('The plan is open in bluedoc. I’ll pick up your answers there.');
 
     // ---- the reader, on the page ----
-    await c.ev('BP.sidebar({open: false})');
+    await c.waitFor('!BP.sidebar().open && !BP.contents().open');
     await c.pause(500);
-    await c.moveTo({ sel: '#cv-arch', x: 0.6, y: 0.5 }, { ms: 700 });
+    await c.moveTo({ sel: '#cv-arch', x: 0.6, y: 0, dy: 60 }, { ms: 700 });
     await c.wheel(await c.ev(`document.querySelector('#cv-arch').getBoundingClientRect().top - 60`), { ms: 700 });
     await c.pause(900);
     await c.wheel(await c.ev(`document.querySelector('#questions').getBoundingClientRect().top - 60`), { ms: 700 });
     await c.pause(300);
-    await c.click('.bd-anntb .acc', { ms: 650 });
+    await c.click(ACCEPT, { ms: 650 });
     await c.waitFor(`document.querySelectorAll('#questions .bp-cl-item.has-choices.done').length === 3`);
     await c.pause(500);
     const guests = '#item-decisions-guests';
@@ -148,10 +157,10 @@ export default {
     await c.waitFor(`document.querySelector('${guests} .bp-opt[data-id=email]').classList.contains('on')`);
     await c.pause(400);
 
-    // a note on the sweeper step
+    // a note on the sweeper step, with Element
     const step = STEP;
     await c.wheel(await c.ev(`document.querySelector('${step}').getBoundingClientRect().top - 260`), { ms: 650 });
-    await c.click('.bd-anntb button[data-m="point"]', { ms: 600 });
+    await c.click('.bd-anntb .bd-key[data-m=point]', { ms: 600 });
     await c.click({ sel: step, x: 0.35, y: 0.5 }, { ms: 600 });
     await c.waitForSelector('.bd-cmp:not([hidden]) textarea');
     await c.type(NOTE, { cps: 28 });
@@ -159,13 +168,16 @@ export default {
     await c.waitFor('BP.annotations().length === 1');
     await c.pause(350);
 
-    // approve
-    await c.click('.bd-anntb .approve', { ms: 650 });
-    await c.waitForSelector('.bd-approve .bp-btn.ok');
-    await c.pause(900);
-    await c.click('.bd-approve .bp-btn.ok', { ms: 500 });
+    // approve: the send dialog lists the picks and the pin; a one-line note goes with them
+    await c.click('.bd-anntb .bd-key.approve', { ms: 650 });
+    await c.waitForSelector(`${APPROVE} .sd-note textarea`);
+    await c.pause(600);
+    await c.click({ sel: `${APPROVE} .sd-note textarea`, x: 0.3 }, { ms: 500 });
+    await c.type(APPROVE_NOTE, { cps: 30 });
+    await c.pause(400);
+    await c.click(`${APPROVE} .ft .pri`, { ms: 500 });
     await c.waitFor(`BP.planState().state === 'approved'`);
-    await c.moveTo({ text: 'Approved · rev 1' }, { ms: 650 });
+    await c.moveTo('.bd-anntb .bd-key.approve.done', { ms: 650 });
 
     // ---- the payoff: the agent was already waiting ----
     // the whole reply as wait printed it, folded at its command appendix (## Answering) as Claude Code folds long output
@@ -183,7 +195,7 @@ export default {
     await c.pause(1600);
     id = await t.tool('ExitPlanMode');
     await t.done(id, [s.tidy((await note) || '')]);
-    await t.say('Implementing rev 1 with your picks, and the sweeper on the jobs queue.');
+    await t.say('Implementing rev 1 with your picks: the sweeper on the jobs queue, the flag off until QA.');
     await t.tool('Write', 'services/orders-api/migrations/0012_saved_carts.sql');
     await t.ghost('also add an undo for restore');
     await c.pause(2600);

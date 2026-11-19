@@ -29,9 +29,6 @@ export default {
     const s = c.stage, t = s.term;
     this.path = c.bd.docPath(DOC);
     this.lines = readFileSync(this.path, 'utf8').trimEnd().split('\n').length;
-    // the browser window renders the page 1100 px wide (scaled 0.8 into the same window, as at 113% zoom): bluedoc's
-    // narrow-window layout, the column edge to edge and the contents rail a drawer, so the blueprint fills the pane
-    await s.tab.ev(`Object.assign(document.getElementById('frame').style, { width: '1100px', height: '1023px', transform: 'scale(0.8)' })`);
     // the page loads once off stage (fonts, the blueprint's code), so the take's own load is quick
     await c.goto(DOC);
     await c.goto('home');
@@ -74,8 +71,8 @@ export default {
     // mid-zoom, and the how-to hint fades at the first touch
     await c.goto(DOC);
     await c.addStyle(`${CV} .bp-detail, ${CV} .bp-hint { display: none !important; }`);
-    await c.ev('BP.sidebar({open: false})');
-    await c.waitFor('!BP.sidebar().open');
+    await c.ev('BP.sidebar({open: false}); BP.contents({open: false})');
+    await c.waitFor('!BP.sidebar().open && !BP.contents().open');
     await t.done(id, lines(opened.out).map((l) => (/^https?:\/\//.test(l.trim()) ? `http://${s.shown(l.trim())}` : l)));
     await t.spin(null);
     await s.layout('tandem');

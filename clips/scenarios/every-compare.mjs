@@ -1,13 +1,15 @@
-// Every doc type: compare two revisions word by word. From the Revisions panel, Changes from 1 marks what is new,
-// changed and removed since rev 1: the header's words struck and added, then a new paragraph and a removed note.
+// Every doc type: compare two revisions word by word. In the Revisions pane, the current rev's Changes from 3 marks
+// what is new, changed and removed since rev 3: the next change shows a new paragraph (green) and a removed note
+// (struck), then a finding from the Changes list shows its lead's words struck.
+const CHG = '#bd-sp-revisions a.rv-chg[href*="diff="]';
 
 export default {
   doc: 'acme-review-findings',
-  posterAt: 3.2,
+  posterAt: 3.4,
   cursor: [700, 520],
 
-  // rev 2 of the example only changes parts; edit it in place (no new rev) so the compare also has a new block and a
-  // removed one: the summary's note on how the review ran goes, a line on the merge order comes in
+  // rev 4 of the example only renames branches; edit it in place (no new rev) so the compare also has a new block and
+  // a removed one: the summary's note on how the review ran goes, a line on the merge order comes in
   prepare(ctx) {
     const doc = ctx.bd.docPath('acme-review-findings');
     ctx.py('build.py', 'patch', doc, 'block:summary/1', '--delete', '--no-bump');
@@ -17,20 +19,20 @@ export default {
 
   async setup(c) {
     await c.ev(`BP.sidebar({open: true, section: 'revisions'})`);
-    await c.waitForSelector('.bd-rv.on a.bp-btn[href*="diff="]');
+    await c.waitForSelector(CHG);
     await c.pause(300);
   },
 
   async run(c) {
     await c.pause(600);
-    await c.click('.bd-rv.on a.bp-btn[href*="diff="]', { ms: 650 });
-    await c.waitFor(`!!window.BP && !!BP.compare() && !!document.querySelector('.bd-revtb')`);
+    await c.click(CHG, { ms: 650 });
+    await c.waitFor(`!!window.BP && !!BP.compare() && !!document.querySelector('button[aria-label="Next change"]')`);
     await c.pause(700);
-    // the first change: the header, words struck and added
-    await c.click('.bd-revtb button[aria-label="Next change"]', { ms: 650 });
-    await c.pause(1300);
-    // a new paragraph and a removed note, from the changes list
-    await c.click({ text: 'Note callout', in: '.bd-sp' }, { ms: 750 });
-    await c.pause(1500);
+    // the first change: a new paragraph, the removed note under it
+    await c.click('button[aria-label="Next change"]', { ms: 650 });
+    await c.pause(1400);
+    // a changed finding, from the Changes list: its lead's words struck
+    await c.click({ text: '#412 · bulk discount tiers', in: '#bd-sp-revisions' }, { ms: 750 });
+    await c.pause(1600);
   },
 };

@@ -4,6 +4,8 @@
 // new part green and the changed one amber, with a What changed list under it; the risk has its words struck and added.
 
 const CV = '#cv-orders';
+const UPD = '.bd-revbar.upd button[aria-label="Show what changed"]';
+const NEXT = '.bd-revbar.cmp button[aria-label="Next change"]';
 
 // the agent's rev 2 on the temp copy
 function patchRev2(bd) {
@@ -33,7 +35,7 @@ export default {
     await c.pause(500);
     patchRev2(c.bd);
     await c.reload();
-    await c.waitForSelector('.bd-revbar a.bp-btn.primary[href*="diff="]');
+    await c.waitForSelector(UPD);
     await c.ev(`BP.sidebar({open: false})`);
     await c.ev(`scrollTo({top: 0, behavior: 'instant'})`);
     await c.pause(400);
@@ -41,13 +43,13 @@ export default {
 
   async run(c) {
     await c.pause(700); // Updated since you last opened it: 1 → 2
-    await c.click('.bd-revbar a.bp-btn.primary[href*="diff="]', { ms: 600 });
-    await c.waitFor(`!!window.BP && !!BP.compare() && !!document.querySelector('.bd-revtb') && !!document.querySelector('${CV} .bp-node.chg-add')`);
+    await c.click(UPD, { ms: 600 });
+    await c.waitFor(`!!window.BP && !!BP.compare() && !!document.querySelector('.bd-revbar.cmp') && !!document.querySelector('${CV} .bp-node.chg-add')`);
     await c.pause(450); // Rev 1 → 2: 2 changed; the Revisions panel lists them
-    await c.click('.bd-sp button[aria-label="Close the panel"]', { ms: 450 });
+    await c.click('.bd-sp .bd-pane-x', { ms: 450 });
     await c.pause(150);
     // the canvas: orders DB changed (amber), notify-worker new (green), and What changed under it
-    await c.click('.bd-revtb button[aria-label="Next change"]', { ms: 500 });
+    await c.click(NEXT, { ms: 500 });
     await c.pause(600);
     // pinch in on the two marked parts, one above the other
     await c.moveTo({ sel: `${CV} .bp-node.chg-mod`, x: 0.5, y: 1.6 }, { ms: 550 });
@@ -56,7 +58,7 @@ export default {
     await c.moveTo({ sel: `${CV} .bp-node.chg-add`, x: 0.92, y: 0.85 }, { ms: 500 });
     await c.pause(600);
     // the risk callout: its words struck and added
-    await c.click('.bd-revtb button[aria-label="Next change"]', { ms: 650 });
+    await c.click(NEXT, { ms: 650 });
     await c.pause(1600);
   },
 };

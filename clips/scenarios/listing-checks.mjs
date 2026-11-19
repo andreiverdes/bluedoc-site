@@ -1,5 +1,5 @@
-// Store listings: Checks. The toolbar's count opens the Checks tab, which lists the page's store-rule findings; a
-// finding's link scrolls to the shot it is about (here the mock-up UI warning, to the Wear OS set).
+// Store listings: Checks. The toolbar's count opens the Listing pane's Checks tab, which lists the page's store-rule
+// findings; a finding's link scrolls to the shot it is about (here the mock-up UI warning, to the Wear OS set).
 import { panels, shotsReady, toRow } from '../fixtures/acme-fit-listing/listing.mjs';
 
 export default {
@@ -8,7 +8,9 @@ export default {
   cursor: [820, 520],
 
   async setup(c) {
-    await panels(c, { left: false });
+    await panels(c, { left: true, tab: 'text' });
+    // the Wear OS shots drawn once, so the finding's scroll lands on them ready
+    await toRow(c, 'watch');
     await toRow(c, 'tablet', -10);
   },
 

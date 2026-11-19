@@ -1,14 +1,16 @@
 // Film, Review (docs/plans/demo-films.bluedoc.json): Claude Code beside the bluedoc page, on the acme-review-findings
 // example. 0–3 s without bluedoc: the findings as a chat wall. Then a fresh session: /bluedoc-review, a git diff and a
 // Read, the agent writes and builds the findings doc (real build.py output), opens it (a real serve.py open) and
-// waits in the background (a real serve.py wait). On the page, #412 in Merged view: each finding under its lines in
-// tiers.ts. The reader declines the TIERS-map nit with a reason, keeps Fix in PR on the tier boundary, tickets the
-// fractional cents, accepts the other 8 as recommended and sends; the real reply prints in the terminal (folded after
-// #412) and the agent starts on the fix.
+// waits in the background (a real serve.py wait). On the page, #412 in Merged view (the findings toolbar on All): each
+// finding under its lines in tiers.ts. The reader declines the TIERS-map nit, keeps Fix in PR on the tier boundary,
+// tickets the fractional cents, takes the rest of #412 with the toolbar's Accept recommended (#415 was answered before
+// the take) and sends with Reply and fix, the decline's reason as the dialog's note; the real reply prints in the
+// terminal (folded after #412) and the agent starts on the fix.
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { findingsView } from './_shared/review-findings.mjs';
+import { HOME_READY, showProject } from './_shared/home-seed.mjs';
 
 export const view = { width: 1600, height: 1000, dpr: 2 };
 export const crf = 26;
@@ -16,7 +18,9 @@ export const crf = 26;
 const DOC = 'acme-review-findings';
 const REL = 'docs/acme-review-findings.bluedoc.json';
 const PROMPT = '/bluedoc-review the open PRs';
-const REASON = 'Three tiers: an array reads fine';
+const REASON = 'TIERS stays an array: three tiers read fine';
+const ACCEPT = '#pr-412 .bd-ftb .bp-btn[title^="Pick the starred"]';
+const SEND = 'dialog.bd-sendans[open]';
 const row = (id) => `#pr-412 .bd-mrow[data-item="t412/${id}"]`;
 const pick = (id, opt) => `${row(id)} .bp-opt[data-id="${opt}"] .pk`;
 const picked = (id, opt) => `document.querySelector('${pick(id, opt)}').getAttribute('aria-checked') === 'true'`;
@@ -51,10 +55,15 @@ export default {
     // what the agent's build prints, worked out before the take (a blocking call would stall it)
     const b = spawnSync('python3', [join(c.bd.scripts, 'build.py'), this.path], { env: c.bd.env, cwd: c.bd.work, encoding: 'utf8' });
     this.built = `${b.stdout}\n${b.stderr}`.split('\n').find((l) => /error\(s\)/.test(l)) ?? 'built';
-    // the page in Merged view, comments panel closed (both kept for the doc), then bluedoc's home, off stage
+    // the page in Merged view on All (a decided finding stays in view), comments panel closed (both kept for the doc),
+    // #415 already answered as recommended; then bluedoc's home, off stage
     await c.goto(DOC);
     await findingsView(c, 'pr-412', 'merged');
+    await c.ev(`BP.findingsFilter('pr-412', 'all'); BP.acceptRecommended('t415'); BP.contents({open: false})`);
+    await c.waitFor(`BP.findingsFilter('pr-412') === 'all' && BP.progress().find((p) => p.id === 't415').done === 4`);
+    await showProject(c);
     await c.goto('home');
+    await c.waitFor(HOME_READY);
     await s.layout('solo');
     await t.title('acme-shop — claude (without bluedoc)');
     await t.block(this.wall.slice(0, 30), { cls: 'dim' });
@@ -96,9 +105,10 @@ export default {
     await t.done(id, [s.tidy(this.built)]);
 
     // open: the real serve.py open; the page comes up in the browser
-    id = await t.tool('Bash', `serve.py open ${REL} --to claude`);
-    const opened = await s.py('serve.py', 'open', this.path, '--to', 'claude');
+    id = await t.tool('Bash', `serve.py open ${REL} --to "Claude Code"`);
+    const opened = await s.py('serve.py', 'open', this.path, '--to', 'Claude Code');
     await c.goto(DOC);
+    await c.ev('BP.sidebar({open: false}); BP.contents({open: false})');
     const lines = opened.out.trim().split('\n').map((l) => s.tidy(l).replace(/([?&]key=)[^&\s]+/, '$1…'));
     await t.done(id, [lines[0], ...(lines.length > 1 ? [{ text: `… +${lines.length - 1} lines (ctrl+o to expand)`, cls: 'faint' }] : [])]);
     await t.spin(null);
@@ -110,16 +120,12 @@ export default {
 
     // ---- the reader, on the page: tiers.ts's three findings ----
     await c.moveTo([1100, 600], { ms: 600 });
-    await c.wheel(await c.ev(`document.querySelector('${row('tiers-map')}').getBoundingClientRect().top - 250`), { ms: 800 });
+    await c.wheel(await c.ev(`document.querySelector('${row('tiers-map')}').getBoundingClientRect().top - 340`), { ms: 800 });
     await c.pause(400);
-    // decline the TIERS nit, with a reason
+    // decline the TIERS nit (its reason goes with the send)
     await c.click(pick('tiers-map', 'decline'), { ms: 600 });
     await c.waitFor(picked('tiers-map', 'decline'));
-    await c.click(`${row('tiers-map')} > .bp-note textarea`, { ms: 500 });
-    await c.type(REASON, { cps: 30 });
-    await c.click(`${row('tiers-map')} > .bp-note .bp-btn.primary`, { ms: 400 });
-    await c.waitFor(`!document.querySelector('${row('tiers-map')} > .bp-note').classList.contains('dirty')`);
-    await c.pause(300);
+    await c.pause(500);
     // the boundary bug: Fix in PR
     await c.wheel(await c.ev(`document.querySelector('${row('tier-boundary')}').getBoundingClientRect().top - 300`), { ms: 600 });
     await c.click(pick('tier-boundary', 'fix'), { ms: 550 });
@@ -130,17 +136,20 @@ export default {
     await c.click(pick('float-cents', 'ticket'), { ms: 550 });
     await c.waitFor(picked('float-cents', 'ticket'));
     await c.pause(350);
-    // the other 8 as recommended (Accept recommended only fills open decisions)
-    await c.click('.bd-anntb .acc', { ms: 650 });
+    // the rest of #412 as recommended, from the findings toolbar (it only fills open decisions)
+    await c.click(ACCEPT, { ms: 650 });
     await c.waitFor(`BP.progress().every((p) => p.done === p.total)`);
     await c.pause(500);
 
-    // send
-    await c.click('.bd-anntb .send', { ms: 650 });
-    await c.waitForSelector('.bd-send:not(.bd-chgs)[open] .ft .bp-btn.primary');
+    // send: Reply and fix lists every finding's pick; the decline's reason goes as its note
+    await c.click('.bd-anntb .bd-key.send', { ms: 650 });
+    await c.waitForSelector(`${SEND} .sd-note textarea`);
     await c.pause(700);
-    await c.click('.bd-send:not(.bd-chgs)[open] .ft .bp-btn.primary', { ms: 500 });
-    await c.waitFor(`!document.querySelector('.bd-send:not(.bd-chgs)').open`);
+    await c.click({ sel: `${SEND} .sd-note textarea`, x: 0.3 }, { ms: 500 });
+    await c.type(REASON, { cps: 32 });
+    await c.pause(300);
+    await c.click(`${SEND} .ft .pri`, { ms: 500 });
+    await c.waitFor(`!document.querySelector('${SEND}')`);
 
     // ---- the payoff: the agent was already waiting ----
     // the reply as wait printed it, folded after #412's findings as Claude Code folds long output

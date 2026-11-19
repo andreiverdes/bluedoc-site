@@ -76,8 +76,8 @@ export async function startFixture(ctx) {
 
 /**
  * Rev A → rev B as the website guide has it: `serve.py snapshot` records rev A's live pages, the agent changes the
- * hero in the site's source (its copy, and a coach note in place of the week's stats on the phone), and `build.py
- * patch` records the change as rev B.
+ * hero in the site's source (its copy, and a coach note in place of the week's stats on the phone, styled in
+ * site.css), and `build.py patch` records the change as rev B, the hero's source hints gaining site.css.
  */
 export function toRevB(ctx, site) {
   ctx.py('serve.py', 'snapshot', site.doc, '--width', '1440');
@@ -96,16 +96,21 @@ export function toRevB(ctx, site) {
   );
   site.edit(
     'src/styles/site.css',
-    ['.stats b {', '.coach-note { margin: 0 18px; padding: 14px 16px; border-radius: 16px; background: #fff; box-shadow: 0 8px 20px rgba(255, 90, 54, 0.14); font-size: 13px; line-height: 1.4; color: var(--soft); }\n.coach-note b { display: block; margin-bottom: 4px; color: #d9431f; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }\n.stats b {'],
+    ['.stats b {', '.coach-note { margin: 0 18px; padding: 14px 16px; border-radius: 16px; background: #fff; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.14); font-size: 13px; line-height: 1.4; color: var(--soft); }\n.coach-note b { display: block; margin-bottom: 4px; color: #1d4ed8; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; }\n.stats b {'],
   );
-  ctx.py('build.py', 'patch', site.doc, 'artboard:home', '--change', 'Hero: lead with coach notes; the trial button says how long it lasts.');
+  ctx.py('build.py', 'patch', site.doc, 'artboard:home',
+    '--set', 'sections/hero/source=["src/content/site.ts#hero","src/components/Hero.ts","src/styles/site.css"]',
+    '--change', 'Hero: lead with coach notes; the trial button says how long it lasts.');
 }
 
-/** Hides the Pages panel and the right sidebar, so the board has the whole width; waits for the board to widen. */
+/**
+ * Hides the left pane (Brief or Pages: its lit key shuts it) and the right one, so the board has the whole width;
+ * waits for the board to widen.
+ */
 export async function boardOnly(c) {
   await c.ev(`BP.sidebar({open: false})`);
   if (await c.ev(`BP.board().panel`)) {
-    await c.ev(`document.querySelector('.bd-btb > button').click()`);
+    await c.ev(`document.querySelector('.bd-stripe.l .bd-sk[aria-pressed=true]').click()`);
     await c.waitFor(`!BP.board().panel`);
   }
   await settle(c);

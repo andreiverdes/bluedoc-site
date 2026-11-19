@@ -1,4 +1,4 @@
-// Every doc type: Point (C), click orders-api in the blueprint, write the change in the composer, Save; the pin
+// Every doc type: Element (C), click orders-api in the blueprint, write the change in the composer, Save; the pin
 // stays on the node and the comment waits in the Comments panel.
 
 export default {

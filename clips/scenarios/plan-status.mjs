@@ -11,7 +11,8 @@ export default {
 
   async setup(c) {
     await c.waitForSelector('.bd-anntb .approve');
-    await c.ev(`BP.sidebar({open: false})`);
+    // the page's own width, in this load and after the reload (the Contents pane would dock once the panel is shut)
+    await c.ev(`BP.sidebar({open: false}); BP.contents({open: false})`);
     await c.waitFor(`!BP.sidebar().open`);
     await reviewRev1(c);
     await c.pause(300);
@@ -26,9 +27,9 @@ export default {
 
     // Request changes: the picks and the note go to the agent
     await c.click('.bd-anntb .go', { ms: 650 });
-    await c.waitForSelector('.bd-chgs .bp-btn.primary');
+    await c.waitForSelector('dialog.bd-chgs[open] .ft .pri');
     await c.pause(200);
-    await c.click('.bd-chgs .bp-btn.primary', { ms: 400 });
+    await c.click('dialog.bd-chgs[open] .ft .pri', { ms: 400 });
     await c.waitFor(`BP.planState().state === 'changes'`);
     await c.moveTo(await under('Changes requested'), { ms: 600 });
     await c.pause(700);
@@ -40,9 +41,9 @@ export default {
     await c.pause(400);
 
     await c.click('.bd-anntb .approve', { ms: 600 });
-    await c.waitForSelector('.bd-approve .bp-btn.ok');
+    await c.waitForSelector('dialog.bd-approve[open] .ft .pri');
     await c.pause(200);
-    await c.click('.bd-approve .bp-btn.ok', { ms: 400 });
+    await c.click('dialog.bd-approve[open] .ft .pri', { ms: 400 });
     await c.waitFor(`BP.planState().state === 'approved'`);
     await c.moveTo(await under('Approved · rev 2'), { ms: 600 });
     await c.pause(1100);
