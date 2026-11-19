@@ -1,0 +1,73 @@
+---
+// The blog (/blog/): the hero, then every post newest first as a card (its hero clip's poster, date, version,
+// title and summary), the install band and the footer. Posts are MDX in src/content/blog/ (src/content.config.ts);
+// copy in atlasBlog (src/content/atlas.ts).
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import ArrowRight from '@lucide/astro/icons/arrow-right';
+import '../../styles/atlas.css';
+import '../../styles/blog.css';
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/atlas/Nav.astro';
+import Cta from '../../components/atlas/Cta.astro';
+import Footer from '../../components/atlas/Footer.astro';
+import PixelIcon from '../../components/PixelIcon.astro';
+import PixelSky from '../../components/PixelSky.astro';
+import { atlasBlog as b } from '../../content/atlas';
+import { clipSize, formatDate, getPosts, isoDate, postHref } from '../../lib/blog';
+import { base } from '../../lib/paths';
+
+// a post's card shows its hero clip's poster, when the post has a hero and the poster is recorded
+const posts = (await getPosts()).map((post) => {
+  const hero = post.data.hero;
+  const poster = hero && existsSync(join(process.cwd(), 'public', 'clips', `${hero}.poster.webp`)) ? { src: `${base}clips/${hero}.poster.webp`, ...clipSize(hero) } : undefined;
+  return { post, poster };
+});
+---
+
+<Base title={b.metaTitle} description={b.metaDescription}>
+  <Nav />
+  <main id="main">
+    <section id="top" class="av-hero blog-hero" aria-labelledby="blog-title">
+      <div class="av-grid-bg"></div>
+      <PixelSky class="av-sky" seed={41} count={100} />
+      <div class="av-wrap av-hero-copy">
+        <p class="av-kicker enter"><PixelIcon name="spark" size={14} />{b.kicker}</p>
+        <h1 id="blog-title" class="av-h1 enter" style="--d:0.08s">{b.title}</h1>
+        <p class="lead av-sub enter" style="--d:0.16s">{b.lead}</p>
+      </div>
+    </section>
+
+    <section class="av-section blog-list-section" aria-label={b.listLabel}>
+      <ul class="av-wrap blog-list">
+        {
+          posts.map(({ post, poster }, i) => (
+            <li class="enter" style={`--d:${0.24 + Math.min(i, 3) * 0.08}s`}>
+              <a class="av-card blog-card" href={postHref(post)}>
+                <span class="blog-card-art av-art" aria-hidden="true">
+                  {poster ? (
+                    <img src={poster.src} alt="" width={poster.width} height={poster.height} loading={i < 2 ? 'eager' : 'lazy'} decoding="async" />
+                  ) : (
+                    <PixelIcon name="spark" size={40} />
+                  )}
+                </span>
+                <span class="blog-card-body">
+                  <span class="blog-meta">
+                    <time datetime={isoDate(post.data.date)}>{formatDate(post.data.date)}</time>
+                    {post.data.version && <span class="av-chip">v{post.data.version}</span>}
+                  </span>
+                  <span class="blog-card-title">{post.data.title}</span>
+                  <span class="blog-card-text">{post.data.summary}</span>
+                  <ArrowRight class="blog-card-arrow size-4" aria-hidden="true" />
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <Cta />
+  </main>
+  <Footer />
+</Base>

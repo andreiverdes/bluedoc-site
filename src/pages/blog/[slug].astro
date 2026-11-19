@@ -1,0 +1,104 @@
+---
+// A blog post (/blog/<slug>/, from src/content/blog/<slug>.mdx): its date, version, title and summary, the hero
+// clip, the MDX body in a prose column (<Video> needs no import there), then the other posts, the install band and
+// the footer.
+import ArrowLeft from '@lucide/astro/icons/arrow-left';
+import ArrowRight from '@lucide/astro/icons/arrow-right';
+import { render } from 'astro:content';
+import '../../styles/atlas.css';
+import '../../styles/blog.css';
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/atlas/Nav.astro';
+import Cta from '../../components/atlas/Cta.astro';
+import Footer from '../../components/atlas/Footer.astro';
+import PixelSky from '../../components/PixelSky.astro';
+import Video from '../../components/blog/Video.astro';
+import { atlasBlog as b, atlasBlogHref } from '../../content/atlas';
+import { fillGrid } from '../../lib/fill-grid';
+import { formatDate, getPosts, isoDate, postHref, type BlogPost } from '../../lib/blog';
+import { rich } from '../../lib/rich';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post, others: posts.filter((p) => p !== post) } }));
+}
+
+interface Props {
+  post: BlogPost;
+  others: BlogPost[];
+}
+
+const { post, others } = Astro.props;
+const { title, summary, date, version, hero } = post.data;
+const { Content } = await render(post);
+// complete grids (src/lib/fill-grid.ts): the other posts in 1, 2 then 3 columns
+const otherSpans = fillGrid(others.length, [1, 2, 3]);
+---
+
+<Base title={`${title}${b.postTitleSuffix}`} description={summary}>
+  <Nav />
+  <main id="main">
+    <article aria-labelledby="post-title">
+      <header class="av-hero blog-hero">
+        <div class="av-grid-bg"></div>
+        <PixelSky class="av-sky" seed={41} count={100} />
+        <div class="av-wrap av-hero-copy">
+          <a class="blog-back enter" href={atlasBlogHref}><ArrowLeft class="size-3.5" aria-hidden="true" />{b.allPosts}</a>
+          <p class="blog-meta enter" style="--d:0.04s">
+            <time datetime={isoDate(date)}>{formatDate(date)}</time>
+            {version && <span class="av-chip">v{version}</span>}
+          </p>
+          <h1 id="post-title" class="av-h1 blog-title enter" style="--d:0.08s">{title}</h1>
+          <p class="lead av-sub blog-summary enter" style="--d:0.16s">{summary}</p>
+        </div>
+        {
+          hero && (
+            <div class="av-wrap av-stage blog-stage enter" style="--d:0.3s">
+              <Video clip={hero} priority />
+            </div>
+          )
+        }
+      </header>
+
+      <div class="av-wrap blog-prose">
+        <Content components={{ Video }} />
+      </div>
+    </article>
+
+    {
+      others.length > 0 && (
+        <section class="av-section blog-more-section" aria-labelledby="more-title">
+          <div class="av-wrap">
+            <div class="av-head" data-reveal>
+              <p class="label">{b.moreKicker}</p>
+              <h2 id="more-title" class="h2" set:html={rich(b.moreTitle)} />
+            </div>
+            <ul class="blog-more fill-grid">
+              {others.map((p, i) => (
+                <li style={otherSpans[i]} data-reveal={String(i % 3)}>
+                  <a class="av-card blog-more-card" href={postHref(p)}>
+                    <span class="blog-meta">
+                      <time datetime={isoDate(p.data.date)}>{formatDate(p.data.date)}</time>
+                      {p.data.version && <span class="av-chip">v{p.data.version}</span>}
+                    </span>
+                    <span class="av-card-title">{p.data.title}</span>
+                    <span class="av-card-text">{p.data.summary}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <p class="blog-all" data-reveal>
+              <a class="link-arrow" href={atlasBlogHref}>
+                {b.allPosts}
+                <ArrowRight class="size-4" aria-hidden="true" />
+              </a>
+            </p>
+          </div>
+        </section>
+      )
+    }
+
+    <Cta />
+  </main>
+  <Footer />
+</Base>

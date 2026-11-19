@@ -14,6 +14,7 @@ const question = (q: string) => faq.items.find((f) => f.q === q)!;
 export const atlasBase = base;
 export const atlasTypeHref = (id: string) => `${atlasBase}${id}/`;
 export const atlasRevisionsHref = `${atlasBase}revisions/`;
+export const atlasBlogHref = `${atlasBase}blog/`;
 const pluginAgents = install.tabs.filter((t) => t.id !== 'skills');
 
 export const atlasMeta = {
@@ -22,7 +23,7 @@ export const atlasMeta = {
 };
 
 export const atlasNav = {
-  // Doc types opens a menu of the type pages; the other two are anchors on the home
+  // Doc types opens a menu of the type pages; then anchors on the home and the Revisions and Blog pages
   types: {
     label: 'Doc types',
     pages: docTypes.items.map((t) => ({ id: t.id as PixelIconName, name: t.name, pitch: t.pitch, href: atlasTypeHref(t.id) })),
@@ -32,6 +33,7 @@ export const atlasNav = {
     { label: 'How it works', href: `${atlasBase}#how-it-works` },
     { label: 'Revisions', href: atlasRevisionsHref },
     { label: 'FAQ', href: `${atlasBase}#faq` },
+    { label: 'Blog', href: atlasBlogHref },
   ],
   github: { label: 'GitHub', href: repoUrl },
   install: { label: 'Install', href: '#install' },
@@ -215,9 +217,26 @@ export const atlasFooter = {
     { label: 'Revisions', href: atlasRevisionsHref },
     { label: 'Features', href: `${base}features/` },
     { label: 'FAQ', href: `${atlasBase}#faq` },
+    { label: 'Blog', href: atlasBlogHref },
     { label: 'GitHub', href: repoUrl },
     { label: 'Credits and privacy', href: `${base}legal/` },
   ],
+};
+
+// The blog (/blog/ and a page per post, src/pages/blog/): the posts are MDX in src/content/blog/; this is the
+// lines around them.
+export const atlasBlog = {
+  metaTitle: 'Blog · bluedoc',
+  metaDescription: 'What’s new in bluedoc: release notes and short posts on what changed and how to use it.',
+  /** a post's <title>: "<post title> · bluedoc blog" */
+  postTitleSuffix: ' · bluedoc blog',
+  kicker: 'bluedoc · Blog',
+  title: 'Blog',
+  lead: 'What’s new in bluedoc, now and then.',
+  listLabel: 'Posts',
+  moreKicker: 'More from the blog',
+  moreTitle: 'Keep [reading].',
+  allPosts: 'All posts',
 };
 
 // The revisions page (/revisions/): what a revision is, how each doc type compares two, the onion
