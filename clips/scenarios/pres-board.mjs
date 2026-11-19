@@ -21,7 +21,7 @@ export default {
   async setup(c) {
     await panels(c, { left: 'brief' });
     // the title slide at the top of the stage, under the toolbar (the camera's wheel lands on the board, not on it)
-    await view(c, { x: 960, y: 540, k: K, to: [768, 140 + 540 * K] });
+    await view(c, { x: 960, y: 540, k: K, to: [808, 140 + 540 * K] });
     await settled(c);
     await c.moveTo([1010, 520], { ms: 1 });
   },

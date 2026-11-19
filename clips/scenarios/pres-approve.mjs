@@ -18,7 +18,7 @@ export default {
     await panels(c, { left: 'brief' });
     await c.waitForSelector(ROW);
     await c.ev(`document.querySelector('${ROW}').scrollIntoView({block: 'center'})`);
-    await view(c, { x: 960, y: 3260, k: 0.22, to: [768, 430] });
+    await view(c, { x: 960, y: 3260, k: 0.22, to: [808, 430] });
     await settled(c);
   },
 

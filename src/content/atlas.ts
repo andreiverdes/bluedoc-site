@@ -238,7 +238,7 @@ export const atlasRevisions = {
     title: 'Fade one design into the next',
     body: 'Open a changed screen from the Revisions panel and switch to Onion skin. Drag the slider and the new dashboard fades in over the old one, so every moved card shows in place.',
     shows:
-      'On acme-fit-design, Changes from rev C lists Dashboard as changed in the Revisions panel; its labelled Compare key opens the compare view and the panel is put away, Onion skin lays rev D over rev C, and the opacity slider fades the light indigo dashboard into a dark redesign, then rests half way.',
+      'On acme-fit-design, Changes from rev C lists Dashboard as changed in the Revisions panel; its Compare key opens the compare view beside the panel, Onion skin lays rev D over rev C, and the opacity slider fades the light indigo dashboard into a dark redesign, then rests half way.',
   } satisfies ClipCopy,
   loop: {
     kicker: 'How a revision works',

@@ -11,10 +11,10 @@ export default {
   cursor: [900, 600],
 
   async setup(c) {
-    await panels(c, { left: 'brief', leftW: 340 });
+    await panels(c, { left: 'brief' });
     await c.waitForSelector(ROW);
     await c.ev(`document.querySelector('${ROW}').scrollIntoView({block: 'center'})`);
-    await view(c, { x: 1080, y: 1820, k: 0.3, to: [816, 430] }); // the phone app, right of the Brief pane
+    await view(c, { x: 1080, y: 1820, k: 0.3, to: [806, 430] }); // the phone app, right of the Brief pane
     await settled(c);
   },
 

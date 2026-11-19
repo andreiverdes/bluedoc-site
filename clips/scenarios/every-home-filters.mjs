@@ -1,6 +1,6 @@
 // Every doc type, the home page: filter by status, then by type. Each menu shows its counts; the docs table narrows to
-// match (Status: Awaiting approval, 4 of 8: the website, the listing, the deck and the plan; then Type: Plans, the plan
-// alone) and each filter stays as a chip with ×.
+// match (Status: Awaiting approval, 2 of 8: the website and the plan, as plans, designs and websites are approved and
+// the design already is; then Type: Plans, the plan alone) and each filter stays as a chip with ×.
 import { seedHome } from './_shared/home-seed.mjs';
 
 // the docs' own filter key (the home repeats the toolbar in a top bar that slides in on scroll: not that one)
@@ -27,7 +27,7 @@ export default {
     await c.waitForSelector('[role=menu]');
     await c.pause(450);
     await c.click(ITEM('Awaiting approval'), { ms: 500 });
-    await c.waitFor(`document.querySelectorAll('a.t').length === 4 && !document.querySelector('[role=menu]')`);
+    await c.waitFor(`document.querySelectorAll('a.t').length === 2 && !document.querySelector('[role=menu]')`);
     await c.pause(1000);
     await c.click(await at(c, 'Type'), { ms: 600 });
     await c.waitForSelector('[role=menu]');

@@ -38,11 +38,7 @@ export default {
     await c.pause(500); // the question and the picks it carries
     await c.click('dialog.bd-chgs[open] .ft .pri', { ms: 450 });
     await c.waitFor(`BP.planState().state === 'changes'`);
-    // the sent cards fold and the page shrinks above the question: keep it where it was
-    const hold = `window.scrollTo({top: document.querySelector('${ITEM}').getBoundingClientRect().top + scrollY - 76, behavior: 'instant'})`;
-    await c.ev(hold);
-    await c.pause(250);
-    await c.ev(hold);
+    await c.pause(400); // the page holds still while the sent card folds
 
     // the agent's rev 2 answers in the question's conversation
     c.bd.py('build.py', 'patch', c.bd.docPath('acme-saved-carts-plan'), 'item:decisions/prices', '--reply',

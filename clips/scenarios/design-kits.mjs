@@ -8,7 +8,7 @@ import { glide, panels, settled, view } from '../fixtures/acme-fit-design/board.
 
 const ROW = '#item-brief-framework';
 const DASH = { x: -1640, y: 1386 }; // the dashboard's top-left (1440 × 900)
-const MID = [816, 430]; // the board's middle right of the Brief pane (340 px)
+const MID = [806, 430]; // the board's middle right of the Brief pane (its default 320 px)
 
 export const crf = 27;
 
@@ -23,7 +23,7 @@ export default {
   },
 
   async setup(c) {
-    await panels(c, { left: 'brief', leftW: 340 });
+    await panels(c, { left: 'brief' });
     await c.waitForSelector(ROW);
     await c.ev(`document.querySelector('${ROW}').scrollIntoView({block: 'center'})`);
     await view(c, { x: -330, y: 1830, k: 0.3, to: MID }); // the dashboard, Sign in and its variant, Today

@@ -103,7 +103,7 @@ export const every = {
     clip: 'every-more',
     title: 'Ask the agent to tell you more',
     body: 'Tell me more, the pill under the answers, asks the agent what is missing before you pick, and moves you to the reply field to say what you need to know.',
-    shows: 'On acme-saved-carts-plan, Tell me more under a question’s answers makes it read Asking for more, and the reply field asks What do you need to know?; Request changes counts 1 and Approve greys out until the agent answers.',
+    shows: 'On acme-saved-carts-plan, Tell me more under a question’s answers makes it read Asking for more, and the reply field asks What do you need to know?; Request changes counts 1, and the greyed Approve’s tooltip says to send the question with Request changes and wait for the agent’s next revision.',
   },
   request: {
     clip: 'every-request',
@@ -157,7 +157,7 @@ export const every = {
     clip: 'every-home-filters',
     title: 'Filter by type, status and project',
     body: 'Type, Status and Project menus show their counts and narrow the docs. The sidebar finds a project and lists them All, Active, Pinned or Hidden.',
-    shows: 'On the home page, the Status menu’s Awaiting approval narrows the docs to the website, the listing, the deck and the plan; then the Type menu’s Plans leaves the plan alone.',
+    shows: 'On the home page, the Status menu’s Awaiting approval narrows the docs to the two that wait on you, the website and the plan; then the Type menu’s Plans leaves the plan alone.',
   },
   homeCards: {
     clip: 'every-home-cards',
@@ -205,7 +205,7 @@ export const every = {
     clip: 'every-copy-pull',
     title: 'Take the sharer’s updates',
     body: 'Your copy says when the sharer shares a newer revision. Compare shows theirs over yours, Pull merges it into a new revision, and Take theirs settles a part you both changed.',
-    shows: 'A copy of acme-saved-carts-plan reads acme-dev updated this to rev 2; Compare draws their rev over the copy, Pull merges it into the copy’s rev 3 and keeps the copy’s Approach lead where both changed, and Take theirs under Review puts acme-dev’s in.',
+    shows: 'A copy of acme-saved-carts-plan reads acme-dev updated this to rev 2; Compare draws acme-dev’s rev 2 over the copy, Pull merges it into the copy’s rev 3 and keeps the copy’s Approach lead where both changed (the Show what changed strip stays), and Take theirs under Review puts acme-dev’s in.',
   },
   export: {
     clip: 'every-export',
@@ -715,7 +715,7 @@ const designs: TypePageCopy = {
       clip: 'design-compare',
       title: 'Compare a screen with an earlier revision',
       body: 'Changes from an earlier revision marks a changed screen and its links New, Changed or Removed; the screen’s Compare key puts the two revisions side by side.',
-      shows: 'On acme-fit-design, Changes from rev C marks Today changed and its links New, Changed and Removed in the Revisions panel; Today’s labelled Compare key opens rev C and rev D side by side, and Esc leaves.',
+      shows: 'On acme-fit-design, Changes from rev C marks Today changed and its links New, Changed and Removed in the Revisions panel; Today’s Compare key opens rev C and rev D side by side beside the panel, and the view’s × closes it.',
     },
     {
       clip: 'design-onion',
@@ -857,7 +857,7 @@ const presentations: TypePageCopy = {
       clip: 'pres-compare',
       title: 'Compare a slide with the last revision',
       body: 'Compare puts a slide at two revisions side by side, or lays one over the other as an onion skin.',
-      shows: 'On acme-fit-deck, rev B rewords Weekly actives; compare puts rev A beside rev B, then Onion skin fades from one to the other.',
+      shows: 'On acme-fit-deck, rev B rewords Weekly actives; compare puts rev A beside rev B beside the open Revisions pane, then Onion skin fades from one to the other.',
     },
     {
       clip: 'pres-approve',
@@ -968,7 +968,7 @@ const websites: TypePageCopy = {
       clip: 'web-compare',
       title: 'Compare a page with an earlier revision',
       body: 'Compare puts the older revision left of the newer one at the same size; zoom and pan move both. A section whose content changed is outlined on both.',
-      shows: 'On acme-site, Changes from rev A shows Rev A beside Rev B with the changed section outlined on both, then Single returns to one page.',
+      shows: 'On acme-site, Changes from rev A reads Rev A → B: 1 changed and shows Rev A beside Rev B with the changed section outlined on both, then Single returns to one page.',
     },
     {
       clip: 'web-new-tab',

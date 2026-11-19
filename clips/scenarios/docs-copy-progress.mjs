@@ -18,7 +18,7 @@ const SHOW_CARD = `(() => {
   el.id = '${CARD}';
   el.innerHTML = '<div class="t"><span>Copied as Markdown</span><span class="n">' + md.length + ' lines</span></div><pre>' + md.map(line).join('') + '</pre>';
   const box = document.querySelector('${CL}').getBoundingClientRect(); // over the checklist, its width
-  Object.assign(el.style, { left: box.left + 'px', width: box.width + 'px' });
+  Object.assign(el.style, { left: box.left + 'px', width: box.width + 'px', top: (box.top + 74) + 'px' }); // under its toolbar
   document.body.append(el);
   requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('on')));
 })()`;
@@ -38,9 +38,10 @@ export default {
       const write = navigator.clipboard.writeText.bind(navigator.clipboard);
       navigator.clipboard.writeText = (t) => { window.__clipCopied = t; return write(t).catch(() => {}); };
     })()`);
-    await c.ev(`scrollTo({ top: document.querySelector('${CL}').getBoundingClientRect().top + scrollY - 76, behavior: 'instant' })`);
+    // the section's heading and lead ("The checklist's Copy takes your ticks as Markdown") just under the app bar
+    await c.ev(`scrollTo({ top: document.querySelector('#run').getBoundingClientRect().top + scrollY - 64, behavior: 'instant' })`);
     await c.addStyle(`
-      #${CARD} { position: fixed; top: 150px; z-index: 90; border-radius: 14px; overflow: hidden;
+      #${CARD} { position: fixed; z-index: 90; border-radius: 14px; overflow: hidden;
         background: var(--surface); box-shadow: 0 0 0 1px var(--line), 0 24px 64px rgba(0,0,0,.45);
         opacity: 0; transform: translateY(10px) scale(.985); transition: opacity .35s ease, transform .35s ease; }
       #${CARD}.on { opacity: 1; transform: none; }

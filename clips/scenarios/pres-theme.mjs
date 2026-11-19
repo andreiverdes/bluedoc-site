@@ -24,7 +24,7 @@ export default {
     await c.waitForSelector(ROW);
     await c.ev(`document.querySelector('${ROW}').scrollIntoView({block: 'center'})`);
     // What shipped, Weekly actives and the quote: the middle of the column, three whole slides
-    await view(c, { x: 960, y: 3260, k: 0.15, to: [768, 446] });
+    await view(c, { x: 960, y: 3260, k: 0.15, to: [808, 446] });
     await settled(c);
   },
 

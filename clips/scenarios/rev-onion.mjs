@@ -1,8 +1,7 @@
 // Revisions: onion skin on a redesign. The temp copy gets rev D, a new Dashboard (dark, a sidebar, a big steps chart,
 // the KPI cards moved to a right rail, emerald accent) by a real build.py patch. In Changes from C, the Revisions panel
-// lists Dashboard changed; its labelled Compare key opens the compare view, the panel is hidden (it lies over the
-// view's header), Onion skin lays rev D over rev C, and the opacity slider cross-fades the two designs: old, new, then
-// rests half way.
+// lists Dashboard changed; its labelled Compare key opens the compare view beside the panel, Onion skin lays rev D
+// over rev C, and the opacity slider cross-fades the two designs: old, new, then rests half way.
 import { join } from 'node:path';
 import { panels, settled } from '../fixtures/acme-fit-design/board.mjs';
 
@@ -41,9 +40,6 @@ export default {
     await c.click('.bd-ab[data-ab="dashboard"] .bd-ab-t .cmp', { ms: 600 });
     await c.waitFor(CMP_READY);
     await c.pause(350);
-    await c.click('.bd-sp .bd-pane-x', { ms: 550 }); // Hide the Revisions panel: the compare keys are under it
-    await c.waitFor(`!BP.sidebar().open`);
-    await c.pause(200);
     await c.click('.bd-cmpv button[data-v="onion"]', { ms: 500 });
     await c.waitFor(`!document.querySelector('${SLIDER}').hidden`);
     await c.pause(150);
