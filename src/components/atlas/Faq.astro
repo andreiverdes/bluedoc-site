@@ -15,7 +15,7 @@ import Moon from '@lucide/astro/icons/moon';
 import RotateCcwClock from '@lucide/astro/icons/rotate-ccw-clock';
 import Share from '@lucide/astro/icons/share';
 import Sun from '@lucide/astro/icons/sun';
-import { atlasFaq as f } from '../../content/atlas';
+import { atlasFaq as f, shareExampleCode } from '../../content/atlas';
 import { rich } from '../../lib/rich';
 ---
 
@@ -157,7 +157,7 @@ import { rich } from '../../lib/rich';
                       </span>
                       <span class="bar-k">
                         <RotateCcwClock />
-                        <b class="bar-n">3</b>
+                        <b class="bar-n">1</b>
                       </span>
                       <i class="bar-groove" />
                       <span class="bar-k">
@@ -168,11 +168,11 @@ import { rich } from '../../lib/rich';
                   <div class="mock-share">
                     <p class="share-t">
                       Secret gist
-                      <span class="share-state">Up to date · rev 3</span>
+                      <span class="share-state">Up to date · rev 1</span>
                     </p>
                     <p class="share-link">
                       <Link />
-                      <span>bluedoc.ai/g/ChssPU5fYHGCk6S1xtfo-Q</span>
+                      <span>bluedoc.ai/g/{shareExampleCode}</span>
                       <Copy />
                     </p>
                     <p class="share-row">
@@ -205,6 +205,11 @@ import { rich } from '../../lib/rich';
               )}
             </div>
             <p class="av-faq-a">{it.a}</p>
+            {'link' in it && it.link && (
+              <a class="link-arrow av-faq-link" href={it.link.href}>
+                {it.link.label}
+              </a>
+            )}
           </div>
         ))
       }
@@ -270,6 +275,14 @@ import { rich } from '../../lib/rich';
     padding: clamp(1.25rem, 2vw, 1.75rem);
     max-width: 44rem;
     color: var(--fg-muted);
+  }
+  /* the share answer's example link sits under the answer, inside the panel's padding */
+  .av-faq-a:has(+ .av-faq-link) {
+    padding-bottom: 0.75rem;
+  }
+  .av-faq-link {
+    align-self: flex-start;
+    margin: 0 clamp(1.25rem, 2vw, 1.75rem) clamp(1.25rem, 2vw, 1.75rem);
   }
 
   /* a row of tiles or files, never wrapping onto a half-empty second row: where three tiles can't sit side by side

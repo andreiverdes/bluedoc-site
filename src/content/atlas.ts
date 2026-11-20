@@ -214,6 +214,11 @@ export const atlasAnswering = {
 
 export type FaqArt = 'free' | 'agents' | 'data' | 'offline' | 'export' | 'share' | 'licence';
 
+// a real shared doc: the Acme saved carts example, shared as a secret gist (13455f83c19fc450cb39a564482fc382) on
+// andreiverdes; the FAQ's share sheet draws its link, and the share answer links to it
+export const shareExampleCode = 'E0Vfg8GfxFDLOaVkSC_Dgg';
+const shareExample = `https://bluedoc.ai/g/${shareExampleCode}`;
+
 export const atlasFaq = {
   id: 'faq',
   title: 'Questions, {answered.}',
@@ -223,7 +228,7 @@ export const atlasFaq = {
     { ...question('Where does my data live?'), art: 'data' as FaqArt },
     { ...question('Does it need an internet connection?'), art: 'offline' as FaqArt },
     { ...question('Can I export a doc?'), art: 'export' as FaqArt },
-    { ...question('Can I share a doc with someone?'), art: 'share' as FaqArt },
+    { ...question('Can I share a doc with someone?'), art: 'share' as FaqArt, link: { label: 'Open an example: Acme Shop: saved carts', href: shareExample } },
     { ...question('What licence is it under?'), art: 'licence' as FaqArt },
   ],
   agents: install.tabs.map((t) => ({ label: t.label, how: t.id === 'skills' ? 'any agent' : 'plugin' })),
