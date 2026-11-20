@@ -3,7 +3,7 @@ title: 'bluedoc 1.2: a home page that never waits'
 summary: 'The home page now renders from a local index: it opens at once after a restart, shows new docs within a second, scrolls without end, and searches every doc on the server.'
 date: 2026-11-20
 order: 0
-version: '1.2.0'
+version: '1.2.1'
 hero: every-home-cards
 ---
 
@@ -36,6 +36,8 @@ Cards draw their hero from a template per doc type and a few numbers. A doc, des
 ## Upgrades don't break anything
 
 Your picks, ticks, comments and approvals stay as they were; the index builds itself the first time 1.2 starts. An older agent's `serve.py open` no longer replaces a newer server that's already running, and a bump that only changes the version doesn't restart it. Tabs you opened on 1.1 keep working until you reload, and a doc page opened after the update says "bluedoc was updated · Reload".
+
+1.2.1 followed the same day with one fix: a docs row opened in place on the home showed "0 sections" instead of its doc's card.
 
 To update in Claude Code, run `claude plugin marketplace update bluedoc`, then `claude plugin update bluedoc@bluedoc`; the README's [Update and remove](https://github.com/andreiverdes/bluedoc#update-and-remove) table has the commands for every other agent. Everything that came before is in the bluedoc 1.1 release notes.
 
