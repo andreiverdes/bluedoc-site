@@ -1,0 +1,35 @@
+---
+// A link to another changelog post, as a card: <PostLink slug="questions" /> in the MDX, no import needed (the post
+// page passes it to <Content>). It shows the post's hero clip's poster (the pixel-art panel when it has none), its
+// date and version, title and summary; the whole card is the link. Alone it runs the width of the text, the poster
+// beside the copy where there is room; several go in <PostLinks> (PostLinks.astro), a complete-row grid.
+// A slug with no post stops the build.
+import PixelIcon from '../PixelIcon.astro';
+import { formatDate, getPost, isoDate, postHref, postPoster } from '../../lib/changelog';
+
+interface Props {
+  /** the post's file name in src/content/changelog/, without extension */
+  slug: string;
+}
+
+const { slug } = Astro.props;
+const post = await getPost(slug, `<PostLink slug="${slug}">`);
+const { title, summary, date, version } = post.data;
+const poster = postPoster(post);
+---
+
+<div class="changelog-postlink" data-post-link={slug}>
+  <a class="av-card changelog-postlink-card" href={postHref(post)}>
+    <span class="changelog-postlink-art av-art" aria-hidden="true">
+      {poster ? <img src={poster.src} alt="" width={poster.width} height={poster.height} loading="lazy" decoding="async" /> : <PixelIcon name="spark" size={40} />}
+    </span>
+    <span class="changelog-postlink-body">
+      <span class="changelog-meta">
+        <time datetime={isoDate(date)}>{formatDate(date)}</time>
+        {version && <span class="av-chip">v{version}</span>}
+      </span>
+      <span class="changelog-postlink-title">{title}</span>
+      <span class="changelog-postlink-text">{summary}</span>
+    </span>
+  </a>
+</div>

@@ -24,8 +24,12 @@ export default {
     await c.click({ sel: `${ROW} .cv`, x: 0.5, y: 0.5 }, { ms: 650 });
     await c.waitFor(`document.querySelector('${ROW}').getAttribute('aria-expanded') === 'true'`);
     await c.pause(1400);
-    const [x, y] = await c.ev(`(() => { const r = (${VIEW('Cards')}).getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; })()`);
-    await c.click([x, y], { ms: 700 });
+    // by element, looked up on every step of the move: the open row can still shift the page while the cursor travels
+    // (the switch renders anew only on a change, so the mark holds until the click)
+    await c.ev(`(${VIEW('Cards')}).classList.add('clip-cards')`);
+    await c.moveTo({ sel: '.clip-cards', x: 0.5, y: 0.5 }, { ms: 700 });
+    await c.pause(200);
+    await c.click({ sel: '.clip-cards', x: 0.5, y: 0.5 }, { ms: 120 });
     // (the switch renders anew on a change: look it up again)
     await c.waitFor(`(${VIEW('Cards')}).getAttribute('aria-checked') === 'true' && !!document.querySelector('a.bd-card')`);
     await c.pause(500);

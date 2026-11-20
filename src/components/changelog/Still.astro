@@ -1,0 +1,39 @@
+---
+// A picture in a changelog post: <Still src="/changelog/<slug>/<name>.webp" caption="…" /> in the MDX, no import
+// needed (the post page passes it to <Content>). The file is in public/; its width and height come from the file, so
+// nothing shifts as it loads, and a missing file stops the build. It sits wider than the text, like a clip, and a
+// click opens it larger in the lightbox (ClipLightbox.astro, the images script in src/scripts/site.ts); without
+// JavaScript the click opens the file. BeforeAfter.astro shows two of these, each with its `label` pill.
+import Maximize from '@lucide/astro/icons/maximize-2';
+import { postImage } from '../../lib/changelog';
+
+interface Props {
+  /** the file's path under public/: /changelog/<slug>/<name>.webp */
+  src: string;
+  /** one sentence on what it shows, under the picture */
+  caption?: string;
+  /** a small mono pill above the picture ("Before · 1.0"), set by BeforeAfter.astro; `off` greys its dot */
+  label?: string;
+  labelTone?: 'off';
+  /** the picture's text for screen readers and the lightbox's title; defaults to the label and the caption */
+  alt?: string;
+}
+
+const { src, caption, label, labelTone, alt = [label, caption].filter(Boolean).join(': ') } = Astro.props;
+const img = await postImage(src, `<Still src="${src}">`);
+---
+
+<figure class="changelog-shot" style={`--w:${img.width}px`}>
+  {
+    label && (
+      <span class="av-chip changelog-shot-label" data-tone={labelTone} aria-hidden="true">
+        {label}
+      </span>
+    )
+  }
+  <a class="changelog-shot-frame" href={img.src} data-lightbox-image data-title={alt}>
+    <img src={img.src} alt={alt} width={img.width} height={img.height} loading="lazy" decoding="async" />
+    <span class="changelog-shot-zoom" aria-hidden="true"><Maximize class="size-4" /></span>
+  </a>
+  {caption && <figcaption class="changelog-video-cap">{caption}</figcaption>}
+</figure>

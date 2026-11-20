@@ -11,6 +11,8 @@ A bluedoc lives on your machine. Sometimes, though, a plan or a review has to re
 
 ## What Share does
 
+<BeforeAfter before="/changelog/sharing/app-bar-before.webp" after="/changelog/sharing/app-bar-after.webp" beforeLabel="1.0" afterLabel="1.1" caption="The right end of the app bar on the same plan: 1.0 had no Share key; in 1.1 it comes first." />
+
 Press Share in the app bar and bluedoc puts the doc's current revision in a secret gist on your own GitHub account, through gh, then copies a short bluedoc.ai/g/ link that opens in any browser.
 
 Share works on docs, plans, reviews, status pages, designs and websites. With more than one gh account signed in, Share as picks the account for the project and remembers it.
@@ -23,6 +25,8 @@ Nothing goes out until you press Share, or ask your agent to share the doc. Then
 - The images and screens the page shows.
 - Your answers, as far as you let them. Include my answers in the share sheet has a switch per kind: picks, ticks and sent comments start on; pending comments, drafts and attached images start off. No local file path goes out.
 
+<Still src="/changelog/sharing/share-sheet.webp" caption="The share sheet: the doc with its media and screens, a switch per kind of answer, and Share." />
+
 A secret gist is unlisted and not searchable, but anyone with the link can read it, so check the doc for secrets first. Stop sharing deletes the gist.
 
 On bluedoc.ai, the reader's browser fetches the gist straight from GitHub and keeps only view settings, such as the theme, in that browser.
@@ -31,9 +35,13 @@ On bluedoc.ai, the reader's browser fetches the gist straight from GitHub and ke
 
 The link keeps the revision you shared. When the agent writes a newer one, the Share key reads Update, with the revisions in a small well: 21 → 22. Press it, then Update in the sheet, and the new revision goes behind the same link. Nothing else updates the gist, except your agent when you ask it to share.
 
+<Still src="/changelog/sharing/update-sheet.webp" caption="Shared at rev 1 with the doc at rev 2: the sheet says readers see rev 1, and Update to rev 2 puts the new revision in the same gist." />
+
 ## What the reader sees
 
 The shared page is view-only: Shared · view only, no dock, the current revision only. Readers can read it, switch the theme, and pan and zoom a board. Answers you shared show read-only under your GitHub login, as in "acme-dev answered".
+
+<Still src="/changelog/sharing/shared-page.webp" caption="A shared review: Shared · view only by its name, Make a copy and Download in the app bar, and acme-dev answered on each shared answer." />
 
 Download saves the page as an HTML file, a PDF, Markdown or a bluedoc file (.zip). Copy gist link copies the gist's address on GitHub.
 
@@ -43,6 +51,17 @@ Download saves the page as an HTML file, a PDF, Markdown or a bluedoc file (.zip
 
 A reader who has bluedoc can press Make a copy. Open in my bluedoc opens their local bluedoc, shows what it will write, and saves only when they press Save; with no server running, they can copy a line for their agent instead. The copy lands in their repo with its images and screens and says whose it was: "Copied from acme-dev's plan, rev 3". From then on it is theirs; nothing goes back to you.
 
+<Still src="/changelog/sharing/make-a-copy.webp" caption="Make a copy: Open in my bluedoc, or a line to copy for your agent when no bluedoc is running." />
+
 When you update your share, their copy says "acme-dev updated this to rev 5", with Compare and Pull. Compare draws your revision over their copy. Pull merges it into a new revision; a part you both changed keeps theirs and is listed under Review, where Take theirs puts yours in.
 
+<Still src="/changelog/sharing/copy-update.webp" caption="A copy of acme-dev's plan after acme-dev updated it: Compare, Pull and Later above the page, and under the title, whose plan it was copied from." />
+
 <Video clip="every-copy-pull" caption="A copy shows the sharer's update; Compare draws it over the copy, Pull merges it, and Take theirs settles the part both changed." />
+
+Share is one of the keys in 1.1's new app bar; the rest of the release is in the notes:
+
+<PostLinks>
+  <PostLink slug="bluedoc-1-1" />
+  <PostLink slug="a-new-look" />
+</PostLinks>

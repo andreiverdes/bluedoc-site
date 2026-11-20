@@ -1,5 +1,6 @@
-/* The changelog (src/pages/changelog/): the post cards on /changelog/, a post's head, its prose column and the clips
-   in it (src/components/changelog/Video.astro). Loaded after atlas.css, whose tokens and Shape it uses. */
+/* The changelog (src/pages/changelog/): the post cards on /changelog/, a post's head, its prose column and what goes
+   in it (src/components/changelog/: clips, pictures, before and after pairs, links to other posts as cards). Loaded
+   after atlas.css, whose tokens and Shape it uses. */
 
 /* the hero has no big frame under it on /changelog/: less room below */
 .changelog-hero {
@@ -160,7 +161,8 @@
   font-weight: 600;
   color: var(--fg);
 }
-.changelog-prose a {
+/* text links; the pictures and post cards in the prose are links too, drawn as themselves (below) */
+.changelog-prose a:not([class]) {
   color: var(--brand-fg);
   text-decoration: underline;
   text-decoration-thickness: 1px;
@@ -168,7 +170,7 @@
   text-decoration-color: color-mix(in oklab, var(--brand-fg) 45%, transparent);
   transition: text-decoration-color 0.15s;
 }
-.changelog-prose a:hover {
+.changelog-prose a:not([class]):hover {
   text-decoration-color: currentColor;
 }
 .changelog-prose ul,
@@ -251,14 +253,23 @@
   font-weight: 500;
 }
 
-/* a clip (Video.astro): wider than the text where there is room, its caption small and muted under it */
+/* a clip (Video.astro), a picture (Still.astro), a before and after pair (BeforeAfter.astro), a row of post cards
+   (PostLinks.astro): wider than the text where there is room, the caption small and muted under it. A picture is no
+   wider than its file (--w, set by its component); a side-by-side pair may run to the page's width. */
 .changelog-video {
   margin: 0;
 }
-.changelog-prose .changelog-video {
+.changelog-prose :is(.changelog-video, .changelog-pair, .changelog-postlinks),
+.changelog-prose > .changelog-shot {
   --wide: min(100vw - 2 * var(--gutter), 56rem);
   width: var(--wide);
   margin: 2.5rem calc((100% - var(--wide)) / 2);
+}
+.changelog-prose > :is(.changelog-shot, .changelog-pair[data-stack]) {
+  --wide: min(100vw - 2 * var(--gutter), 56rem, var(--w));
+}
+.changelog-prose > .changelog-pair:not([data-stack]) {
+  --wide: min(100vw - 2 * var(--gutter), 72rem, 2 * var(--w) + 1rem);
 }
 .changelog-video-cap {
   max-width: 42rem;
@@ -268,6 +279,150 @@
   text-align: center;
   color: var(--fg-subtle);
   text-wrap: pretty;
+}
+
+/* a picture: its pill over it in a pair, the frame of a clip, opening larger on a click (site.ts) */
+.changelog-shot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: start;
+  align-content: start;
+  gap: 0.6rem;
+  margin: 0;
+}
+.changelog-shot-frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--av-r);
+  background: var(--surface);
+  box-shadow: 0 40px 100px -50px var(--glow);
+  cursor: zoom-in;
+}
+.changelog-shot-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.changelog-shot-frame:focus-visible {
+  outline: 2px solid var(--brand-fg);
+  outline-offset: 2px;
+}
+/* the expand mark, on hover or focus */
+.changelog-shot-zoom {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--surface) 82%, transparent);
+  color: var(--fg);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.changelog-shot-frame:is(:hover, :focus-visible) .changelog-shot-zoom {
+  opacity: 1;
+}
+
+/* before and after: stacked, side by side from 720 px */
+.changelog-pair {
+  margin: 0;
+}
+.changelog-pair-shots {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem 1rem;
+}
+.changelog-pair .changelog-shot {
+  justify-self: center;
+  width: min(100%, var(--w));
+}
+/* narrow crops side by side from 720 px; wide ones (data-stack) stay before over after */
+@media (min-width: 720px) {
+  .changelog-pair:not([data-stack]) .changelog-pair-shots {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* a link to another post (PostLink.astro): the poster over the copy, beside it when the card is wide enough; alone
+   it runs the width of the text, several (PostLinks.astro) make a complete grid */
+.changelog-prose > .changelog-postlink {
+  margin-block: 2rem;
+}
+.changelog-postlink {
+  container-type: inline-size;
+}
+.changelog-postlinks {
+  gap: 1rem;
+}
+.changelog-postlink-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  height: 100%;
+  transition: border-color 0.15s;
+}
+.changelog-postlink-card:hover {
+  border-color: var(--brand-fg);
+}
+.changelog-postlink-art {
+  aspect-ratio: 16 / 10;
+  color: var(--brand-fg);
+}
+.changelog-postlink-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top left;
+}
+.changelog-postlink-body {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 0.55rem;
+  padding: 1.1rem 1.25rem 1.3rem;
+}
+.changelog-postlink-title {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+  text-wrap: balance;
+}
+.changelog-postlink-text {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--fg-muted);
+  text-wrap: pretty;
+}
+@container (min-width: 34rem) {
+  .changelog-postlink-card {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  }
+  /* the poster fills the panel's height, however tall the copy beside it */
+  .changelog-postlink-art {
+    aspect-ratio: auto;
+    min-height: 10rem;
+    border-bottom: 0;
+    border-right: 1px solid var(--line);
+  }
+  .changelog-postlink-art img {
+    position: absolute;
+    inset: 0;
+  }
+  .changelog-postlink-body {
+    align-content: center;
+    padding: 1.4rem 1.5rem;
+  }
 }
 
 /* ---- a post's foot: the other posts, close under the text ---- */

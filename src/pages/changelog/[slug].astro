@@ -1,7 +1,7 @@
 ---
 // A changelog post (/changelog/<slug>/, from src/content/changelog/<slug>.mdx): its date, version, title and summary,
-// the hero clip, the MDX body in a prose column (<Video> needs no import there), then the other posts, the install
-// band and the footer.
+// the hero clip, the MDX body in a prose column (<Video>, <BeforeAfter>, <Still>, <PostLink> and <PostLinks> need no
+// import there; src/components/changelog/), then the other posts, the install band and the footer.
 import ArrowLeft from '@lucide/astro/icons/arrow-left';
 import ArrowRight from '@lucide/astro/icons/arrow-right';
 import { render } from 'astro:content';
@@ -12,6 +12,10 @@ import Nav from '../../components/atlas/Nav.astro';
 import Cta from '../../components/atlas/Cta.astro';
 import Footer from '../../components/atlas/Footer.astro';
 import PixelSky from '../../components/PixelSky.astro';
+import BeforeAfter from '../../components/changelog/BeforeAfter.astro';
+import PostLink from '../../components/changelog/PostLink.astro';
+import PostLinks from '../../components/changelog/PostLinks.astro';
+import Still from '../../components/changelog/Still.astro';
 import Video from '../../components/changelog/Video.astro';
 import { atlasChangelog as c, atlasChangelogHref } from '../../content/atlas';
 import { fillGrid } from '../../lib/fill-grid';
@@ -61,7 +65,7 @@ const otherSpans = fillGrid(others.length, [1, 2, 3]);
       </header>
 
       <div class="av-wrap changelog-prose">
-        <Content components={{ Video }} />
+        <Content components={{ Video, BeforeAfter, Still, PostLink, PostLinks }} />
       </div>
     </article>
 

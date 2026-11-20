@@ -1,6 +1,7 @@
 ---
 // The one lightbox every page shares: a thumbnail clip (Clip.astro with `zoom`) opens here, over the page, at up to
-// its recorded size with the browser's controls. Filled and opened by the clips script in src/scripts/site.ts.
+// its recorded size with the browser's controls; so does a picture in a changelog post (Still.astro), at up to its
+// own size. Filled and opened by the clips and images scripts in src/scripts/site.ts.
 import X from '@lucide/astro/icons/x';
 ---
 
@@ -13,6 +14,7 @@ import X from '@lucide/astro/icons/x';
       </button>
     </div>
     <video controls muted loop playsinline data-clip-lightbox-video></video>
+    <img alt="" data-clip-lightbox-img hidden />
   </div>
 </dialog>
 
@@ -21,9 +23,10 @@ import X from '@lucide/astro/icons/x';
     overflow: hidden;
   }
   .clip-lightbox {
-    /* as large as fits: 94% of the width, and the bar plus the video within 90% of the height */
+    /* as large as fits: 94% of the width, and the bar plus the video within 90% of the height; a picture no wider
+       than its own size (--max-w) */
     --ar: 1.6;
-    width: min(94vw, calc((90dvh - 2.5rem) * var(--ar)));
+    width: min(94vw, var(--max-w, 100vw), calc((90dvh - 2.5rem) * var(--ar)));
     max-width: none;
     max-height: none;
     margin: auto;
@@ -74,11 +77,15 @@ import X from '@lucide/astro/icons/x';
     color: var(--fg);
     background: var(--line);
   }
-  .clip-lightbox video {
+  .clip-lightbox :is(video, img) {
     display: block;
     width: 100%;
+    height: auto;
     aspect-ratio: var(--ar);
     background: var(--surface);
+  }
+  .clip-lightbox [hidden] {
+    display: none;
   }
   @media (prefers-reduced-motion: no-preference) {
     .clip-lightbox[open] {

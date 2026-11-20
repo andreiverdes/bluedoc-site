@@ -2,8 +2,6 @@
 // The changelog (/changelog/): the hero, then every post newest first as a card (its hero clip's poster, date,
 // version, title and summary), the install band and the footer. Posts are MDX in src/content/changelog/
 // (src/content.config.ts); copy in atlasChangelog (src/content/atlas.ts).
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
 import ArrowRight from '@lucide/astro/icons/arrow-right';
 import '../../styles/atlas.css';
 import '../../styles/changelog.css';
@@ -14,15 +12,10 @@ import Footer from '../../components/atlas/Footer.astro';
 import PixelIcon from '../../components/PixelIcon.astro';
 import PixelSky from '../../components/PixelSky.astro';
 import { atlasChangelog as c } from '../../content/atlas';
-import { clipSize, formatDate, getPosts, isoDate, postHref } from '../../lib/changelog';
-import { base } from '../../lib/paths';
+import { formatDate, getPosts, isoDate, postHref, postPoster } from '../../lib/changelog';
 
 // a post's card shows its hero clip's poster, when the post has a hero and the poster is recorded
-const posts = (await getPosts()).map((post) => {
-  const hero = post.data.hero;
-  const poster = hero && existsSync(join(process.cwd(), 'public', 'clips', `${hero}.poster.webp`)) ? { src: `${base}clips/${hero}.poster.webp`, ...clipSize(hero) } : undefined;
-  return { post, poster };
-});
+const posts = (await getPosts()).map((post) => ({ post, poster: postPoster(post) }));
 ---
 
 <Base title={c.metaTitle} description={c.metaDescription}>

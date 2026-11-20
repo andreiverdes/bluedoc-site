@@ -9,6 +9,8 @@ hero: other-chart
 
 Status pages, incident reports and weekly numbers read better when you can see the shape of them. bluedoc now has a `chart` block: the agent writes the numbers into the doc, and the page draws them.
 
+<BeforeAfter before="/changelog/charts/status-before.webp" after="/changelog/charts/status-after.webp" beforeLabel="1.0" afterLabel="1.1" caption="The acme-status example's numbers: on 1.0 a table only, on 1.1 with the orders-per-day chart under it." />
+
 ## Six kinds
 
 - **Stat cards**: the value and its unit, the change in a pill and a sparkline. The pill turns green when the change went the good way and red when it didn't, and a chart can say that lower is better, as with latency.
@@ -18,11 +20,21 @@ Status pages, incident reports and weekly numbers read better when you can see t
 - **Donut**: the parts round a ring with the total in the middle, and a legend with each part's count and share.
 - **Progress rows**: one row per item, how far along it is and the percent done. A row that reaches its goal turns green and reads Done.
 
+<Still src="/changelog/charts/stat-card.webp" caption="A stat card: the refund rate for weeks 34 to 41, 1.2 %, its change in a pill and a sparkline." />
+
 ## Drawn in the page, dark and light
 
 The page draws each chart itself, in HorizonUI's look and the theme's colours, and redraws it when you flip the ☀/☾ switch. There's nothing to download, so a chart looks the same on a shared page, in an exported HTML file and on paper.
 
+<Still src="/changelog/charts/theme-dark.webp" label="Dark" />
+
+<Still src="/changelog/charts/theme-light.webp" label="Light" caption="The same two charts, redrawn when the ☀/☾ switch flips the theme." />
+
 Hover a point to see its values, or focus the chart and use ← and →. The legend's chips hide and show a series, and the axis follows. Every number is also in a table for screen readers and in the Markdown export. In the compare view a changed chart is marked Changed, with each value that moved.
+
+<Still src="/changelog/charts/line-hover.webp" caption="Hovering Thursday shows both weeks' orders: 2,588 for week 41 and 2,470 for week 40." />
+
+<Still src="/changelog/charts/legend.webp" caption="With Week 40's chip off in the legend, only week 41 is drawn." />
 
 <Video clip="other-status" caption="A status page from its TL;DR through the numbers, the orders-per-day chart with Thursday's dip on hover, and the incident." />
 
@@ -53,4 +65,9 @@ Colours come from ten theme tones, never hex. `build.py schema chart` prints the
 
 <Video clip="other-hero-stat" caption="The status card on the home page, then the page itself: its numbers table and the orders-per-day chart." />
 
-Next time you ask your agent for a status page, ask for charts too. Everything else that's new is in the [bluedoc 1.1 release notes](/changelog/bluedoc-1-1/).
+Next time you ask your agent for a status page, ask for charts too. Everything else that's new is in the bluedoc 1.1 release notes.
+
+<PostLinks>
+  <PostLink slug="bluedoc-1-1" />
+  <PostLink slug="sharing" />
+</PostLinks>

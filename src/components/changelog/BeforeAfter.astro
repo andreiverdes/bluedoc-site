@@ -1,0 +1,39 @@
+---
+// The same part of bluedoc before and after a change, in a changelog post:
+// <BeforeAfter before="/changelog/<slug>/<name>-before.webp" after="/changelog/<slug>/<name>-after.webp"
+//   beforeLabel="1.0" afterLabel="1.1" caption="One sentence on what changed." />
+// in the MDX, no import needed (the post page passes it to <Content>). Two Still.astro pictures, each under its pill
+// ("Before · 1.0", "After · 1.1"; "Before" and "After" with no label) and opening larger on a click; the caption sits
+// under the pair. Narrow crops sit side by side from 720 px, up to the page's width; wide ones (wider than 1.4 : 1)
+// stack, before over after, so each keeps a readable size. Neither is drawn wider than its file.
+import Still from './Still.astro';
+import { postImage } from '../../lib/changelog';
+
+interface Props {
+  /** the two files' paths under public/: /changelog/<slug>/<name>-before.webp and …-after.webp */
+  before: string;
+  after: string;
+  /** the version each shows, added to its pill: "1.0" makes "Before · 1.0" */
+  beforeLabel?: string;
+  afterLabel?: string;
+  /** one sentence on what changed */
+  caption: string;
+}
+
+const { before, after, beforeLabel, afterLabel, caption } = Astro.props;
+const pill = (word: string, label?: string) => (label ? `${word} · ${label}` : word);
+const beforePill = pill('Before', beforeLabel);
+const afterPill = pill('After', afterLabel);
+const from = `<BeforeAfter before="${before}">`;
+const images = [await postImage(before, from), await postImage(after, from)];
+const stack = images.some((img) => img.width / img.height > 1.4);
+const width = Math.max(...images.map((img) => img.width));
+---
+
+<figure class="changelog-pair" data-stack={stack ? '' : undefined} style={`--w:${width}px`}>
+  <div class="changelog-pair-shots">
+    <Still src={before} label={beforePill} labelTone="off" alt={`${beforePill}: ${caption}`} />
+    <Still src={after} label={afterPill} alt={`${afterPill}: ${caption}`} />
+  </div>
+  <figcaption class="changelog-video-cap">{caption}</figcaption>
+</figure>

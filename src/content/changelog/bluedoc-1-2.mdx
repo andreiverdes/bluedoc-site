@@ -1,0 +1,42 @@
+---
+title: 'bluedoc 1.2: a home page that never waits'
+summary: 'The home page now renders from a local index: it opens at once after a restart, shows new docs within a second, scrolls without end, and searches every doc on the server.'
+date: 2026-11-20
+order: 0
+version: '1.2.0'
+hero: every-home-cards
+---
+
+bluedoc 1.2 is about the home page. The more docs you kept, the longer it took to come back after a restart, because the server read every doc before it drew the first row. Now it reads a small index instead.
+
+## It opens at once
+
+Each doc's summary lives in a SQLite index beside your answers, `index-<schema>.db` next to `state.db`, and it survives restarts. On a 224-doc home the first rows now take 5 ms after a restart, down from 3.3 s.
+
+The index keeps itself current in the background. A new or changed doc shows up within a second. Checking that a doc still builds, which is what puts the "doesn't build" badge on a card, runs in a low-priority worker process, and no page waits on it. While the index fills for the first time, the home says "indexing N of M"; `serve.py status` shows the same progress.
+
+## Scroll, search, Statistics
+
+The home loads 25 rows or 48 cards at a time as you scroll. Date groups carry on across batches with their full counts, and Back or a reload keeps your place.
+
+Search runs on the server, over the full text of every doc, and each hit comes with a snippet of where it matched. The page no longer downloads the whole search data up front.
+
+<Still src="/changelog/bluedoc-1-2/search.webp" caption="Searching “carts” leaves 2 of 8 docs, best match first, each with a snippet where “carts” matched." />
+
+<Video clip="every-home-search" caption="Search narrows the home to the docs that match, across every project." />
+
+Statistics is computed from the same index, for one project or all of them.
+
+<Video clip="every-home-overview" caption="Statistics shows activity, decisions and what waits on the agent, then switches from 14 to 30 days." />
+
+Cards draw their hero from a template per doc type and a few numbers. A doc, design or deck card no longer draws the doc's own canvas or board, which is much of why the home is fast.
+
+<BeforeAfter before="/changelog/bluedoc-1-2/cards-before.webp" after="/changelog/bluedoc-1-2/cards-after.webp" beforeLabel="1.1" afterLabel="1.2" caption="The same three cards: on 1.1 the Docs card drew the doc's own architecture; on 1.2 each hero comes from its type's template and a few numbers." />
+
+## Upgrades don't break anything
+
+Your picks, ticks, comments and approvals stay as they were; the index builds itself the first time 1.2 starts. An older agent's `serve.py open` no longer replaces a newer server that's already running, and a bump that only changes the version doesn't restart it. Tabs you opened on 1.1 keep working until you reload, and a doc page opened after the update says "bluedoc was updated · Reload".
+
+To update in Claude Code, run `claude plugin marketplace update bluedoc`, then `claude plugin update bluedoc@bluedoc`; the README's [Update and remove](https://github.com/andreiverdes/bluedoc#update-and-remove) table has the commands for every other agent. Everything that came before is in the bluedoc 1.1 release notes.
+
+<PostLink slug="bluedoc-1-1" />

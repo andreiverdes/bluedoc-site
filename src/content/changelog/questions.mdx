@@ -11,6 +11,8 @@ When an agent can't settle something alone, it asks you. A plan's question, a de
 
 ## The card
 
+<BeforeAfter before="/changelog/questions/card-before.webp" after="/changelog/questions/card-after.webp" beforeLabel="1.0" afterLabel="1.1" caption="Who can save a cart? in 1.0, with Need more details as an answer row and a comment box under the card, and in 1.1, with More details on top, Other as the last answer and Tell me more under the answers." />
+
 The head holds the question, its state and a chevron. The state reads ✓ with your pick, N picked when the question takes several answers, or Asking for more in amber. Questions that need you open; answered ones fold away.
 
 More details, a raised row with a thin blue edge, opens the question's own detail and any code that goes with it.
@@ -29,18 +31,33 @@ A plan, design or website can't be approved while a question asks for more: Appr
 
 ## Comments live inside the answer
 
+<BeforeAfter before="/changelog/questions/comment-before.webp" after="/changelog/questions/comment-after.webp" beforeLabel="1.0" afterLabel="1.1" caption="1.0 kept one comment box under a question's answers; in 1.1 each opened answer has its own comment field." />
+
 Every opened answer has a one-line comment field with attach. Comment on an answer you didn't pick and you are asking about it; nothing gets picked. The reply field under the card is about the question as a whole.
 
 Enter or Save keeps the comment and empties the field. It shows once in the question's conversation, not sent, with Edit and Delete. Each question has one conversation: your messages and the agent's replies on a timeline, each marked with the answer it is about.
+
+<Still src="/changelog/questions/conversation.webp" caption="One question's conversation: your question in rev 1, the agent's reply in rev 2 marked New, and your saved reply, not sent, with Edit and Delete." />
 
 <Video clip="every-item-comment" caption="A comment saved under a question's answers lists in its conversation, not sent yet, and Request changes counts it." />
 
 ## Accept recommended, per list
 
+<BeforeAfter before="/changelog/questions/accept-before.webp" after="/changelog/questions/accept-after.webp" beforeLabel="1.0" afterLabel="1.1" caption="1.0 had Accept recommended in the dock and over the list; in 1.1 it is in the list's toolbar, beside All · Open · Done and Expand all, and the dock ends in Request changes and Approve." />
+
 Each decision list has its own toolbar: All · Open · Done with counts, Accept recommended, Expand all, and Copy and Reset under ⋯. Accept recommended picks every starred answer in that list and skips a question you answered with Other or Tell me more. Change the ones you disagree with afterwards.
 
 ## How your picks travel
 
+<BeforeAfter before="/changelog/questions/send-before.webp" after="/changelog/questions/send-after.webp" beforeLabel="1.0" afterLabel="1.1" caption="Request changes in 1.0 showed the request as Markdown under Preview; in 1.1 the dialog lists the comments and picks that go, then a one-line note, Copy and Send." />
+
 Approve, Request changes and Send answers open the same send dialog: what goes, as chips and a timeline, then a one-line note, then Copy and the send key. ⌘↵ sends. Text you typed but didn't save goes too.
 
 A comment on a question goes with Request changes, which counts it. Send answers, on pages with nothing to approve, carries picks, ticks and comments on steps. A plan approves only when every question has an answer: until then the dialog shows Answer it › and a greyed Approve.
+
+The same card carries a review's findings, and the rest of 1.1 is in the release notes:
+
+<PostLinks>
+  <PostLink slug="bluedoc-1-1" />
+  <PostLink slug="reviews" />
+</PostLinks>

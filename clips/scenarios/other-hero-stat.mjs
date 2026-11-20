@@ -1,7 +1,7 @@
 // Other: the hero stat on the home card. The acme-status card draws its one number, 18,420 orders placed in week 41;
 // a click opens the page, whose TL;DR leads with the same number, and a scroll shows it again in the numbers table
 // over the orders-per-day chart.
-import { seedHome } from './_shared/home-seed.mjs';
+import { HOME_READY, seedHome } from './_shared/home-seed.mjs';
 
 const CARD = 'a.bd-card[href*="acme-status"]';
 
@@ -12,6 +12,13 @@ export default {
 
   async setup(c) {
     await seedHome(c);
+    // 1.2's home renders from an index the fresh BLUEDOC_HOME builds on first start: wait until it is full, then load
+    // the home again so every card carries the seeded states
+    const indexed = `!/indexing \\d+ of \\d+|\\d+ of \\d+ indexed|Still indexing/.test(document.body.innerText)`;
+    await c.waitFor(indexed, 90_000);
+    await c.pause(1500);
+    await c.goto('home');
+    await c.waitFor(`${HOME_READY} && ${indexed}`, 90_000);
     // the home's Cards view (Rows is the other), the card row with acme-status in the middle of the frame
     await c.ev(`(() => { const b = [...document.querySelectorAll('button[role=radio]')].find((b) => b.textContent.trim() === 'Cards'); if (b && b.getAttribute('aria-checked') !== 'true') b.click(); })()`);
     await c.waitForSelector(CARD);

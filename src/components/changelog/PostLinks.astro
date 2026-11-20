@@ -1,0 +1,15 @@
+---
+// Several links to other changelog posts in a row: <PostLinks><PostLink slug="questions" /><PostLink slug="reviews" />
+// </PostLinks> in the MDX, no import needed (the post page passes it to <Content>). A complete grid (fillGrid,
+// src/lib/fill-grid.ts) in 1, 2 then 3 columns, wider than the text like a clip: each card (PostLink.astro, marked
+// `data-post-link`) gets its span.
+import { fillGrid } from '../../lib/fill-grid';
+
+const html = await Astro.slots.render('default');
+const cards = /data-post-link="[^"]*"/g;
+const spans = fillGrid(html.match(cards)?.length ?? 0, [1, 2, 3]);
+let i = 0;
+const items = html.replace(cards, (attr) => `${attr} role="listitem" style="${spans[i++]}"`);
+---
+
+<div class="changelog-postlinks fill-grid" role="list" set:html={items} />

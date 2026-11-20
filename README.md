@@ -57,7 +57,16 @@ version: '1.1.0'                  # optional: the bluedoc version it describes, 
 hero: every-option-rows           # optional: a clip in public/clips/, under the title and on the post's card
 ```
 
-The body is Markdown (headings, lists, links, code, blockquotes) plus one component, needing no import: `<Video clip="every-share" caption="One sentence on what it shows." />` (`src/components/changelog/Video.astro`) plays a clip from `public/clips/` muted on loop while in view, wider than the text, and opens it larger on a click; films (`film-*`, `ask-*`) get their 1600 × 1000 frame, other clips 1280 × 800. The list sorts by `date`, newest first, then `order`; the sitemap picks up every post.
+The body is Markdown (headings, lists, links, code, blockquotes) plus these components from `src/components/changelog/`, needing no import (the post page passes them to `<Content>`). Put each on its own lines, with a blank line before and after, never inside a sentence:
+
+- `<Video clip="every-share" caption="One sentence on what it shows." />` plays a clip from `public/clips/` muted on loop while in view, wider than the text, and opens it larger on a click; films (`film-*`, `ask-*`) get their 1600 × 1000 frame, other clips 1280 × 800.
+- `<BeforeAfter before="/changelog/<slug>/<name>-before.webp" after="/changelog/<slug>/<name>-after.webp" beforeLabel="1.0" afterLabel="1.1" caption="One sentence on what changed." />` shows the same part of bluedoc before and after a change, each under a pill (*Before · 1.0*, *After · 1.1*; *Before* and *After* with no labels), the caption under the pair. Narrow crops sit side by side from 720 px, up to the page's width; wide ones (wider than 1.4 : 1) stack, before over after, so each stays readable. Each picture's alt text is its pill and the caption.
+- `<Still src="/changelog/<slug>/<name>.webp" caption="One sentence on what it shows." />` is one picture in the same frame, as wide as a clip at most.
+- `<PostLink slug="questions" />` links to another post as a card: its hero clip's poster (the pixel-art panel when it has none), date, version, title and summary. Alone it runs the width of the text; several go in `<PostLinks>`, one `<PostLink>` per line, a complete grid (`fillGrid`) in 1, 2 then 3 columns.
+
+Pictures are WebP files in `public/changelog/<slug>/`, at most 1600 px wide: crop a recording to the part that changed, keep a pair's two crops the same size, and scale to quality ~82. Their width and height are read from the file, so nothing shifts as they load, and none is drawn wider than its file. A picture opens larger in the lightbox on a click (at most its own size); without JavaScript the click opens the file. A missing picture or a `<PostLink>` to a slug with no post stops the build with an error naming it.
+
+The list sorts by `date`, newest first, then `order`; the sitemap picks up every post.
 
 ### Design experiments
 
@@ -95,7 +104,7 @@ npm run sync-template -- <path to the bluedoc repo>
 
 ## What runs in the browser
 
-The page is static HTML and CSS plus one bundle of two scripts. `src/scripts/site.ts` handles what works without motion: the theme toggle, the nav's glass background and menus, copy buttons, tabs, and the clips (each plays only while in view; a big one shows the browser's controls on hover, a thumbnail opens in the lightbox). `src/scripts/motion.ts` uses Motion for what moves as you scroll: reveals, counters, the banner's parallax and the doc types autoplay; the hero's own entrance is CSS (`.enter`), so it doesn't wait for the script. Under `prefers-reduced-motion` none of it runs: `<html>` gets no `.motion` class, everything shows in place, and a clip shows its poster and a play button.
+The page is static HTML and CSS plus one bundle of two scripts. `src/scripts/site.ts` handles what works without motion: the theme toggle, the nav's glass background and menus, copy buttons, tabs, the clips (each plays only while in view; a big one shows the browser's controls on hover, a thumbnail opens in the lightbox) and the changelog's pictures (they open in the same lightbox). `src/scripts/motion.ts` uses Motion for what moves as you scroll: reveals, counters, the banner's parallax and the doc types autoplay; the hero's own entrance is CSS (`.enter`), so it doesn't wait for the script. Under `prefers-reduced-motion` none of it runs: `<html>` gets no `.motion` class, everything shows in place, and a clip shows its poster and a play button.
 
 ## Credits
 

@@ -11,6 +11,8 @@ A bluedoc review puts each finding under the lines it is about, in a diff the se
 
 ## A card per PR
 
+<BeforeAfter before="/changelog/reviews/header-before.webp" after="/changelog/reviews/header-after.webp" beforeLabel="1.0" afterLabel="1.1" caption="#412 in 1.0: a heading, the Merged · Checklist · Diff tabs and a Findings bar; in 1.1: one card header with the answered meter, the branches, a chip per severity and the toolbar." />
+
 Each PR is a card. Its header has the number with a fold chevron, the title, an answered meter that fills as you go, and a status: N replies when the agent's replies wait for you, Answered once nothing is open. On the right sit the branches, head → base, with a chip per severity.
 
 As you scroll the findings, the title row and toolbar stick under the app bar; the rest of the header scrolls away.
@@ -21,9 +23,13 @@ The toolbar under each PR's title holds it all: All · Open · Done with counts,
 
 A review opens on Open: findings with no answer, a Tell me more not sent yet, or an agent reply you haven't answered. A finding you answer stays until you move on; the list ends with "N findings you answered are hidden · Show". Findings that need you load open; answered ones fold to ✓ and your pick.
 
+<BeforeAfter before="/changelog/reviews/finding-before.webp" after="/changelog/reviews/finding-after.webp" beforeLabel="1.0" afterLabel="1.1" caption="The same two findings: in 1.0 both stay open with every answer row; in 1.1 bulkSavingsCents is folded to its title, and Tier tests shows ✓ Ticket by its title, with the pick's explanation and comment field." />
+
 The tracker in the Contents pane counts what is open. Click it and it opens the first finding that needs you, scrolls to it and flashes it.
 
 ## The code, in the finding
+
+<BeforeAfter before="/changelog/reviews/details-before.webp" after="/changelog/reviews/details-after.webp" beforeLabel="1.0" afterLabel="1.1" caption="In 1.0 Details sat under the answers and the code came after the comment box; in 1.1 More details opens above the answers with the detail, the file's lines and Open in Diff view." />
 
 Every finding opens whole, with More details under its title: the detail, then the file and the lines around the comment, and Open in Diff view to jump there.
 
@@ -34,6 +40,8 @@ To comment on a line rather than a finding, turn on Element (C) and click the li
 <Video clip="review-line" caption="Element picks line 17 of tiers.ts; Request changes lists the comment under its PR, file and line." />
 
 ## The send key says what happens
+
+<BeforeAfter before="/changelog/reviews/send-before.webp" after="/changelog/reviews/send-after.webp" beforeLabel="1.0" afterLabel="1.1" caption="In 1.0 this review ended in Send answers and a Markdown preview; on your own PR, 1.1's key reads Reply and fix, and its dialog lists each finding with your pick." />
 
 Who owns the PR decides what your answers become, and the send key names it:
 
@@ -46,3 +54,10 @@ Comments on findings and lines go with Request changes. The send dialog lists ev
 <Video clip="review-send" caption="Accept recommended takes the starred answers, one is changed to Ticket, and Reply and fix lists all 11 picks." />
 
 When the agent answers in a finding's conversation, its reply is signed with its model's name and marked New until you've seen it.
+
+Findings use the same answer card as every other question, inside the frame 1.1 put around every page:
+
+<PostLinks>
+  <PostLink slug="questions" />
+  <PostLink slug="a-new-look" />
+</PostLinks>

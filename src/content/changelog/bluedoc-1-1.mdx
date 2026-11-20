@@ -7,23 +7,39 @@ version: '1.1.0'
 hero: film-plan-hook
 ---
 
-bluedoc 1.1 is out. It carries everything since 1.0: a new frame around every page, one card for every question, and a doc that can leave your machine as a link, a file or a PDF when you choose. Here is the short version, with links to the posts that go deeper.
+bluedoc 1.1 is out. It carries everything since 1.0: a new frame around every page, one card for every question, and a doc that can leave your machine as a link, a file or a PDF when you choose. Here is the short version, with the posts that go deeper.
 
 ## The app bar
 
-Every key now sits in one app bar. On the left: the home key, the left pane's keys (Contents on a doc; Brief and Screens on a board) and the doc's name, which opens a menu of the project's docs. On the right: Share, the light/dark switch, Comments, Revisions and the ⋮ menu with Export and Archive. At the bottom, the dock holds View and the comment tools and ends in the key that names your next step. More in [the post on the new look](/changelog/a-new-look/).
+Every key now sits in one app bar. On the left: the home key, the left pane's keys (Contents on a doc; Brief and Screens on a board) and the doc's name, which opens a menu of the project's docs. On the right: Share, the light/dark switch, Comments, Revisions and the ⋮ menu with Export and Archive. At the bottom, the dock holds View and the comment tools and ends in the key that names your next step.
+
+<BeforeAfter before="/changelog/bluedoc-1-1/frame-before.webp" after="/changelog/bluedoc-1-1/frame-after.webp" beforeLabel="1.0" afterLabel="1.1" caption="The same checklist on 1.0 and on 1.1: one app bar at the top, Contents as a pane, and the dock ending in Request changes and Send answers." />
+
+<PostLink slug="a-new-look" />
 
 ## The answer card
 
-Plan questions, design brief picks, review findings and multi-answer questions share one card. Answers are rows with the agent's recommendation starred. Other is always the last answer, and Tell me more asks the agent for more before you decide. More details holds the question's own detail and code, and each question keeps one conversation with the agent. More in [the post on questions](/changelog/questions/).
+Plan questions, design brief picks, review findings and multi-answer questions share one card. Answers are rows with the agent's recommendation starred. Other is always the last answer, and Tell me more asks the agent for more before you decide. More details holds the question's own detail and code, and each question keeps one conversation with the agent.
+
+<BeforeAfter before="/changelog/bluedoc-1-1/answer-card-before.webp" after="/changelog/bluedoc-1-1/answer-card-after.webp" beforeLabel="1.0" afterLabel="1.1" caption="The same plan question: on 1.1 it opens with More details and ends in Other and Tell me more." />
+
+<PostLink slug="questions" />
 
 ## One send dialog
 
 Approve, Request changes and Send answers, and a review's Reply and fix, Post review and Apply decisions, open the same dialog: what goes to the agent, then a one-line note with attachments, then Copy and the send key. A plan with an unanswered question shows Answer it › and holds Approve until every question has an answer.
 
+<BeforeAfter before="/changelog/bluedoc-1-1/send-dialog-before.webp" after="/changelog/bluedoc-1-1/send-dialog-after.webp" beforeLabel="1.0" afterLabel="1.1" caption="Send answers on the same status page: 1.0 counted what would go; 1.1 lists each decision and step, then the note, Copy and Send." />
+
 ## Sharing
 
-Share puts the doc's current revision in a secret GitHub gist through your own `gh` and gives you a short bluedoc.ai/g/ link. The page there is view-only, with nothing to install. When the agent writes a newer revision, Update puts it behind the same link. A colleague with bluedoc can press Make a copy, then Pull your next revision into their copy, with Take theirs where you both changed something. Anyone with the link can read a secret gist, so check the doc before you share. More in [the post on sharing](/changelog/sharing/).
+Share puts the doc's current revision in a secret GitHub gist through your own `gh` and gives you a short bluedoc.ai/g/ link. The page there is view-only, with nothing to install. When the agent writes a newer revision, Update puts it behind the same link. A colleague with bluedoc can press Make a copy, then Pull your next revision into their copy, with Take theirs where you both changed something. Anyone with the link can read a secret gist, so check the doc before you share.
+
+<Still src="/changelog/bluedoc-1-1/share-dialog.webp" caption="Share has put the plan behind a bluedoc.ai/g/ link and copied it; the switches choose which of your answers go with it." />
+
+<Still src="/changelog/bluedoc-1-1/shared-page.webp" caption="The shared page is view-only, with Make a copy and Download in its app bar." />
+
+<PostLink slug="sharing" />
 
 ## Export
 
@@ -33,21 +49,33 @@ Export, in the ⋮ menu, saves the revision you're viewing as an HTML file that 
 
 ## Charts
 
-A `chart` block draws stat cards, lines and areas, bars, ranked bars, a donut and progress rows in the page itself, in dark and light. The agent writes the numbers; you hover for the values. More in [the post on charts](/changelog/charts/).
+A `chart` block draws stat cards, lines and areas, bars, ranked bars, a donut and progress rows in the page itself, in dark and light. The agent writes the numbers; you hover for the values.
+
+<Still src="/changelog/bluedoc-1-1/chart.webp" caption="Orders per day with Thursday's values on hover, and the refund-rate stat card under it." />
+
+<PostLink slug="charts" />
 
 ## Review views
 
-Findings read three ways: Checklist, Diff, and Merged, which puts each finding under its lines. Each PR has its own toolbar: All · Open · Done with counts, Accept recommended, Expand all, and Copy and Reset under ⋯. Finished PR cards and answered findings fold away, and the PR header stays on top while you scroll. The send key follows who owns the PR: Apply decisions, Post review or Reply and fix. More in [the post on reviews](/changelog/reviews/).
+Findings read three ways: Checklist, Diff, and Merged, which puts each finding under its lines. Each PR has its own toolbar: All · Open · Done with counts, Accept recommended, Expand all, and Copy and Reset under ⋯. Finished PR cards and answered findings fold away, and the PR header stays on top while you scroll. The send key follows who owns the PR: Apply decisions, Post review or Reply and fix.
+
+<BeforeAfter before="/changelog/bluedoc-1-1/review-before.webp" after="/changelog/bluedoc-1-1/review-after.webp" beforeLabel="1.0" afterLabel="1.1" caption="The same finding in Merged: on 1.1 the PR has its own header and toolbar, and the dock ends in Reply and fix." />
+
+<PostLink slug="reviews" />
 
 ## Board tools and compare
 
 On designs, decks and websites the dock holds Element, Region, Text and Pen, plus Link and Frame. Double-click a screen's text to edit it in place. Present is where you click through screens. Marks stay where you drew them and follow their screen when it moves. A changed screen's Compare opens both revisions between the panes, side by side or as an onion skin with a slider.
+
+<BeforeAfter before="/changelog/bluedoc-1-1/board-before.webp" after="/changelog/bluedoc-1-1/board-after.webp" beforeLabel="1.0" afterLabel="1.1" caption="The same board: the 1.1 dock starts with Element, Region, Text and Pen, then Link and Frame." />
 
 <Video clip="rev-onion" caption="Onion skin lays the new dashboard over the old one, and the slider fades between them." />
 
 ## The home page
 
 The home page is built for many projects. The sidebar lists them with a Pinned group on top, and each project's ⋯ menu sets its name and icon. Docs show as Cards or Rows: Rows is a table grouped by date, and a row opens in place with what's decided and what's left. Statistics covers activity, decisions and what waits on the agent over 7, 14, 30 or 90 days.
+
+<BeforeAfter before="/changelog/bluedoc-1-1/home-before.webp" after="/changelog/bluedoc-1-1/home-after.webp" beforeLabel="1.0" afterLabel="1.1" caption="The home on 1.0 and on 1.1: Statistics and the projects in the sidebar, and Rows grouped by date with one row open in place." />
 
 <Video clip="every-home-cards" caption="A row of the docs table opens in place, then Cards draws each doc as a card." />
 

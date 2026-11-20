@@ -125,6 +125,9 @@ const openLightbox = (clip: HTMLElement, video: HTMLVideoElement) => {
   lightbox.showModal();
   lightboxVideo.play().catch(() => {});
 };
+// A picture in a changelog post (Still.astro: a link to the file, `data-lightbox-image`) opens in the same lightbox,
+// in the video's place and no wider than its own size; a click with a modifier key still opens the file.
+const lightboxImage = lightbox?.querySelector<HTMLImageElement>('[data-clip-lightbox-img]');
 if (lightbox && lightboxVideo) {
   lightbox.querySelector('[data-clip-lightbox-close]')?.addEventListener('click', () => lightbox.close());
   // a click outside the frame lands on the dialog itself
@@ -136,8 +139,33 @@ if (lightbox && lightboxVideo) {
     lightboxVideo.removeAttribute('poster');
     lightboxVideo.replaceChildren();
     lightboxVideo.load();
+    // back to the video, for the next clip
+    lightboxVideo.hidden = false;
+    lightbox.style.removeProperty('--max-w');
+    if (lightboxImage) {
+      lightboxImage.hidden = true;
+      lightboxImage.removeAttribute('src');
+    }
   });
 }
+document.querySelectorAll<HTMLAnchorElement>('[data-lightbox-image]').forEach((link) => {
+  const img = link.querySelector('img');
+  if (!lightbox || !lightboxVideo || !lightboxImage || !img) return;
+  link.addEventListener('click', (e) => {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    // the file's size, from the attributes Still.astro set
+    const width = img.getAttribute('width');
+    lightbox.style.setProperty('--ar', `${width} / ${img.getAttribute('height')}`);
+    lightbox.style.setProperty('--max-w', `${width}px`);
+    lightbox.querySelector('[data-clip-lightbox-title]')!.textContent = link.dataset.title ?? '';
+    lightboxImage.src = link.href;
+    lightboxImage.alt = img.alt;
+    lightboxImage.hidden = false;
+    lightboxVideo.hidden = true;
+    lightbox.showModal();
+  });
+});
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
 document.querySelectorAll<HTMLElement>('[data-clip]').forEach((clip) => {
   const video = clip.querySelector('video');
