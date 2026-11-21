@@ -549,12 +549,23 @@ html.bd-lp-open:not(.bd-lp-dock) .bp-side { background: var(--surface); box-shad
 .bd-postas.many .r { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .bd-postas.many .t { flex: 0 1 42%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fg); font-weight: 600; }
 .bd-postas.many .t small { display: block; overflow: hidden; text-overflow: ellipsis; font-size: 12px; font-weight: 400; color: var(--fg-subtle); }
-/* several PRs: a block per PR, its header (repo #n · title, what goes out, its own Post as) over that PR's findings;
-   one scroll for the whole list (no box scrolls on its own), the note and the keys stay under it */
+/* several PRs: a card per PR, its header (a fold key: repo #n · title and what goes out; its own Post as) over that
+   PR's findings. One card is open at a time, so the reader reads one PR's findings while picking its Post as; one
+   scroll for the whole list (no box scrolls on its own), the note and the keys stay under it */
 .sd-body.prs .sd-box { max-height: none; overflow: visible; }
-.bd-prh { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: 0 0 8px; }
-.bd-prblk.none .bd-prh { margin: 0; }
-.bd-prh .t { flex: 1 1 200px; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.bd-prblk { margin: 0 20px 10px; border-radius: 12px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+.bd-prblk.open { box-shadow: inset 0 0 0 1px var(--line-strong); }
+.bd-prblk .sd-box { border-radius: 0 0 12px 12px; background: none; box-shadow: none; border-top: 1px solid var(--line); }
+.bd-prblk.shut .sd-box { display: none; }
+.bd-prh { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 8px 10px 8px 6px; }
+.bd-prh .t { flex: 1 1 200px; min-width: 0; display: flex; align-items: center; gap: 4px; margin: 0; padding: 3px 8px 3px 0; border: 0; border-radius: 8px;
+  background: none; font: inherit; color: inherit; text-align: left; }
+.bd-prh .t:not(:disabled):hover { background: var(--hover); }
+.bd-prh .t:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus); }
+.bd-prh .t > .bd-ic { flex: none; width: 26px; height: 16px; color: var(--fg-subtle); transition: transform .2s var(--ease); }
+.bd-prblk.open .bd-prh .t > .bd-ic { transform: rotate(90deg); }
+.bd-prblk.none .bd-prh .t > .bd-ic { visibility: hidden; }
+.bd-prh .t .tt { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
 .bd-prh .t b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13.5px; font-weight: 600; color: var(--fg); }
 .bd-prh .t small { font-size: 12px; color: var(--fg-subtle); }
 .bd-prh .bd-sg { flex: none; }
@@ -7626,11 +7637,17 @@ function openSend() {
     // Post as: as GitHub's Submit review asks, one per PR: Request changes on one, Approve another
     const segs = POST_PRS.map(p => h('div', { class: 'bd-sg', role: 'radiogroup', 'aria-label': POST_PRS.length > 1 ? `Post ${prHead(p)} as` : 'Post as', 'data-pr': p.id },
       POST_AS.map(([v, l]) => h('button', { type: 'button', role: 'radio', 'data-v': v, onclick: () => { postAs[p.id] = v; sendDlg._paint(); } }, l))));
-    // several PRs: one block per PR, its header (repo #n · title, what goes out on it, its own Post as) over its
-    // findings only; a PR with nothing to post keeps its header alone. One scroll for them all
+    // several PRs: a card per PR, its header (a fold key: repo #n · title, what goes out on it; its own Post as) over
+    // its findings only; a PR with nothing to post keeps its header alone. One card is open at a time: at first the
+    // first PR with a finding still to pick, else the first with findings; a header opens its card and shuts the rest
     const many = POST_PRS.length > 1;
+    let openPr;
     const says = POST_PRS.map(() => h('small', { class: 'c' }));
-    const heads = POST_PRS.map((p, i) => h('div', { class: 'bd-prh' }, h('span', { class: 't', title: prHead(p) }, h('b', {}, prHead(p)), says[i]), segs[i]));
+    const folds = POST_PRS.map((p, i) => h('button', { type: 'button', class: 't', title: prHead(p), onclick: () => {
+      openPr = openPr === p.id ? '' : p.id; sendDlg._paint();
+      const blk = S.body.querySelector(`.bd-prblk[data-pr="${CSS.escape(p.id)}"]`); if (blk && openPr) blk.scrollIntoView({ block: 'nearest', behavior: REDUCE ? 'auto' : 'smooth' });
+    } }, ic('chev'), h('span', { class: 'tt' }, h('b', {}, prHead(p)), says[i])));
+    const heads = POST_PRS.map((p, i) => h('div', { class: 'bd-prh' }, folds[i], segs[i]));
     const postSec = !segs.length || many ? null : sdSec('Post as', null, '', h('div', { class: 'bd-postas' }, segs[0]));
     S.body.classList.toggle('prs', many);
     sendDlg._paint = () => {
@@ -7643,9 +7660,11 @@ function openSend() {
         + (later ? ` ${later} comment${later === 1 ? '' : 's'} on ${DOC_TYPE === 'review' ? 'findings' : 'questions'} ${later === 1 ? 'goes' : 'go'} with Request changes.` : '')
         + (asks ? ` ${asks === 1 ? 'Tell me more goes' : `${asks} Tell me more requests go`} with Request changes${later ? ' too' : ''}.` : '');
       const mine = p => dec.filter(x => PR_OF_ITEM.get(`${x.cid}/${x.it.id}`) === p), loose = many ? dec.filter(x => !PR_OF_ITEM.has(`${x.cid}/${x.it.id}`)) : dec;
+      if (many && openPr === undefined) openPr = (POST_PRS.find(p => mine(p).some(asksReader)) || POST_PRS.find(p => mine(p).length) || {}).id || '';
       setKids(S.body,
-        ...(many ? POST_PRS.map((p, i) => { const xs = mine(p);
-          return h('div', { class: 'sd-sec bd-prblk' + (xs.length ? '' : ' none'), 'data-pr': p.id }, heads[i],
+        ...(many ? POST_PRS.map((p, i) => { const xs = mine(p), open = xs.length > 0 && openPr === p.id;
+          folds[i].disabled = !xs.length; folds[i].setAttribute('aria-expanded', String(open));
+          return h('div', { class: 'bd-prblk' + (xs.length ? '' : ' none') + (open ? ' open' : ' shut'), 'data-pr': p.id }, heads[i],
             xs.length > 0 && h('div', { class: 'sd-box' }, xs.map(x => sdDec(x, { inPr: true })))); }) : []),
         loose.length > 0 && sdSec(DOC_TYPE === 'review' ? (many ? 'Other findings' : 'Findings') : 'Decisions', loose.length, decSays(loose, 'no pick'), h('div', { class: 'sd-box' }, loose.map(x => sdDec(x)))),
         steps.length > 0 && sdSec('Steps', steps.length, `${steps.filter(passing).length} done`, h('div', { class: 'sd-box' }, steps.map(sdStep))),
