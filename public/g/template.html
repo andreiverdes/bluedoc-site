@@ -4,21 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="generator" content="bluedoc">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cstyle%3E@media (prefers-color-scheme: dark) { .a { fill: %234b97ff } .b { fill: %23a9d6ff } .c { fill: %2379bbff } }%3C/style%3E%3Cpath class='a' d='M1 2Q1 0 3 0H23.4Q25 0 26.4 1.3L42.1 15C45.6 18.5 47.1 23.6 47.1 29C47.1 39.5 38.6 48 27.3 48H14V38.7H25.5C31 38.7 35.4 34.4 35.4 29.4C35.4 26.5 34.2 23.8 32.2 22.2L20.6 11.2Q20.1 10.8 19.5 10.8H11.4Q10.4 10.8 10.4 11.8V48H6.2C3.3 48 1 45.7 1 42.8Z' fill='%230b62f0'/%3E%3Cpath class='b' d='M23.4 0Q25 0 26.4 1.3L42.1 15H28.6Q24.8 15 24.8 11.2V1.4Q24.4 0 23.4 0Z' fill='%235ab4ff'/%3E%3Cg class='c' fill='%231e88ff'%3E%3Crect x='14.2' y='20.6' width='14.2' height='2.5' rx='1.25'/%3E%3Crect x='14.2' y='25.7' width='14.2' height='2.5' rx='1.25'/%3E%3Crect x='14.2' y='30.6' width='8.6' height='2.5' rx='1.25'/%3E%3C/g%3E%3C/svg%3E">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f5f6f7">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0c0c0d">
-<script>
-/* the window's title bar (the installed app's) takes the doc's top bar colour (--canvas): the two metas above by the
-   system's scheme; while the doc's own theme ([data-theme], set by the theme key) overrides it, a live meta ahead of
-   them (the first match wins) carries that theme's colour. The live one is the page's own state: PAGE_HTML drops it */
-(() => { const C = {light: '#f5f6f7', dark: '#0c0c0d'}, root = document.documentElement;
-  const sync = () => { const t = root.dataset.theme; let m = document.querySelector('meta[name="theme-color"][data-live]');
-    if (!C[t]) { if (m) m.remove(); return; }
-    if (!m) { m = document.createElement('meta'); m.setAttribute('name', 'theme-color'); m.setAttribute('data-live', '');
-      document.querySelector('meta[name="theme-color"]').before(m); }
-    m.setAttribute('content', C[t]); };
-  sync(); new MutationObserver(sync).observe(root, {attributes: true, attributeFilter: ['data-theme']}); })();
-</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M1 2Q1 0 3 0H23.4Q25 0 26.4 1.3L42.1 15C45.6 18.5 47.1 23.6 47.1 29C47.1 39.5 38.6 48 27.3 48H14V38.7H25.5C31 38.7 35.4 34.4 35.4 29.4C35.4 26.5 34.2 23.8 32.2 22.2L20.6 11.2Q20.1 10.8 19.5 10.8H11.4Q10.4 10.8 10.4 11.8V48H6.2C3.3 48 1 45.7 1 42.8Z' fill='%230b62f0'/%3E%3Cpath d='M23.4 0Q25 0 26.4 1.3L42.1 15H28.6Q24.8 15 24.8 11.2V1.4Q24.4 0 23.4 0Z' fill='%235ab4ff'/%3E%3Cg fill='%231e88ff'%3E%3Crect x='14.2' y='20.6' width='14.2' height='2.5' rx='1.25'/%3E%3Crect x='14.2' y='25.7' width='14.2' height='2.5' rx='1.25'/%3E%3Crect x='14.2' y='30.6' width='8.6' height='2.5' rx='1.25'/%3E%3C/g%3E%3C/svg%3E">
 <title>__BLUEDOC_TITLE__</title>
 <style>
 /* bluedoc. Page tokens follow the HorizonUI design system (@horizonloop/ui): one value per
@@ -548,28 +534,6 @@ html.bd-lp-open:not(.bd-lp-dock) .bp-side { background: var(--surface); box-shad
 .bd-postas.many { display: grid; gap: 8px; }
 .bd-postas.many .r { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .bd-postas.many .t { flex: 0 1 42%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--fg); font-weight: 600; }
-.bd-postas.many .t small { display: block; overflow: hidden; text-overflow: ellipsis; font-size: 12px; font-weight: 400; color: var(--fg-subtle); }
-/* several PRs: a card per PR, its header (a fold key: repo #n · title and what goes out; its own Post as) over that
-   PR's findings. One card is open at a time, so the reader reads one PR's findings while picking its Post as; one
-   scroll for the whole list (no box scrolls on its own), the note and the keys stay under it */
-.sd-body.prs .sd-box { max-height: none; overflow: visible; }
-.bd-prblk { margin: 0 20px 10px; border-radius: 12px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
-.bd-prblk.open { box-shadow: inset 0 0 0 1px var(--line-strong); }
-.bd-prblk .sd-box { border-radius: 0 0 12px 12px; background: none; box-shadow: none; border-top: 1px solid var(--line); }
-.bd-prblk.shut .sd-box { display: none; }
-.bd-prh { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 8px 10px 8px 6px; }
-.bd-prh .t { flex: 1 1 200px; min-width: 0; display: flex; align-items: center; gap: 4px; margin: 0; padding: 3px 8px 3px 0; border: 0; border-radius: 8px;
-  background: none; font: inherit; color: inherit; text-align: left; }
-.bd-prh .t:not(:disabled):hover { background: var(--hover); }
-.bd-prh .t:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--focus); }
-.bd-prh .t > .bd-ic { flex: none; width: 26px; height: 16px; color: var(--fg-subtle); transition: transform .2s var(--ease); }
-.bd-prblk.open .bd-prh .t > .bd-ic { transform: rotate(90deg); }
-.bd-prblk.none .bd-prh .t > .bd-ic { visibility: hidden; }
-.bd-prh .t .tt { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
-.bd-prh .t b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13.5px; font-weight: 600; color: var(--fg); }
-.bd-prh .t small { font-size: 12px; color: var(--fg-subtle); }
-.bd-prh .bd-sg { flex: none; }
-.sd-dec .q small.cm { color: var(--fg-muted); }
 /* a line that needs the reader (a plan held for an answer, stale evidence) */
 .sd-alert { display: flex; gap: 8px; align-items: flex-start; margin: 0 20px 14px; font-size: 13px; line-height: 1.45; color: var(--warn-fg); }
 .sd-alert .bd-ic { flex: none; width: 15px; height: 15px; margin-top: 1px; }
@@ -597,60 +561,6 @@ html.bd-lp-open:not(.bd-lp-dock) .bp-side { background: var(--surface); box-shad
   .sd-chip { max-width: 100%; }
 }
 @media (max-width: 600px), (hover: none) { .sd-note .hint { display: none; } }
-/* a server-run review (meta.runners): each finding's Found by chips, one per runner, and "N of M" agreement, in the
-   Checklist, Diff and Merged views; the PR's status strip under its section's head (reviewers, decision, round,
-   checks, Merge); the re-review round; Request new review's tray key and dialog */
-.rv-by { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 5px; margin-top: 6px; font: 500 11.5px/1 var(--sans); color: var(--fg-subtle); }
-.rv-by .k { margin-right: 2px; }
-.rv-rc { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 7px; border-radius: 999px; font: 500 11.5px/1 var(--sans); color: var(--fg-muted);
-  background: var(--inset); box-shadow: inset 0 0 0 1px var(--line); white-space: nowrap; }
-.rv-rc b { color: var(--fg); font-weight: 600; }
-.rv-agree { font: 600 11px/1 var(--mono); color: var(--fg-muted); margin-left: 3px; }
-.rv-agree.all { color: var(--ok-fg); }
-.bd-cm .rv-by { margin: 2px 0 6px; }
-.rv-round { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: 0 16px 14px 52px; padding: 10px 12px; border-radius: 12px; background: var(--inset); font-size: 13px; color: var(--fg-muted); }
-.rv-round b { color: var(--fg); font-weight: 600; }
-.rv-round .bd-ic { width: 15px; height: 15px; }
-.rv-reo { margin: 0 16px 14px 52px; padding: 0; list-style: none; display: grid; gap: 4px; font-size: 13px; color: var(--fg-muted); }
-.rv-reo li { display: flex; align-items: center; gap: 8px; }
-.rv-reo .sz { font: 500 11px var(--mono); color: var(--fg-subtle); }
-.rv-grp { display: flex; align-items: center; gap: 8px; margin: 0 16px 8px 52px; font: 600 11px/1.3 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--fg-subtle); }
-.rv-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: -4px 16px 12px 52px; padding: 7px 8px 7px 10px; border-radius: 12px; font-size: 12.5px; color: var(--fg-subtle); background: var(--inset); }
-@media (max-width: 600px) { .rv-strip, .rv-round, .rv-reo, .rv-grp { margin-left: 16px; } }
-.rv-strip .sep { color: var(--line-strong); }
-.rv-strip .sp { flex: 1; }
-.rv-strip .rv-rvs { display: inline-flex; gap: 4px; }
-.rv-rv { position: relative; display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; font: 600 10px var(--sans); color: #fff; background: oklch(55% 0.08 264); }
-.rv-rv > img { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-.rv-rv > b { position: absolute; right: -4px; bottom: -3px; display: grid; place-items: center; width: 12px; height: 12px; border-radius: 50%; color: #fff; box-shadow: 0 0 0 2px var(--inset); background: var(--fg-subtle); }
-.rv-rv > b .bd-ic { width: 8px; height: 8px; stroke-width: 3.5; }
-.rv-rv.ok > b { background: var(--ok); } .rv-rv.no > b { background: var(--risk); } .rv-rv.cm > b { background: var(--fg-muted); }
-.rv-rv.pend > b { background: var(--inset); box-shadow: 0 0 0 2px var(--inset), inset 0 0 0 1.5px var(--fg-subtle); }
-.rv-strip .dec { font-weight: 600; } .rv-strip .dec.ok { color: var(--ok-fg); } .rv-strip .dec.no { color: var(--risk-fg); } .rv-strip .dec.req { color: var(--fg-muted); }
-.rv-strip .ck { display: inline-flex; align-items: center; gap: 4px; } .rv-strip .ck .bd-ic { width: 13px; height: 13px; }
-.rv-strip .ck.ok { color: var(--ok-fg); } .rv-strip .ck.no { color: var(--risk-fg); } .rv-strip .ck.run { color: var(--warn-fg); }
-.rv-strip .rnd { height: 20px; padding: 0 7px; display: inline-flex; align-items: center; border-radius: 999px; font: 600 11px var(--mono); color: var(--fg-muted); background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
-.rv-strip .why { font-size: 12px; color: var(--fg-subtle); }
-.rv-strip .mrgd { font-weight: 600; color: oklch(62% 0.16 300); }
-.rv-mg { position: relative; display: inline-flex; }
-.bd-key.mrg { --k: 32px; display: inline-flex; align-items: center; width: auto; height: 32px; gap: 7px; padding: 0 12px; font-size: 13px; font-weight: 600; color: #fff; white-space: nowrap;
-  background: linear-gradient(180deg, oklch(58% 0.13 152), oklch(50% 0.13 152)); box-shadow: var(--shadow-hk); }
-.bd-key.mrg.l { border-radius: 999px 0 0 999px; padding-right: 10px; }
-.bd-key.mrg.r { border-radius: 0 999px 999px 0; padding: 0 9px; box-shadow: var(--shadow-hk), inset 1px 0 0 rgba(255, 255, 255, .25); }
-.bd-key.mrg:disabled { opacity: .45; cursor: default; pointer-events: none; color: var(--fg-muted); background: var(--inset); box-shadow: inset 0 0 0 1px var(--line); }
-.rv-mmenu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; min-width: 220px; padding: 5px; border-radius: 12px; background: var(--surface); box-shadow: var(--shadow-3); display: grid; }
-.rv-mmenu button { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border: 0; border-radius: 8px; background: none; text-align: left; font: 500 13px var(--sans); color: var(--fg); cursor: pointer; }
-.rv-mmenu button:hover, .rv-mmenu button[aria-checked="true"] { background: var(--inset); }
-.bd-key.rr .n { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; display: inline-grid; place-items: center; font: 600 11px var(--mono); color: var(--accent-fg); background: var(--accent-tint); }
-.rv-th { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; padding: 10px 12px; }
-.rv-th + .rv-th { border-top: 1px solid var(--line-soft); }
-.rv-th .q { min-width: 0; font-size: 13px; line-height: 1.4; }
-.rv-th .rp { grid-column: 1 / -1; padding: 6px 12px; border-radius: 999px; font-size: 13px; color: var(--fg); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); }
-.rv-res { font-size: 12.5px; color: var(--fg-muted); white-space: nowrap; }
-.rv-who { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 2px; }
-.rv-pp { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 12px 0 4px; border-radius: 999px; font: 500 13px var(--sans); color: var(--fg);
-  background: linear-gradient(180deg, var(--hk-top), var(--hk-bot)); box-shadow: var(--shadow-hk); }
-.rv-pp .rv-rv { width: 22px; height: 22px; }
 /* the app bar's Share key (openShare): the share sheet, HorizonUI's ticket (design share-account, sheet D). No dialog box:
    the ticket floats over the dimmed page, its two halves a card each, notched where they meet at a dashed tear line.
    The top half: eyebrow, state badge and close; the doc's emoji tile, title, project · remote; Share as and what goes
@@ -3825,8 +3735,8 @@ const SCREENS = (() => { try { const x = JSON.parse(document.getElementById('bp-
 // served by serve.py: an -o file carries its screens (SCREENS), and a shared page is on bluedoc.ai's https
 const SERVED = !SHARE && !SCREENS && /^https?:$/.test(location.protocol);
 // a page with no server (!SERVED: a shared page, an -o file) as it came, for Download's HTML file: taken before anything
-// here renders, sets the theme or adds a class to <html>; without the head's live theme-color meta, the page's own state
-const PAGE_HTML = SERVED ? '' : '<!doctype html>\n' + document.documentElement.outerHTML.replace(/<meta name="theme-color" data-live=""[^>]*>/, '');
+// here renders, sets the theme or adds a class to <html>
+const PAGE_HTML = SERVED ? '' : '<!doctype html>\n' + document.documentElement.outerHTML;
 const QP = new URLSearchParams(location.search);
 // the page's file name, which its exports and copied commands go by: its URL's last segment; a shared page's <name>.html
 const pageFile = () => SHARE ? SHARE.name + '.html' : decodeURIComponent(location.pathname.split('/').pop() || '');
@@ -3981,8 +3891,6 @@ const ICONS = {
   panel: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M15 3v18"/>',
   panelon: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4Z" fill="currentColor"/>',
   pr: '<circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7M6 9v12"/>',
-  merge: '<circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/>',
-  spin: '<path d="M21 12a9 9 0 1 1-6.22-8.56"/>',
   up: '<path d="m18 15-6-6-6 6"/>',
   arrowup: '<path d="M12 19V5M5 12l7-7 7 7"/>',
   down: '<path d="m6 9 6 6 6-6"/>',
@@ -6444,16 +6352,6 @@ function convoLine(ms) {
   return [ic('msgsq'), h('span', {}, `${ms.length} message${ms.length === 1 ? '' : 's'}` + (last ? ` · ${agentName()} replied in rev ${last.rev}` : '')),
     ...(ms.some(isNewMsg) ? [h('span', { class: 'nw' }, '· ', h('i'), 'New')] : [])];
 }
-// A server-run review (meta.runners: every runner of its profile, M) names who found each finding (item.foundBy, N):
-// "Found by" with a chip per runner, then "N of M", in the Checklist, Diff and Merged views alike
-const RUNNERS = Array.isArray(meta.runners) ? meta.runners.map(String).filter(Boolean) : [];
-function foundByEl(it) {
-  const by = RUNNERS.length && it && Array.isArray(it.foundBy) ? [...new Set(it.foundBy.map(String))].filter(r => RUNNERS.includes(r)) : [];
-  if (!by.length) return null;
-  const chip = r => { const [hn, ...m] = r.split(' · '); return h('span', { class: 'rv-rc', title: r }, h('b', {}, hn), m.length ? ' ' + m.join(' · ') : ''); };
-  return h('span', { class: 'rv-by' }, h('span', { class: 'k' }, 'Found by'), ...by.map(chip),
-    h('span', { class: 'rv-agree' + (by.length === RUNNERS.length ? ' all' : ''), title: `${by.length} of the profile's ${RUNNERS.length} runners found it` }, `${by.length} of ${RUNNERS.length}`));
-}
 // Each item is a two-line row (title, subtitle) and, on a decision, its options; open, it shows everything else: the
 // details (detail, code, the check, canvas refs, code-review links and nested blocks), the conversation and the reply box.
 function renderChecklist(b, parent) {
@@ -6570,8 +6468,7 @@ function renderChecklist(b, parent) {
       numbered && h('span', { class: 'bp-cl-num' }, String(i + 1).padStart(2, '0')),
       h('span', { class: 'bp-cl-main' },
         h('span', { class: 'bp-cl-text', html: inline(it.text) }),
-        subMd && h('span', { class: 'bp-cl-subt' + (subIsCheck ? ' check' : '') }, subIsCheck && ic('check'), h('span', { html: inline(subMd) })),
-        fd && foundByEl(it)),
+        subMd && h('span', { class: 'bp-cl-subt' + (subIsCheck ? ' check' : '') }, subIsCheck && ic('check'), h('span', { html: inline(subMd) }))),
       okChip,
       ansChip(ans, card),
       it.state && h('span', { class: 'bp-chip ' + (it.stateKind || 'warn') }, it.state),
@@ -7331,8 +7228,7 @@ function replyPayload() {
   return {
     kind: 'answers', doc: docId, rev: CUR.rev, title: DOC.title || '', path: location.pathname, at: new Date().toISOString(),
     message: (store.get(MSG_KEY) || '').trim(), ...(msgFiles().length ? { messageFiles: filesJson(msgFiles()).files } : {}),
-    // one event per PR the findings are about: its section (pr-<n>) when it has one, its repo and number, its Post as
-    ...(POST_PRS.length ? { reviewEvents: POST_PRS.map(p => ({ section: /^pr-\d+$/.test(p.section || '') ? p.section : p.n ? `pr-${p.n}` : null, ...(p.repo ? { repo: p.repo } : {}), ...(p.n ? { pr: Number(p.n) } : {}), title: p.title, event: postEvent(p) })) } : {}),
+    ...(POST_PRS.length ? { reviewEvents: POST_PRS.map(p => ({ section: p.id, title: p.title, event: postAs[p.id || ''] })) } : {}),
     // the pick or tick alone where Request changes carries the comments and Tell me more: a review's every item, a
     // question elsewhere (noteWithChanges); a plan, design, presentation, website or listing has no send key
     items: answerItems(Object.values(ITEMS), x => DOC_TYPE !== 'review' && (PICKS_WITH_CHANGES || !x.card)),
@@ -7391,7 +7287,7 @@ if (!SHARE && /^https?:$/.test(location.protocol)) {
       connected: true, to: j.to || '', home: j.home || '' });
     UPDATED.seen(j.code);
     if (REPLY.home) linkHome(REPLY.home);
-    paintSend(); paintPlan(); MARKUP.paint(); rvLive();
+    paintSend(); paintPlan(); MARKUP.paint();
     if (REPLY.to) { Object.values(ITEMS).forEach(x => x.paintConvo()); syncDiffs(); }   // the agent's name in the conversations
     // the server takes writes only from a browser with the key: the cookie from a `serve.py open` or `serve.py unlock`
     // link, or the copy kept in localStorage. While the cookie lasts, keep the key (again); refused, drop the copy.
@@ -7418,8 +7314,6 @@ function linkHome(href) {
 // meta.review names (SEND_AS), with the count of picks, ticks and comments not sent yet (on a review, picks and ticks:
 // its comments go with Request changes)
 const TRAY_END = [];
-// a threads review's Request new review key, its count and the server's last answer (rvLive, rvKey)
-const RV = { key: null, n: null, rr: null, timer: 0 };
 let sendBtn = null, sendDlg = null, approveDlg = null;
 const PLAN_KEY = `bp:${docId}:__planstate`;
 // [icon, key, dialog title, what the agent does with it]
@@ -7429,72 +7323,20 @@ const SEND_AS = {
   post: ['pr', 'Post review', 'Post review to the PR', 'The agent posts one GitHub review on the PR, with a comment per finding you marked Post.'],
 }[REVIEW_OF] || ['send', 'Send answers', 'Send your answers', ''];
 // a post review (someone else's PR, or your own you asked a review of): the GitHub review event each PR posts as (the
-// send dialog's Post as, one per PR), the payload's reviewEvents. Its PRs are the PRs its findings are about: a
-// finding's PR is the one of the diff its comment sits on (the diff block's `pr`, owner/repo#N or a pull URL), else its
-// section's (pr-<n>, pr-<repo>-<n>); a doc grouped by reviewer agent still posts one review per PR. Without any PR the
-// page is one review.
+// send dialog's Post as, one per PR), the payload's reviewEvents. Its PRs are its pr-<n> sections; without any, the page is one
 const POST_AS = [['COMMENT', 'Comment'], ['REQUEST_CHANGES', 'Request changes'], ['APPROVE', 'Approve']];
-const prRefOf = s => { const m = /^([\w.-]+\/[\w.-]+)#(\d+)$/.exec(s) || /github\.com\/([\w.-]+\/[\w.-]+)\/pull\/(\d+)/.exec(s); return m ? { repo: m[1], n: m[2] } : null; };
-const PR_OF_ITEM = new Map();   // "checklist/item" -> the PR entry
-const POST_PRS = REVIEW_OF !== 'post' ? [] : (() => {
-  // a PR's name: its pr-<n> section's title when it has one, else repo#n
-  const prs = new Map(), get = (repo, n, sec) => {
-    const k = `${repo || ''}#${n}`;
-    if (!prs.has(k)) prs.set(k, { id: k, repo: repo || '', n: String(n), section: null, title: `${repo ? repo.split('/').pop() : ''}#${n}` });
-    const p = prs.get(k);
-    if (sec && !p.section) { p.section = sec.id; p.title = String(sec.title || sec.id).replace(/[`*]/g, ''); }
-    return p;
-  };
-  const repoOf = String(meta.repo || '');
-  for (const s of DOC.sections || []) {
-    const sm = /^pr-(?:(.+)-)?(\d+)$/.exec(s && s.id || ''), cls = [], diffs = [];
-    const walk = bs => (bs || []).forEach(b => { if (!b) return; if (b.type === 'checklist') { cls.push(b); (b.items || []).forEach(it => walk(it.blocks)); } else if (b.type === 'diff') diffs.push(b); });
-    walk(s.blocks);
-    for (const d of diffs) {
-      const r = prRefOf(String(d.pr || d.url || '')); if (!r) continue;
-      for (const c of d.comments || []) if (c && typeof c.item === 'string' && !PR_OF_ITEM.has(c.item)) PR_OF_ITEM.set(c.item, get(r.repo, r.n, sm && sm[2] === r.n ? s : null));
-    }
-    // a pr-<n> section: its findings no diff names are its PR's
-    if (sm) {
-      const r = diffs.map(d => prRefOf(String(d.pr || d.url || ''))).find(x => x && x.n === sm[2]);
-      const p = get(r ? r.repo : repoOf, sm[2], s);
-      for (const c of cls) for (const it of c.items || []) if (!PR_OF_ITEM.has(`${c.id}/${it.id}`)) PR_OF_ITEM.set(`${c.id}/${it.id}`, p);
-    }
-  }
-  // in PR order: repo, then number
-  return prs.size ? [...prs.values()].sort((a, b) => a.repo.localeCompare(b.repo) || Number(a.n) - Number(b.n)) : [{ id: '', repo: '', n: '', section: null, title: DOC.title || '' }];
-})();
-// the reader's own Post as per PR; until picked, the verdict rule's: Request changes when a finding picked Post on it
-// is a blocker or major, else Approve (the minor and nit comments picked Post go with it, or none)
-const postAs = {};
-const SIZE_ORDER = ['blocker', 'major', 'minor', 'nit'];
-const sizeOf = x => String(x.it.state || '').toLowerCase();
-const postedOn = p => Object.values(ITEMS).filter(x => x.fd && (idsOf(x.choice).includes('post') || !!x.custom) && (POST_PRS.length === 1 || PR_OF_ITEM.get(`${x.cid}/${x.it.id}`) === p));
-const postEvent = p => postAs[p.id] || (postedOn(p).some(x => ['blocker', 'major'].includes(sizeOf(x))) ? 'REQUEST_CHANGES' : 'APPROVE');
-// "3 comments: 1 major, 2 minor" or "nothing to post"
-const postSays = p => {
-  const xs = postedOn(p); if (!xs.length) return 'nothing to post';
-  const by = SIZE_ORDER.map(s => [s, xs.filter(x => sizeOf(x) === s).length]).filter(([, n]) => n);
-  return `${xs.length} comment${xs.length === 1 ? '' : 's'}` + (by.length ? ': ' + by.map(([s, n]) => `${n} ${s}`).join(', ') : '');
-};
+const POST_PRS = REVIEW_OF !== 'post' ? [] : (xs => xs.length ? xs : [{ id: null, title: DOC.title || '' }])(
+  (DOC.sections || []).filter(s => s && /^pr-\d+$/.test(s.id || '')).map(s => ({ id: s.id, title: String(s.title || s.id).replace(/[`*]/g, '') })));
+const postAs = Object.fromEntries(POST_PRS.map(p => [p.id || '', 'COMMENT']));
 if (POST_PRS.length > 1) SEND_AS.splice(2, 2, 'Post reviews to the PRs', 'The agent posts one GitHub review per PR, with a comment per finding you marked Post.');
 const postLabel = v => POST_AS.find(p => p[0] === v)[1];
-// a PR in the Markdown: repo#n, then its section's title ("acme/shop#412 · bulk discount tiers")
-const prLabel = p => !p.repo || !p.n ? p.title : `${p.repo}#${p.n}` + (p.section ? ' · ' + p.title.replace(new RegExp(`^#${p.n}\\s*·?\\s*`), '') : '');
-// a PR's block header in the send dialog: "acme-shop #412 · bulk discount tiers"
-const prHead = p => !p.repo || !p.n ? p.title : `${p.repo.split('/').pop()} #${p.n}` + (p.section ? ' · ' + p.title.replace(new RegExp(`^#${p.n}\\s*·?\\s*`), '') : '');
-// under a PR's Post as line in the Markdown: its findings and what the reader picked ("Post: <finding> (blocker)")
-const prFindingsMd = p => Object.values(ITEMS).filter(x => x.choices && PR_OF_ITEM.get(`${x.cid}/${x.it.id}`) === p).map(x => {
-  const ids = idsOf(x.choice), pick = [...ids.map(id => choiceLabel(x, id)), ...(x.custom ? ['Other'] : [])].join(', ') || 'No pick';
-  return `\n  - ${pick}: ${plainText(x.it.text)}${sizeOf(x) ? ` (${sizeOf(x)})` : ''}`;
-}).join('');
 // what Send sends: the checklists, and on a post review how to post each PR, under the title; the comments Request
 // changes carries (noteWithChanges: a question's, a review's) and Tell me more go with it instead
 function answersMd() {
   const md = allChecklistsMd(x => !noteWithChanges(x)), i = md.indexOf('\n\n') + 2;
   if (!POST_PRS.length) return md;
-  const how = POST_PRS.length === 1 ? `Post as: ${postLabel(postEvent(POST_PRS[0]))}`
-    : 'Post as:\n' + POST_PRS.map(p => `- ${prLabel(p)}: ${postLabel(postEvent(p))}${prFindingsMd(p)}`).join('\n');
+  const how = POST_PRS.length === 1 ? `Post as: ${postLabel(postAs[POST_PRS[0].id || ''])}`
+    : 'Post as:\n' + POST_PRS.map(p => `- ${p.title}: ${postLabel(postAs[p.id])}`).join('\n');
   return md.slice(0, i) + how + '\n\n' + md.slice(i);
 }
 // the items with a pick, tick or comment Send hasn't sent yet (a question's comments, a review's: Request changes)
@@ -7573,14 +7415,14 @@ const sdSec = (name, n, says, box) => h('div', { class: 'sd-sec', 'data-sec': na
   h('div', { class: 'sd-sh' }, h('h4', {}, n == null ? name : `${name} · ${n}`), says && h('span', { class: 'c' }, says)), box);
 const sdAlert = text => h('p', { class: 'sd-alert' }, ic('alert'), h('span', {}, text));
 // where a review's finding sits: its PR's number (its section pr-<n>)
-const prOf = x => { const p = PR_OF_ITEM.get(`${x.cid}/${x.it.id}`); return p && p.n ? p.n : (/^pr-(?:.+-)?(\d+)$/.exec(x.li.closest('section.bp-sec')?.id || '') || [])[1]; };
+const prOf = x => (/^pr-(\d+)$/.exec(x.li.closest('section.bp-sec')?.id || '') || [])[1];
 const itemText = x => (prOf(x) ? `#${prOf(x)} · ` : '') + plainText(x.it.text);
 // A decision as it goes: the question, then its answer as the answer card's chip: ✓ the pick (Other: its words), Tell
 // me more or a request for a new option (amber), or no pick: on an approval ★ the recommendation the agent uses (grey),
 // on a plan held for an answer Answer it › (amber: the row is a key that opens the question, `answer`), else No pick. The
 // second line: the recommendation a pick differs from, the pick it changed from (the approved one, or the author's), or
 // what no pick means
-function sdDec(x, { approve = false, answer = null, inPr = false } = {}) {
+function sdDec(x, { approve = false, answer = null } = {}) {
   const ids = idsOf(x.choice), picked = ids.length > 0 || !!x.custom, rec = recLabels(x);
   const label = [...ids.map(id => choiceLabel(x, id)), ...(x.custom ? ['Other: ' + cutLine(x.custom, 120)] : [])].join(', ');
   const was = picked && x.pickChanged ? (APPROVABLE ? (planState().picks || {})[`${x.cid}/${x.it.id}`] : x.it.choice) : null;
@@ -7594,10 +7436,7 @@ function sdDec(x, { approve = false, answer = null, inPr = false } = {}) {
     : answer ? h('span', { class: 'sd-chip need' }, h('span', {}, 'Answer it'), ic('chev'))
     : approve && rec ? h('span', { class: 'sd-chip rec', title: rec }, ic('star'), h('span', {}, rec))
     : h('span', { class: 'sd-chip rec' }, h('span', {}, 'No pick'));
-  // inside its PR's block the row needs no "#n ·"; the reader's own comment on it shows under its text
-  const cm = inPr ? x.drafts().filter(d => d.md.trim()).map(d => cutLine(d.md.trim(), 140))[0] : '';
-  const q = h('span', { class: 'q' }, h('span', { html: (!inPr && prOf(x) ? `#${prOf(x)} · ` : '') + inline(x.it.text) }), sub && h('small', {}, sub),
-    cm && h('small', { class: 'cm' }, 'Your comment: ' + cm));
+  const q = h('span', { class: 'q' }, h('span', { html: (prOf(x) ? `#${prOf(x)} · ` : '') + inline(x.it.text) }), sub && h('small', {}, sub));
   return answer && !picked && !x.more ? h('button', { type: 'button', class: 'sd-dec go', 'data-item': `${x.cid}/${x.it.id}`, title: 'Answer it', onclick: () => answer(x) }, q, chip)
     : h('div', { class: 'sd-dec', 'data-item': `${x.cid}/${x.it.id}` }, q, chip);
 }
@@ -7635,21 +7474,10 @@ function openSend() {
       copy: () => { copyText(answersMd(), 'Copied: paste it into the chat with the agent'); sendDlg.close(); } });
     sendDlg = S.dlg;
     // Post as: as GitHub's Submit review asks, one per PR: Request changes on one, Approve another
-    const segs = POST_PRS.map(p => h('div', { class: 'bd-sg', role: 'radiogroup', 'aria-label': POST_PRS.length > 1 ? `Post ${prHead(p)} as` : 'Post as', 'data-pr': p.id },
-      POST_AS.map(([v, l]) => h('button', { type: 'button', role: 'radio', 'data-v': v, onclick: () => { postAs[p.id] = v; sendDlg._paint(); } }, l))));
-    // several PRs: a card per PR, its header (a fold key: repo #n · title, what goes out on it; its own Post as) over
-    // its findings only; a PR with nothing to post keeps its header alone. One card is open at a time: at first the
-    // first PR with a finding still to pick, else the first with findings; a header opens its card and shuts the rest
-    const many = POST_PRS.length > 1;
-    let openPr;
-    const says = POST_PRS.map(() => h('small', { class: 'c' }));
-    const folds = POST_PRS.map((p, i) => h('button', { type: 'button', class: 't', title: prHead(p), onclick: () => {
-      openPr = openPr === p.id ? '' : p.id; sendDlg._paint();
-      const blk = S.body.querySelector(`.bd-prblk[data-pr="${CSS.escape(p.id)}"]`); if (blk && openPr) blk.scrollIntoView({ block: 'nearest', behavior: REDUCE ? 'auto' : 'smooth' });
-    } }, ic('chev'), h('span', { class: 'tt' }, h('b', {}, prHead(p)), says[i])));
-    const heads = POST_PRS.map((p, i) => h('div', { class: 'bd-prh' }, folds[i], segs[i]));
-    const postSec = !segs.length || many ? null : sdSec('Post as', null, '', h('div', { class: 'bd-postas' }, segs[0]));
-    S.body.classList.toggle('prs', many);
+    const segs = POST_PRS.map(p => h('div', { class: 'bd-sg', role: 'radiogroup', 'aria-label': POST_PRS.length > 1 ? `Post ${p.title} as` : 'Post as', 'data-pr': p.id || '' },
+      POST_AS.map(([v, l]) => h('button', { type: 'button', role: 'radio', 'data-v': v, onclick: () => { postAs[p.id || ''] = v; sendDlg._paint(); } }, l))));
+    const postSec = !segs.length ? null : segs.length === 1 ? sdSec('Post as', null, '', h('div', { class: 'bd-postas' }, segs[0]))
+      : sdSec('Post as, per PR', null, '', h('div', { class: 'bd-postas many' }, POST_PRS.map((p, i) => h('div', { class: 'r' }, h('span', { class: 't', title: p.title }, p.title), segs[i]))));
     sendDlg._paint = () => {
       const all = Object.values(ITEMS), dec = all.filter(x => x.choices), steps = all.filter(x => !x.choices);
       // the send key carries the picks and ticks (and a progress item's comments): a question's comments and Tell me
@@ -7659,18 +7487,12 @@ function openSend() {
       S.intro.textContent = (SEND_AS[3] ? SEND_AS[3].replace(/^The agent/, agentWho(true)) : `${agentWho(true)} acts on your picks, ticks and comments.`)
         + (later ? ` ${later} comment${later === 1 ? '' : 's'} on ${DOC_TYPE === 'review' ? 'findings' : 'questions'} ${later === 1 ? 'goes' : 'go'} with Request changes.` : '')
         + (asks ? ` ${asks === 1 ? 'Tell me more goes' : `${asks} Tell me more requests go`} with Request changes${later ? ' too' : ''}.` : '');
-      const mine = p => dec.filter(x => PR_OF_ITEM.get(`${x.cid}/${x.it.id}`) === p), loose = many ? dec.filter(x => !PR_OF_ITEM.has(`${x.cid}/${x.it.id}`)) : dec;
-      if (many && openPr === undefined) openPr = (POST_PRS.find(p => mine(p).some(asksReader)) || POST_PRS.find(p => mine(p).length) || {}).id || '';
       setKids(S.body,
-        ...(many ? POST_PRS.map((p, i) => { const xs = mine(p), open = xs.length > 0 && openPr === p.id;
-          folds[i].disabled = !xs.length; folds[i].setAttribute('aria-expanded', String(open));
-          return h('div', { class: 'bd-prblk' + (xs.length ? '' : ' none') + (open ? ' open' : ' shut'), 'data-pr': p.id }, heads[i],
-            xs.length > 0 && h('div', { class: 'sd-box' }, xs.map(x => sdDec(x, { inPr: true })))); }) : []),
-        loose.length > 0 && sdSec(DOC_TYPE === 'review' ? (many ? 'Other findings' : 'Findings') : 'Decisions', loose.length, decSays(loose, 'no pick'), h('div', { class: 'sd-box' }, loose.map(x => sdDec(x)))),
+        dec.length > 0 && sdSec(DOC_TYPE === 'review' ? 'Findings' : 'Decisions', dec.length, decSays(dec, 'no pick'), h('div', { class: 'sd-box' }, dec.map(x => sdDec(x)))),
         steps.length > 0 && sdSec('Steps', steps.length, `${steps.filter(passing).length} done`, h('div', { class: 'sd-box' }, steps.map(sdStep))),
         notes.length > 0 && sdSec('Comments', notes.length, '', sdComments(notes)),
         postSec);
-      segs.forEach((g, i) => { const v = postEvent(POST_PRS[i]); g.querySelectorAll('button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.v === v))); says[i].textContent = postSays(POST_PRS[i]); });
+      segs.forEach(g => g.querySelectorAll('button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.v === postAs[g.dataset.pr]))));
       S.paint();
     };
   }
@@ -8006,7 +7828,6 @@ function commentCard(d, c, mirrors = d.mirrors, inItem = false) {
   card.append(...[
     h('div', { class: 'hd' }, tick ? h('label', { class: 'tk' }, tick) : dot || ic('msg'), h('div', { class: 'tt', html: inline(title) }), src && ansChip(src.ans, !!src.choices),
       ((it && it.state) || c.state) && h('span', { class: 'bp-chip ' + kind }, c.state || it.state)),
-    src && src.fd && foundByEl(it),
     opts && opts.el, opts && opts.more,
     h('div', { class: 'mt' }, h('span', {}, where),
       src && !inItem && h('a', { href: `#item-${src.cid}-${it.id}`, onclick: e => { e.preventDefault(); const row = openItem(src); row.scrollIntoView({ behavior: REDUCE ? 'auto' : 'smooth', block: 'center' }); flash(row); } }, 'Checklist item', ic('chev'))),
@@ -8305,11 +8126,13 @@ const MORE_LINES = 8;   // Show more lines: lines added either side of an excerp
 const FINDING_CIDS = new Set();   // every findings section's checklists (nested ones too), known before they draw
 /* The filter: Open (a question with no answer, a Need more details not sent, or a reply from the agent the reader
    hasn't answered; a progress item not done), Done (the rest) or All. Each findings section and each decision list
-   (questionView) has its own, for its every view. Every page load opens them all on All; a pick holds for that visit
-   only (no reader state). The question the reader is on (FHELD: the one they last opened, picked
+   (questionView) has its own, for its every view, kept per doc and list in reader state (`__findings-filter:<section
+   or list id>`); a first visit opens a findings section on Open (on All on a shared page carrying its sharer's answers,
+   which count as the reader's there: isDone), a decision list on All. The question the reader is on (FHELD: the one they last opened, picked
    in or wrote in) stays shown when it leaves its filter, until they move on to another. A list ends with what the
    filter hides, and Show (All). In Diff, a hidden finding's card goes; its code stays. */
 const FFILTERS = [['all', 'All'], ['open', 'Open'], ['done', 'Done']];
+const ffilterKey = v => `bp:${docId}:__findings-filter:${v.el.id}`;
 const QVIEWS = [];   // every toolbar with the filter: the findings sections' (FVIEWS) and the decision lists'
 let FHELD = null;
 const findingOpen = x => x.choices ? !isDone(x) || x.more === 'on' || ansMore(x) || awaitsReader(x) : !passing(x);
@@ -8322,7 +8145,7 @@ function collapseAnswered() {
 }
 // a question in a list with the filter (a finding, a decision list's)
 function holdFinding(x) { if (x.card && x.fv && FHELD !== x) { FHELD = x; paintFindings(); } }
-function setFindingsFilter(v, f) { v.filter = f; FHELD = null; paintFindings(); }
+function setFindingsFilter(v, f) { v.filter = f; FHELD = null; store.set(ffilterKey(v), f); paintFindings(); }
 // every toolbar, list and card with the filter, the Tracker's findings rows and the ask chip, from the items
 function paintFindings() {
   QVIEWS.forEach(v => v.paint());
@@ -8388,8 +8211,10 @@ function questionBar(v, scope, noun, views) {
   v.notes = tops.map(c => { const n = hiddenNote('li', checklistScope(c).flatMap(s => s.items)); c.list.append(n); return n; });
   v.meter = h('span', { class: 'bd-prm' }, h('span', { class: 'bd-meter' }, h('i')), h('span', { class: 'c' }));
   v.status = h('span', { class: 'bd-prs' });
-  // every load opens on All: Open and Done are a pick for this visit
-  v.filter = 'all';
+  const f = store.get(ffilterKey(v));
+  // a first visit: a findings section on Open, a decision list on All; a shared page carrying its sharer's answers
+  // (ANSWERS) on All, where the answers are
+  v.filter = FFILTERS.some(x => x[0] === f) ? f : noun === 'finding' && !ANSWERS ? 'open' : 'all';
   if (!QVIEWS.length) addEventListener('resize', () => QVIEWS.forEach(q => q.measure()));
   QVIEWS.push(v);
   if (fvSizes) fvSizes.observe(v.bar);
@@ -8635,8 +8460,7 @@ function mergedRow(x, extra, code) {
   const chev = h('button', { type: 'button', class: 'bd-mchev pv-chev', 'aria-expanded': 'false', 'aria-label': 'Open this finding' }, ic('down'));
   const head = h('div', { class: 'bd-mhead' },
     h('span', { class: 'bp-cl-main' }, h('span', { class: 'bp-cl-text', html: inline(it.text) }),
-      subMd && h('span', { class: 'bp-cl-subt' + (it.sub ? '' : ' check') }, !it.sub && ic('check'), h('span', { html: inline(subMd) })),
-      x.fd && foundByEl(it)),
+      subMd && h('span', { class: 'bp-cl-subt' + (it.sub ? '' : ' check') }, !it.sub && ic('check'), h('span', { html: inline(subMd) }))),
     ok, ansChip(x.ans, !!x.choices), it.state && h('span', { class: 'bp-chip ' + kind }, it.state));
   row.append(h('div', { class: 'bp-cl-row' }, tick, x.choices && h('span', { class: 'bp-cl-dot', 'aria-hidden': 'true' }), head, chev));
   const parts = [extra && h('div', { class: 'bp-cl-detail bd-md', html: md(extra) }), it.detail && h('div', { class: 'bp-cl-detail bd-md', html: md(it.detail) }),
@@ -14979,159 +14803,6 @@ if (!OLD && !VIEW_ONLY) {
   }
 }
 paintPlan();
-
-/* ---------- a review the server tracks (the Reviews page): the PR's status strip under each PR section's head, the
-   re-review round with the findings that reopened, the Merge key, and on a threads review Request new review. All
-   read from /__bluedoc/reviews/* once the ping says a bluedoc server serves the page; nothing on a file or a share. */
-function rvFetch(path, body) {
-  const headers = SERVER_KEY.headers(body ? { 'Content-Type': 'application/json', 'X-Bluedoc': '1' } : { 'X-Bluedoc': '1' });
-  return fetch(path, body ? { method: 'POST', headers, body: JSON.stringify(body), cache: 'no-store' } : { headers, cache: 'no-store' })
-    .then(async r => { const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || `the server answered ${r.status}`); return j; });
-}
-// the PR sections (pr-<n>), else the whole page as one PR (meta.pr)
-const rvTargets = () => {
-  const xs = [...main.querySelectorAll(':scope > section.bp-sec')].map(s => [s, (/^pr-(\d+)$/.exec(s.id) || [])[1]]).filter(x => x[1]);
-  if (xs.length) return xs;
-  const s = main.querySelector(':scope > section.bp-sec');
-  return s && meta.pr ? [[s, String(meta.pr)]] : [];
-};
-const RV_STATE = { approved: ['ok', 'tick', 'approved'], changes_requested: ['no', 'x', 'requested changes'], commented: ['cm', 'msg', 'commented'],
-  pending: ['pend', null, 'pending'], dismissed: ['pend', null, 'dismissed'] };
-const RV_DEC = { APPROVED: ['ok', 'Approved'], CHANGES_REQUESTED: ['no', 'Changes requested'], REVIEW_REQUIRED: ['req', 'Review required'] };
-const RV_METHOD = { merge: 'Merge', squash: 'Squash and merge', rebase: 'Rebase and merge' };
-// a person: their provider avatar (cached by the server; offline it answers initials), the letter under it
-const rvFace = (login, avatar, cls = '') => {
-  const img = avatar ? h('img', { src: avatar, alt: '' }) : null;
-  if (img) img.addEventListener('error', () => img.remove());
-  return h('span', { class: 'rv-rv ' + cls, title: login }, String(login || '?').slice(0, 1).toUpperCase(), img);
-};
-function rvStrip(sec, pr, s) {
-  sec.querySelectorAll(':scope > .rv-strip, :scope > .rv-round, :scope > .rv-reo-w').forEach(x => x.remove());
-  if (!s) return;
-  const parts = [h('span', { class: 'rnd' }, `round ${s.round || 1}`)];
-  if (s.reviews && s.reviews.length) parts.push(h('span', { class: 'rv-rvs' }, s.reviews.map(r => {
-    const [cls, icon, said] = RV_STATE[r.state] || RV_STATE.pending, f = rvFace(r.login, r.avatar, cls);
-    f.title = `${r.login}: ${said}`; f.append(h('b', {}, icon && ic(icon)));
-    return f;
-  })));
-  const dec = RV_DEC[s.decision];
-  if (s.merged || s.state === 'merged') parts.push(h('span', { class: 'mrgd' }, 'Merged'));
-  else if (dec) parts.push(h('span', { class: 'dec ' + dec[0] }, dec[1]));
-  const ck = s.checks || {};
-  const cks = ck.state === 'success' ? ['ok', 'check', `${ck.total || ''} checks pass`.trim()] : ck.state === 'failure' ? ['no', 'alert', `${(ck.failing || []).length} of ${ck.total} checks fail`]
-    : ck.state === 'pending' ? ['run', 'spin', 'checks running'] : null;
-  if (cks) parts.push(h('span', { class: 'sep' }, '·'), h('span', { class: 'ck ' + cks[0], title: [...(ck.failing || []), ...(ck.pending || [])].join(', ') }, ic(cks[1]), cks[2]));
-  parts.push(h('span', { class: 'sp' }));
-  const m = s.merge || {};
-  if (s.roundText) parts.push(h('span', { class: 'why' }, s.roundText));
-  // the PR as review/pr-<N> in the project's own folder; switching is a second step, offered on a clean tree
-  if (!s.merged) {
-    const co = h('button', { type: 'button', class: 'bp-btn ghost rv-co', title: `Make review/pr-${pr} in your project's folder` }, ic('pr'), 'Check out');
-    const run = sw => rvFetch('/__bluedoc/reviews/checkout', { path: location.pathname, pr: Number(pr), ...(sw ? { switch: true } : {}) });
-    co.addEventListener('click', () => run(false).then(c => toast(c.message, c.switched || c.dirty || c.current === c.branch ? undefined
-      : { label: 'Switch to it', run: () => run(true).then(x => toast(x.message), x => toast(x.message)) }), x => toast(x.message)));
-    parts.push(co);
-  }
-  if (m.show && !s.merged) {
-    // the server's sentence (text), its key (reason) only when it sends no sentence
-    if (!m.live && (m.text || m.reason)) parts.push(h('span', { class: 'why rv-why' }, m.text || m.reason));
-    parts.push(rvMergeKey(pr, m));
-  }
-  const strip = h('div', { class: 'rv-strip', 'data-pr': pr }, parts);
-  // under the findings header (its lead, sizes and branches), above the views' toolbar
-  const at = sec.querySelector(':scope > .bd-prhd') || sec.querySelector(':scope > .bp-lead') || sec.querySelector(':scope > h2');
-  const after = [strip];
-  // a later round: what it covers, then the findings that reopened in it
-  if ((s.round || 1) > 1) {
-    after.push(h('div', { class: 'rv-round' }, ic('reset'), h('span', {}, h('b', {}, `Round ${s.round}`), meta.delta && meta.delta.from
-      ? ` · the commits since ${String(meta.delta.from).slice(0, 7)}, plus every open finding` : ' · another review of this PR')));
-    const re = Array.isArray(s.reopened) ? s.reopened : [];
-    if (re.length) after.push(h('div', { class: 'rv-reo-w' }, h('div', { class: 'rv-grp' }, `Reopened this round · ${re.length}`),
-      h('ul', { class: 'rv-reo' }, re.map(x => h('li', {}, h('span', { class: 'sz' }, x.size || ''),
-        h('a', { href: '#item-' + String(x.item || '').replace('/', '-') }, plain(x.text || x.item)))))));
-  }
-  at.after(...after);
-}
-// Merge: the project's method on the key, the repo's other allowed methods in its menu (this PR only). Live only on a
-// mergeable PR; otherwise the key and its chevron are disabled and the reason sits beside them. A press asks once more.
-function rvMergeKey(pr, m) {
-  let method = m.method || (m.methods || [])[0] || 'merge', armed = 0;
-  const label = h('span', {}, RV_METHOD[method] || method);
-  const go = h('button', { type: 'button', class: 'bd-key mrg l', disabled: !m.live }, ic('merge'), label);
-  const more = h('button', { type: 'button', class: 'bd-key mrg r', disabled: !m.live, 'aria-label': 'Merge method', 'aria-haspopup': 'menu' }, ic('down'));
-  const box = h('span', { class: 'rv-mg' }, go, more);
-  go.addEventListener('click', async () => {
-    if (!armed) { armed = setTimeout(() => { armed = 0; label.textContent = RV_METHOD[method] || method; }, 4000); label.textContent = 'Press again to merge'; return; }
-    clearTimeout(armed); armed = 0; go.disabled = more.disabled = true; label.textContent = 'Merging…';
-    try { await rvFetch('/__bluedoc/reviews/merge', { path: location.pathname, pr: Number(pr), method }); toast(`Merged #${pr}`); }
-    catch (e) { toast(`Not merged: ${e.message}`); }
-    rvLive();
-  });
-  more.addEventListener('click', () => {
-    const open = box.querySelector('.rv-mmenu');
-    if (open) { open.remove(); return; }
-    const menu = h('div', { class: 'rv-mmenu', role: 'menu' }, (m.methods || []).map(x => h('button', { type: 'button', role: 'menuitemradio', 'aria-checked': String(x === method),
-      onclick: () => { method = x; label.textContent = RV_METHOD[x] || x; menu.remove(); } }, RV_METHOD[x] || x)));
-    box.append(menu);
-  });
-  return box;
-}
-// Request new review: in the tray before the send key only when the server says a thread was fixed or declined and
-// committed since the last round (rvLive); absent otherwise, never a disabled key
-function rvKey(rr) {
-  RV.rr = rr;
-  const n = rr && rr.show && REVIEW_OF === 'threads' && sendBtn ? (rr.threads || []).length : 0;
-  if (!n) { if (RV.key) RV.key.remove(); return; }
-  if (!RV.key) {
-    RV.n = h('span', { class: 'n' });
-    RV.key = tipped(keyBtn('txt rr', 'reset', 'Request new review', {}, () => openRerequest(), h('span', { class: 't' }, 'Request new review'), RV.n));
-  }
-  if (!RV.key.isConnected) sendBtn.before(RV.key);
-  RV.n.textContent = String(n);
-  RV.key._tip = `Reply on ${n} thread${n === 1 ? '' : 's'}, resolve the fixed ones and ask ${(rr.reviewers || []).join(' and ') || 'the reviewers'} again`;
-}
-function openRerequest() {
-  const rr = RV.rr;
-  if (!rr || !rr.show) return;
-  const ts = rr.threads || [], fixed = ts.filter(t => t.state === 'fixed').length, who = rr.reviewers || [], push = rr.push || null;
-  const pri = h('button', { type: 'button', class: 'bd-key txt pri go' }, ic('reset'), h('span', { class: 't' }, 'Request new review'));
-  const prN = rvTargets()[0];
-  const dlg = h('dialog', { class: 'bd-send bd-rr', 'aria-labelledby': 'bd-rr-h' },
-    h('div', { class: 'hd' }, h('h3', { id: 'bd-rr-h' }, 'Request new review'), prN && h('span', { class: 'rev' }, '#' + prN[1]),
-      h('button', { type: 'button', class: 'bd-key x', 'aria-label': 'Close', title: 'Close (Esc)', onclick: () => dlg.close() }, ic('x'))),
-    h('p', { class: 'intro' }, `Replies on ${ts.length} thread${ts.length === 1 ? '' : 's'}, resolves the ${fixed} fixed one${fixed === 1 ? '' : 's'}`
-      + (push && !push.refused && push.commits ? `, pushes ${push.branch} (${push.commits} commit${push.commits === 1 ? '' : 's'})` : '') + ` and asks ${who.join(' and ') || 'the reviewers'} again.`),
-    // a push the server won't make (diverged, no remote…): its reason, and no confirm
-    push && push.refused && sdAlert(push.refused),
-    h('div', { class: 'sd-body' },
-      sdSec('Threads', ts.length, [fixed && `${fixed} fixed`, ts.length - fixed && `${ts.length - fixed} declined`].filter(Boolean).join(' · '),
-        h('div', { class: 'sd-box' }, ts.map(t => h('div', { class: 'rv-th', 'data-state': t.state }, h('div', { class: 'q', html: inline(t.text || '') }),
-          h('span', { class: 'rv-res' }, t.state === 'fixed' ? 'Resolves' : 'Stays open'),
-          h('div', { class: 'rp' }, t.reply || (t.state === 'fixed' ? `Fixed in ${String(t.sha || '').slice(0, 7)}` : 'Declined.')))))),
-      who.length > 0 && sdSec('Asks again', null, 'GitHub notifies them', h('div', { class: 'rv-who' }, who.map(l => h('span', { class: 'rv-pp' }, rvFace(l, '/__bluedoc/avatar?login=' + encodeURIComponent(l)), l))))),
-    h('div', { class: 'ft' }, h('span', { class: 'sp' }), pri));
-  if (push && push.refused) { pri.disabled = true; pri.title = push.refused; }
-  pri.addEventListener('click', async () => {
-    pri.disabled = true;
-    try {
-      const j = await rvFetch('/__bluedoc/reviews/rereview', { path: location.pathname });
-      dlg.close();
-      toast(`Replied on ${j.replied} thread${j.replied === 1 ? '' : 's'}, resolved ${j.resolved}` + (j.requested && j.requested.length ? ` and asked ${j.requested.join(' and ')} again` : ''));
-      rvLive();
-    } catch (e) { toast(`Not sent: ${e.message}`); pri.disabled = false; }
-  });
-  dlg.addEventListener('close', () => dlg.remove());
-  document.body.append(dlg);
-  dlg.showModal();
-}
-// read it all again: after the ping, after a merge or a re-request, and every minute while the page shows
-function rvLive() {
-  // only a doc the server's runner wrote (meta.project) has a PR it tracks; an agent's hand-written review has none
-  if (DOC_TYPE !== 'review' || !meta.project || !REPLY.connected || OLD || VIEW_ONLY) return;
-  for (const [sec, pr] of rvTargets()) rvFetch('/__bluedoc/reviews/status?' + new URLSearchParams({ path: location.pathname, pr })).then(j => rvStrip(sec, pr, j.status), () => {});
-  if (REVIEW_OF === 'threads') rvFetch('/__bluedoc/reviews/rereview?' + new URLSearchParams({ path: location.pathname })).then(rvKey, () => rvKey(null));
-  if (!RV.timer) RV.timer = setInterval(() => { if (document.visibilityState === 'visible') rvLive(); }, 60000);
-}
 
 /* A shared page's Comments tab (VIEW_ONLY; MARKUP adds it): the items whose conversation the doc carries (the agent's
    replies) or the shared answers do (their reader's messages, and saved ones not sent when the share carries them),
